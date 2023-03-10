@@ -1,0 +1,18 @@
+.NavBar {
+    background: black;
+    height: 60px;
+    display: flex;
+  }
+
+  .NavBar > header {
+    padding: 20px;
+    font-size: 20px;
+    font-family: monospace;
+    color: white;
+  }
+
+  .NavBar > header:hover {
+    background: white;
+    color: black;
+    cursor: grab;
+  }

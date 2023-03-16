@@ -90,9 +90,9 @@ const Home = () => {
         <div>
             <NavBar />
             Home Page
-            <div>
+            {/* <div>
                 {scene}
-            </div>
+            </div> */}
         </div>
     )
 }

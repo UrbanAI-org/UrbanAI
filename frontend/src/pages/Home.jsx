@@ -1,13 +1,15 @@
 import React from "react";
 import NavBar from "../components/NavBar";
+import '../App.css';
 
 import LandscapeScene from "../components/LandscapeScene";
 const Home = () => {
     return (
-        <div>
+        <div className="home">
             <NavBar />
-            Home Page
-            <LandscapeScene />
+            <div className="landscape-container">
+                <LandscapeScene />
+            </div>
         </div>
     )
 }

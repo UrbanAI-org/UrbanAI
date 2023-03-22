@@ -29,7 +29,8 @@ response : {
  - geopy
 
 # Class 
-
+**Note** some default variable value is perfect, such as r'.*?SamplingRate', 
+'enable_global' 
 - TifChunk
     - constructor 
         points : np.ndarray, size : int, lon_array: np.ndarray, lat_array: np.ndarray, onXY, padding = 20
@@ -39,4 +40,34 @@ response : {
         pcd = None, points = None, visualization = False, color = [1, 0.706, 0], save = False, filename = None
     - read
 - Loader:
-    - 
+    - constructor
+        filePath : str, geoTiff = None
+    - read
+    - readWithCoord
+    - cutWithXYPlaneCoord 
+        size = 277, lonSamplingRate: int = 277, latSamplingRate: int = 277, enable_global = False
+    - cutWithCoord
+        size = 277
+    - readWithXYPlaneCoord
+        lonSamplingRate: int = 277, latSamplingRate: int = 277, enable_global = False
+
+    - toChunkWithXYPlaneCoord
+        lonSamplingRate: int = 277, latSamplingRate: int = 277, enable_global = False
+    - toChunkWithGeoCoord
+- Manager
+    - register
+        bbox
+    - searchChunk
+        polygon : list
+    - save
+        path = "./", tempname = ""
+    - load
+        path = "./", tempname = ""
+    - tojson
+    - clear
+    - getChunkInfo
+        id
+    - getChunkSaved
+        Cid, Ctype
+    - getChunkSavedURL
+        Cid, Ctype

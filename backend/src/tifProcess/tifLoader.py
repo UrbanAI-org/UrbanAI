@@ -357,10 +357,10 @@ class Manager(metaclass=SingletonMeta):
             self.chunks_[id]['type'].append(type)
 
     def mapfileNameToId(self, name, id):
-        """
-        Finally, any singleton should define some business logic, which can be
-        executed on its instance.
-        """
+        # """
+        # Finally, any singleton should define some business logic, which can be
+        # executed on its instance.
+        # """
         self.chunks_[id].update({"filename": name})
         pass
 

@@ -7,57 +7,90 @@ import NavBar from "../components/NavBar";
  * - drop down bar contains more information of each person 
  */
 
-
-
 // Returns or renders some jsx. Functional component.
 
 const Person = (props) => {
     return (
         // Wrap in react fragment
         <>
-        <h1>Name: {props.name}</h1>
-        <h2>Last Name: {props.lastName}</h2>
-        <h2>Age: {props.age}</h2>
-        <h2>Degree: {props.degree}</h2>
+        <h2>Name: {props.name}</h2>
+        <h3>Last Name: {props.lastName}</h3>
+        <h3>Age: {props.age}</h3>
+        <h3>Degree: {props.degree}</h3>
         </>
     )
 }
 
-// Props -> arguments to pass into react components.
 
 const Contributions = () => {
 
     // This is a hook. Only change this using its setter
-    const [counter, setCounter] = useState(0);
+    const [clickText, setclickText] = useState('')
 
-    // Initially set at 100 and does not change.
-    useEffect(() => {
-        alert("You've changed the counter to " + counter)
-    }, [counter]);
+    // // Initially set at 100 and does not change.
+    // useEffect(() => {
+    //     document.title = `You clicked 3 times`;
+    // }, [clickText]);
 
     return (
         <div className="Contributions">
 
+
             <NavBar />
 
             <h1>Contributions</h1>
+            <h2>List of people who have contributed to this project</h2>
             <div>
-            The following individualss have contributed towards this project:
-            <Person name = 'Bob' lastName = 'He' age = '20' degree = 'Econometrics'/>
 
             {/* Illustration on how states work. */}
 
-            <button onClick={() => setCounter((prevCount) => prevCount - 1)}>-</button>
-            <h1>{counter}</h1>
-            <button onClick={() => setCounter((prevCount) => prevCount + 1)}>+</button>
+            <button onClick={() => setclickText(<Person name = 'Bob' lastName = 'He' age = '20' degree = 'Econometrics'/>)}>-</button>
+            <h1>{clickText}</h1>
+            <button onClick={() => setclickText(<Person/>)}>+</button>
             </div>
-
-            
 
         </div>
 
     )
 }
+
+
+// Props -> arguments to pass into react components.
+
+// const Contributions = () => {
+
+
+//     const [clickText, setclickText] = useState(Person)
+
+//     // This is a hook. Only change this using its setter
+//     const [counter, setCounter] = useState(0);
+
+//     // Initially set at 100 and does not change.
+//     useEffect(() => {
+//         alert("You've changed the counter to " + counter)
+//     }, [counter]);
+
+//     return (
+//         <div className="Contributions">
+
+//             <NavBar />
+
+//             <h1>Contributions</h1>
+//             <div>
+//             The following individuals have contributed towards this project:
+//             <Person name = 'Bob' lastName = 'He' age = '20' degree = 'Econometrics'/>
+
+//             {/* Illustration on how states work. */}
+
+//             <button onClick={() => setCounter((prevCount) => prevCount - 1)}>-</button>
+//             <h1>{counter}</h1>
+//             <button onClick={() => setCounter((prevCount) => prevCount + 1)}>+</button>
+//             </div>
+
+//         </div>
+
+//     )
+// }
 
 
 export default Contributions;

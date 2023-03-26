@@ -407,7 +407,7 @@ class Range:
         self.end_ = round(end, round_to)
 
     @staticmethod
-    def fromString(string: str) -> Range:
+    def fromString(string: str):
         """
         Create Range from string like "(begin, end)"
         """
@@ -620,7 +620,7 @@ class Manager(metaclass=SingletonMeta):
         except KeyError:
             return None
         
-    def getChunkSaved(self, Cid : str, Ctype : str) -> o3d.geometry.TriangleMesh | o3d.geometry.PointCloud | None:
+    def getChunkSaved(self, Cid : str, Ctype : str):
         """
         Param:
             `Cid`: chunk id
@@ -636,7 +636,7 @@ class Manager(metaclass=SingletonMeta):
 
         except KeyError:
             return None
-    def getChunkSavedURL(self, Cid : str, Ctype: str) -> str | None:
+    def getChunkSavedURL(self, Cid : str, Ctype: str):
         """
         Param:
             `Cid`: chunk id

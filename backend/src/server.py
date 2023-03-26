@@ -2,18 +2,20 @@ from flask import Flask, request, make_response
 from flask_cors import CORS
 from tifProcess.tifLoader import Manager
 import json
+import traceback
+
 PORT = 9999
 def quit_gracefully(*args):
     '''For coverage'''
     exit(0)
 
 def defaultHandler(err):
-    response = err.get_response()
-    print('response', err, err.get_response())
-    response.data = dumps({
-        "code": err.code,
+    response = make_response()
+    print('response', err, repr(err))
+    response.data = json.dumps({
+        "error sting": repr(err),
         "name": "System Error",
-        "message": err.get_description(),
+        "message": traceback.format_exc(),
     })
     response.content_type = 'application/json'
     return response
@@ -26,6 +28,7 @@ APP.register_error_handler(Exception, defaultHandler)
 @APP.route("/query/mesh", methods=['POST'])
 def get_meshs():
     data = request.get_json()
+    assert type(data['polygon']) is list
     ids = Manager().searchChunk(data['polygon'])
     urls = []
     for id in ids:
@@ -37,4 +40,5 @@ def get_meshs():
 
 if __name__ == "__main__":
     # signal.signal(signal.SIGINT, quit_gracefully) # For coverage
+    Manager().load()
     APP.run(port=PORT) # Do not edit this port

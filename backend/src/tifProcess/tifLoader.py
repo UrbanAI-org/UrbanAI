@@ -1,4 +1,4 @@
-import numpy as np 
+import numpy as np
 from geotiff import GeoTiff
 from geopy import distance
 from multiprocessing.pool import ThreadPool
@@ -29,16 +29,16 @@ class TifChunk:
             `points`: np array of altitude
             `size`: length and width size
             `lon_array`: np array of longitude
-            `lat_array`: np array of latitude 
+            `lat_array`: np array of latitude
             `onXY`: Whether the coordinates are described as a XY planar coordinate system
             `padding`: In order to connect the surrounding mesh more smoothly, how many surrounding point clouds are used to calculate the mesh. Please feel free to change this number. It is worth noting that if this value is too large, it will consume more performance
-        
+
         """
         self.id_ = Manager().genID(lat_array[padding: -padding, padding: -padding], lon_array[padding: -padding, padding: -padding], onXY)
         self.points_ = points
         self.size_ = size
         self.lon_array_ = lon_array
-        self.lat_array_ = lat_array   
+        self.lat_array_ = lat_array
         self.onXY_ = onXY
         self.padding_ = padding
 
@@ -53,10 +53,10 @@ class TifChunk:
             `filename` : saved file name. (Do not use, could not interact with `Manager` now(I haven't try). Only can manual loading of files)
         Return:
             o3d.geometry.PointCloud
-        
+
         convert file to point cloud
         """
-        
+
         if (points is None):
             points = Loader._merge(self.points_, self.lat_array_, self.lon_array_, self.size_)
         pcd = o3d.geometry.PointCloud()
@@ -72,7 +72,7 @@ class TifChunk:
             o3d.io.write_point_cloud(f"{filename}.pcd", filename)
             Manager().chunkSaved(self.id_, ".pcd")
         return pcd
-    
+
     def toMesh(self, pcd: o3d.geometry.PointCloud = None, points : np.ndarray = None, visualization : bool = False, color : list = [1, 0.706, 0], save : bool = False, filename : str = None) -> o3d.geometry.TriangleMesh:
         """
         Param:
@@ -83,7 +83,7 @@ class TifChunk:
             `filename` : saved file name. (Do not use, cannot interact with `Manager` now. Only can manual loading of files)
         Return:
             o3d.geometry.TriangleMesh
-        
+
         convert file to mesh"""
         if Manager().getChunkInfo(self.id_) is not None and Manager().getChunkInfo(self.id_)['saved'] and ".ply" in Manager().getChunkInfo(self.id_)['type']:
             return Manager().getChunkSaved(self.id_, ".ply")
@@ -108,25 +108,25 @@ class TifChunk:
             o3d.io.write_triangle_mesh(f"data/meshs/{filename}.ply", p_mesh_crop)
             Manager().chunkSaved(self.id_, ".ply")
         return p_mesh_crop
-    
-    
+
+
     def toSolidModel(self) -> None:
         """
         DO NOT USE
         """
         pass
-    
+
     def read(self) -> np.ndarray:
         """
         get all 3d vector in chunk
         """
         return Loader._merge(self.points_, self.lat_array_, self.lon_array_, self.size_)
-   
+
     def show(self) -> None:
         """
         show altitude, latitude and longitude coordinate system
         """
-        print(self.points_) 
+        print(self.points_)
         print(self.lon_array_)
         print(self.lat_array_)
 
@@ -141,7 +141,7 @@ def _relativeDistance(given : tuple, base: tuple) -> float:
 
 def _makeXYPlaneInterp(func, samplingNum: int, array : np.ndarray, base: tuple) -> tuple:
     """
-    create mapping 
+    create mapping
     """
     array = np.unique(array.ravel())
     xp = []
@@ -191,7 +191,7 @@ class Loader:
         lon_array, lat_array = self.geo_tiff.get_coord_arrays()
         altitude_array = np.array(self.geo_tiff.read())
         return Loader.merge(altitude_array, lat_array, lon_array, self.size_)
-    
+
     def cutWithXYPlaneCoord(self, size = 277, lonSamplingRate: int = 277, latSamplingRate: int = 277, enable_global : bool = False) -> list:
         """
         Param:
@@ -201,19 +201,19 @@ class Loader:
             `enable_global` : Whether to use the global coordinate system
         Return:
             a list of `tifChunk`
-        
+
         Slice using XY coordinates
         """
         lon_xp_coord, lat_xp_coord = self._covertCoordToXY(lonSamplingRate, latSamplingRate, enable_global)
         return self._cutTif(lon_xp_coord, lat_xp_coord, size, onXY = True)
-    
+
     def cutWithCoord(self, size : int = 277) -> list:
         """
          Param:
             `size`: size of each block
         Return:
             a list of `TifChunk`
-        
+
         Slice using geographic coordinates
         """
         lon_array, lat_array = self.geo_tiff.get_coord_arrays()
@@ -227,12 +227,12 @@ class Loader:
             `enable_global` : Whether to use the global coordinate system
         Return:
             3d vector of given .tif file
-        
+
         convert to 3d vector using XY coordinates
         """
         lon_xp_coord, lat_xp_coord = self._covertCoordToXY(lonSamplingRate, latSamplingRate, enable_global)
         return Loader._merge(np.array(self.geo_tiff.read()), lat_xp_coord, lon_xp_coord, self.size_)
-    
+
     def _cutTif(self, lon: np.ndarray, lat : np.ndarray, size : int = 277, onXY : bool= False, padding : int = 20) -> list:
         """
         to cut into small chunks
@@ -249,19 +249,19 @@ class Loader:
                 # prew_col = col
                 # print(lon[prew_row: row, prew_col: col])
                 # print(np.size(lon[0]))
-                r.append(TifChunk(altitude_array[prew_row - padding: row + padding, prew_col - padding: col+ padding], size, 
-                                  lon[prew_row - padding: row+ padding, prew_col- padding: col+ padding], 
-                                  lat[prew_row - padding: row+ padding, prew_col- padding: col+ padding], 
+                r.append(TifChunk(altitude_array[prew_row - padding: row + padding, prew_col - padding: col+ padding], size,
+                                  lon[prew_row - padding: row+ padding, prew_col- padding: col+ padding],
+                                  lat[prew_row - padding: row+ padding, prew_col- padding: col+ padding],
                                   onXY)
-                                  
+
                         )
                 prew_col = col
             prew_row = row
-        r.append(TifChunk(altitude_array[prew_row- padding: , prew_col- padding: ], size, 
-                                  lon[prew_row- padding: , prew_col- padding: ], 
-                                  lat[prew_row- padding: , prew_col- padding: ], 
+        r.append(TifChunk(altitude_array[prew_row- padding: , prew_col- padding: ], size,
+                                  lon[prew_row- padding: , prew_col- padding: ],
+                                  lat[prew_row- padding: , prew_col- padding: ],
                                   onXY)
-                                  
+
                         )
         return r
     def toChunkWithXYPlaneCoord(self, lonSamplingRate: int = 277, latSamplingRate: int = 277, enable_global = False) -> TifChunk:
@@ -272,7 +272,7 @@ class Loader:
             `enable_global` : Whether to use the global coordinate system
         Return:
             `TifChunk` of given .tif file
-        
+
         convert to `TifChunk` using XY coordinates
         """
         lon_xp_coord, lat_xp_coord = self._covertCoordToXY(lonSamplingRate, latSamplingRate, enable_global)
@@ -281,7 +281,7 @@ class Loader:
     def toChunkWithGeoCoord(self) -> TifChunk :
         """
         convert to `TifChunk` using geographic coordinates
-        
+
         """
         lon_array, lat_array = self.geo_tiff.get_coord_arrays()
         return TifChunk(np.array(self.geo_tiff.read()), self.size_, lon_array, lat_array)
@@ -342,7 +342,7 @@ class Loader:
         for i in range(size):
                 r.append(np.stack((lat_array[i], lon_array[i], altitude_array[i]), axis = 1))
         return np.array(r).reshape((-1, 3))
-    
+
     @property
     def crs_code(self):
         return self.geo_tiff.crs_code
@@ -417,23 +417,23 @@ class Range:
 
     def __eq__(self, another):
         return self.begin_ == another.begin and self.end_ == another.end
-    
+
     def __hash__(self):
         return hash(f"{self.begin_}-{self.end_}")
-    
+
     def __str__(self) -> str:
         return f"[{self.begin_}, {self.end_})"
-    
+
     def __repr__(self) -> str:
         return f"[{self.begin_}, {self.end_})"
 
     @property
     def begin(self):
-        return self.begin_ 
+        return self.begin_
     @property
     def end(self):
         return self.end_
-    
+
 class Manager(metaclass=SingletonMeta):
     """
     We'll use this property to prove that our Singleton really works.
@@ -493,7 +493,7 @@ class Manager(metaclass=SingletonMeta):
         for each in lats:
             self.lat_coord_[Range(each, each + 0.1)].append(id)
         self.chunks_[id] = ({"saved": False, "type": []})
-        
+
     def chunkSaved(self, id: str, type: str):
         """
             Tell the manager that already saved the file.
@@ -504,7 +504,7 @@ class Manager(metaclass=SingletonMeta):
 
     def mapfileNameToId(self, name, id):
         """
-        
+
         """
         self.chunks_[id].update({"filename": name})
         pass
@@ -533,7 +533,7 @@ class Manager(metaclass=SingletonMeta):
             latPossible.update(self.lat_coord_[Range(each, each + 0.1)])
         ids = lonPossible.intersection(latPossible)
         return list(ids)
-    
+
     def addLonCoordMapping(self, geo : np.ndarray, xp: np.ndarray):
         """
         Add mapping
@@ -547,8 +547,8 @@ class Manager(metaclass=SingletonMeta):
         """
         self.lat_mapping[0] = np.sort(np.concatenate((self.lat_mapping[0], geo)))
         self.lat_mapping[1] = np.sort(np.concatenate((self.lat_mapping[1], xp)))
-        
-    
+
+
     def save(self, path = "./", tempname = ""):
         """
         Param:
@@ -580,13 +580,13 @@ class Manager(metaclass=SingletonMeta):
                 np.array(data['lon_mapping'][0]),
                 np.array(data['lon_mapping'][1])
             ]
-        
+
     def tojson(self) -> str:
         """
         convert Manager to json string
         """
         return json.dumps(self.__dict__())
-    
+
     def clear(self):
         """
         clear Manager

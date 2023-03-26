@@ -14,6 +14,7 @@ const NavBar = () => {
         <div className="NavBar">
             <header onClick={() => {setPath('/')}}>Home</header>
             <header onClick={() => {setPath('/about')}}>About</header>
+            <header onClick={() => {setPath('/contributions')}}>Conbtributions</header>
         </div>
     )
 }

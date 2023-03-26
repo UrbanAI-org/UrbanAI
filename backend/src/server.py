@@ -3,7 +3,12 @@ from flask_cors import CORS
 from tifProcess.tifLoader import Manager
 import json
 import traceback
-
+"""
+!!!
+Make sure some mesh files are generated and do Manager().save() before running this server
+TODO:
+I will convert the Manager class into a database(sqlite or psql or whatever it is)
+"""
 PORT = 9999
 def quit_gracefully(*args):
     '''For coverage'''

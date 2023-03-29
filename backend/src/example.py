@@ -54,7 +54,7 @@ def saveMeshs():
         mesh.compute_vertex_normals()
         mesh.paint_uniform_color([1, 0.706, 0])
         meshs.append(mesh)
-    
+
     o3d.visualization.draw_geometries(meshs, mesh_show_back_face = True)
 
 def loadMeshs():
@@ -132,7 +132,7 @@ def searchByCached():
         mesh.paint_uniform_color([1, 0.706, 0])
         meshs.append(mesh)
     o3d.visualization.draw_geometries(meshs, mesh_show_back_face = True)
-    
+
 def searchURLByCached():
     # ASSUME saveMeshs() first
     Manager().load()
@@ -149,3 +149,5 @@ def searchURLByCached():
             continue
         meshs.append(mesh)
     print(meshs)
+
+saveMeshs()

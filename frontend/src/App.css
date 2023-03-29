@@ -1,5 +1,6 @@
 .landscape-scene {
   border: 1px solid black;
+  margin-left: 3vh;
   width: 150vh;
 }
 
@@ -7,6 +8,6 @@
   margin: 25px;
   height: 85vh;
   display: flex;
-  justify-content: center; /* Center horizontally */
-  align-items: center; /* Center vertically */
+  justify-content: center;
+  /* align-items: center; Center vertically */
 }

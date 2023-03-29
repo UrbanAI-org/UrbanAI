@@ -42,7 +42,11 @@ const LandscapeScene = () => {
 
 	return (
 		<Canvas className="landscape-scene">
-			<MapPiece position={[-0.75, -0.75, 0]} />
+			<MapPiece position={[0, 0 , 0]} />
+			<mesh>
+				<planeBufferGeometry attach="geometry" args={[25, 15]} />
+				<meshPhongMaterial attach="material" color="green" />
+         	</mesh>
 			<OrbitControls />
 		</Canvas>
 	)

@@ -7,14 +7,12 @@ import { PLYLoader } from 'three-stdlib'
 const MapPiece = ({ position }) => {
   const [geo, setGeo] = useState(new THREE.BoxGeometry());
 
+  const attr = geo.attributes;
   useEffect(() => {
     const loader = new PLYLoader();
     loader.load(
       "test.ply",
       function (geometry) {
-        /**
-         * TO DO: fix "rotating" issue
-         */
         setGeo(geometry);
       },
       // called when loading is in progress
@@ -29,16 +27,16 @@ const MapPiece = ({ position }) => {
     );
   }, []);
 
-  const ref = useRef()
-  useFrame((_, delta) => {
-    ref.current.rotation.x += delta
-    ref.current.rotation.y += 0.5 * delta
-  })
+  // const ref = useRef()
+  // useFrame((_, delta) => {
+  //   ref.current.rotation.x += delta
+  //   ref.current.rotation.y += 0.5 * delta
+  // })
 
   return (
     <mesh
       position={position}
-      ref={ref}
+      // ref={ref}
       geometry={geo}>
       <meshBasicMaterial color={'lime'} wireframe />
     </mesh>

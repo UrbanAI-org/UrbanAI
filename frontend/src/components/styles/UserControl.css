@@ -1,0 +1,31 @@
+.panel-control {
+    border: 1px solid black;
+    width: 50vh;
+    text-align: center;
+}
+
+.user-control > form {
+    align-items: center;
+}
+
+.download-button {
+    border: 1px solid black;
+    padding: 20px;
+    padding-left: 50px;
+    padding-right: 50px;
+    margin: 4vh;
+    background-color: black;
+    color: white;
+    font-size: 15px;
+}
+
+.download-button:hover {
+    cursor: pointer;
+    background-color: white;
+    color: black;
+}
+
+.input-field {
+    padding: 10px;
+    margin: 1vh;
+}

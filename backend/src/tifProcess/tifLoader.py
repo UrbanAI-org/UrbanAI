@@ -9,6 +9,8 @@ import random
 import string
 import json
 import os
+import sqlite3 
+import queue
 global scale_
 scale_ = 5
 THICKNESS = 10
@@ -23,7 +25,7 @@ class TifChunk:
 
     """
 
-    def __init__(self, points : np.ndarray, size : int, lon_array: np.ndarray, lat_array: np.ndarray, onXY : bool, padding : int = 20):
+    def __init__(self, points : np.ndarray, size : int, lon_array: np.ndarray, lat_array: np.ndarray, onXY : bool, lat_range, lon_range ,padding : int = 20):
         """
         Param:
             `points`: np array of altitude
@@ -41,8 +43,13 @@ class TifChunk:
         self.lat_array_ = lat_array
         self.onXY_ = onXY
         self.padding_ = padding
+        self.lat_begin_ = lat_range[0]
+        self.lat_end_ = lat_range[1]
+        self.lon_begin_ = lon_range[0]
+        self.lon_end_ = lon_range[1]
+        print(lat_range[0], lat_range[1], lon_range[0], lon_range[1])
 
-        Manager().addChunk(self.id_, (lat_array[0][0], lat_array[-1][0]), (lon_array[0][0], lon_array[0][-1]), onXY)
+        Manager().addChunk(self.id_, (self.lat_begin_, self.lat_end_), (self.lon_begin_, self.lon_end_))
 
     def toPointCloud(self, points : np.ndarray = None, visualization : bool = False, save : bool = False, filename : str = None) -> o3d.geometry.PointCloud:
         """
@@ -69,7 +76,7 @@ class TifChunk:
             if filename is not None:
                 Manager().mapfileNameToId(filename, self.id_)
                 filename = self.id_
-            o3d.io.write_point_cloud(f"{filename}.pcd", filename)
+            o3d.io.write_point_cloud(f"{filename}.pcd", pcd)
             Manager().chunkSaved(self.id_, ".pcd")
         return pcd
 
@@ -105,7 +112,7 @@ class TifChunk:
                 o3d.io.write_triangle_mesh(f"data/meshs/{self.id_}.ply", p_mesh_crop)
             else:
                 filename = self.id_
-            o3d.io.write_triangle_mesh(f"data/meshs/{filename}.ply", p_mesh_crop)
+            o3d.io.write_triangle_mesh(f"data/meshs/{filename}.ply", p_mesh_crop, print_progress = True)
             Manager().chunkSaved(self.id_, ".ply")
         return p_mesh_crop
 
@@ -238,6 +245,7 @@ class Loader:
         to cut into small chunks
         """
         r = []
+        lon_array, lat_array = self.geo_tiff.get_coord_arrays()
         altitude_array = np.array(self.geo_tiff.read())
         prew_row = padding
         for row in range(size, self.size_, size):
@@ -249,18 +257,22 @@ class Loader:
                 # prew_col = col
                 # print(lon[prew_row: row, prew_col: col])
                 # print(np.size(lon[0]))
+            # Manager().addChunk(self.id_, (lat_array[0][0], lat_array[-1][0]), (lon_array[0][0], lon_array[0][-1]), onXY)
                 r.append(TifChunk(altitude_array[prew_row - padding: row + padding, prew_col - padding: col+ padding], size,
                                   lon[prew_row - padding: row+ padding, prew_col- padding: col+ padding],
                                   lat[prew_row - padding: row+ padding, prew_col- padding: col+ padding],
-                                  onXY)
+                                  onXY,
+                                  (lat_array[prew_row][0], lat_array[row][0]), (lon_array[0][prew_col], lon_array[0][col]),
+                                  )
 
                         )
                 prew_col = col
             prew_row = row
         r.append(TifChunk(altitude_array[prew_row- padding: , prew_col- padding: ], size,
                                   lon[prew_row- padding: , prew_col- padding: ],
-                                  lat[prew_row- padding: , prew_col- padding: ],
-                                  onXY)
+                                  lat[prew_row- padding: , prew_col- padding: ], onXY, 
+                                  (lat[prew_row][0], lat[-1][0]), (lon[0][prew_col], lon[0][-1]),
+                                  )
 
                         )
         return r
@@ -275,8 +287,9 @@ class Loader:
 
         convert to `TifChunk` using XY coordinates
         """
+        lon_array, lat_array = self.geo_tiff.get_coord_arrays()
         lon_xp_coord, lat_xp_coord = self._covertCoordToXY(lonSamplingRate, latSamplingRate, enable_global)
-        return TifChunk(np.array(self.geo_tiff.read()), self.size_, lon_xp_coord, lat_xp_coord, onXY= True)
+        return TifChunk(np.array(self.geo_tiff.read()), self.size_, lon_xp_coord, lat_xp_coord, True, (lat_array[0][0], lon_array[-1][0]), (lon_array[0][0], lon_array[0][-1]))
 
     def toChunkWithGeoCoord(self) -> TifChunk :
         """
@@ -284,7 +297,7 @@ class Loader:
 
         """
         lon_array, lat_array = self.geo_tiff.get_coord_arrays()
-        return TifChunk(np.array(self.geo_tiff.read()), self.size_, lon_array, lat_array)
+        return TifChunk(np.array(self.geo_tiff.read()), self.size_, lon_array, lat_array, (lat_array[0][0], lon_array[-1][0]), (lon_array[0][0], lon_array[0][-1]))
 
     def _covertCoordToXY(self, lonSamplingRate: int = 277, latSamplingRate: int = 277, enable_global = False) -> tuple:
         """
@@ -433,11 +446,13 @@ class Range:
     @property
     def end(self):
         return self.end_
-
+    
+work_queue = queue.Queue()
 class Manager(metaclass=SingletonMeta):
     """
     We'll use this property to prove that our Singleton really works.
     """
+
     lat_coord_ = {}
     lon_coord_ = {}
     chunks_ = {}
@@ -653,3 +668,34 @@ class Manager(metaclass=SingletonMeta):
         except KeyError as er:
             print(er)
             return None
+        
+    # @staticmethod
+    # def sqlite_worker():
+    #     con = sqlite3.connect('z5339228.db', check_same_thread=False)
+    #     cur = con.cursor()
+    #     cur.executescript("""
+            
+    #     """)
+    #     print("db connected")
+    #     while True:
+    #         try:
+    #             (sql, params), result_queue = work_queue.get()
+    #             cur.execute(sql, params)
+    #             res = cur.fetchall()
+    #             print("------ SQL WORKER ------")
+    #             print(sql, params, res, sep="\n")
+    #             print("-----------------------")
+    #             con.commit()
+    #             result_queue.put(res)
+    #         except Exception as e:
+    #             # traceback.print_exc()
+    #             print(e)
+
+    # @staticmethod
+    # def execute_in_worker(sql, params = []):
+    #     # you might not really need the results if you only use this
+    #     # for writing unless you use something like https://www.sqlite.org/lang_returning.html
+    #     result_queue = queue.Queue()
+    #     work_queue.put(((sql, params), result_queue))
+    #     return result_queue.get(timeout=5)
+

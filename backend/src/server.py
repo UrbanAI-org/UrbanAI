@@ -1,8 +1,9 @@
-from flask import Flask, request, make_response
+from flask import Flask, request, make_response, Response, stream_with_context
 from flask_cors import CORS
 from tifProcess.tifLoader import Manager
 import json
 import traceback
+import os
 """
 !!!
 Make sure some mesh files are generated and do Manager().save() before running this server
@@ -42,6 +43,37 @@ def get_meshs():
             continue
         urls.append(url)
     return json.dumps(urls)
+
+@APP.route("/temp/ln", methods=['POST'])
+def make_link():
+    src = os.path.abspath("data/meshs")
+    pths = request.get_json()
+    for pth in pths['path']:
+        os.symlink(src, pth)
+    return {}
+
+@APP.route("/download/mesh", methods=['GET'])
+def get_download():
+    url = request.args.get("pth")
+    CHUNK_SIZE = 8192
+    def read_file_chunks(url):
+        with open(url, 'rb') as fd:
+            while 1:
+                buf = fd.read(CHUNK_SIZE)
+                if buf:
+                    yield buf
+                else:
+                    break
+    try:
+        return Response(
+            stream_with_context(read_file_chunks(url)),
+            headers={
+                'Content-Disposition': f'attachment; filename={"123.ply"}'
+            }
+        )
+    except FileNotFoundError:
+        return {"message" : "invalid id"}
+
 
 if __name__ == "__main__":
     # signal.signal(signal.SIGINT, quit_gracefully) # For coverage

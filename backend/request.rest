@@ -1,0 +1,1 @@
+GET http://127.0.0.1:9999/download/mesh?pth=%2Fhome%2Fshilong%2FurbanAI%2FUrbanAI%2Fbackend%2Fsrc%2F1.ply 

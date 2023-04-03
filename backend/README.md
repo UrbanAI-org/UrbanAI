@@ -52,7 +52,7 @@ Response:
 }
 
 ```
-Receive the corresponding search parameters and return the id of the corresponding block
+Receive the corresponding search parameters and return the id of the corresponding existing chunks
 ### POST
 
 ```
@@ -73,7 +73,7 @@ OR
     "type" : "circle",
     "data" : {
         "center" : [-33.5, 151.5],
-        "radius" : "2 km"
+        "radius" : "2 km" # more option could be 200m, 0.2arc
     },
 }
 OR 
@@ -88,7 +88,7 @@ Response:
 }
 
 ```
-Receive the corresponding search parameters and return the id of new  corresponding chunks
+Receive the corresponding search parameters and create new corresponding chunks
 
 
 ## /v1/query/chunk
@@ -111,7 +111,7 @@ Response :
             'id' : mesh_resource_id,
             'herf': f"/v1/resource?id={mesh_resource_id}", 
             'download' : f"/v1/download/{mesh_resource_id}",
-            'expired' : 3
+            'expired' : 3  # days
         },
         'Pcd' : {
             "exist" : False,

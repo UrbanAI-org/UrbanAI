@@ -1,17 +1,26 @@
-from tifProcess.tifLoader import Loader, Manager
+# from tifProcess.tifLoader import Loader, Manager
 import matplotlib.pyplot as plt
 import open3d as o3d
 import threading
 import numpy as np
+import sys
 
+# mesh_in = o3d.io.read_triangle_mesh("chunk.ply")
+# mesh_in.compute_vertex_normals()
+# mesh_in.paint_uniform_color([1, 0.706, 0])
+# box = o3d.geometry.AxisAlignedBoundingBox(np.array([-5000, -5000, -1000]), np.array([-2000, -2000, 1000]))
+# o3d.visualization.draw_geometries([mesh_in])
+# croped_mesh = mesh_in.crop(box)
+# o3d.io.write_triangle_mesh(f"chunk.ply", croped_mesh)
+# o3d.visualization.draw_geometries([croped_mesh, box])
+# exit()
+# Manager().clear()
+# loader = Loader("data/s34_e151_1arc_v3.tif")
 
-Manager().clear()
-loader = Loader("data/s34_e151_1arc_v3.tif")
-
-chunks = loader.toChunkWithXYPlaneCoord()
-mesh = chunks.toMesh()
-o3d.io.write_triangle_mesh(f"total.ply", mesh)
-exit()
+# chunks = loader.toChunkWithXYPlaneCoord()
+# mesh = chunks.toMesh()
+# o3d.io.write_triangle_mesh(f"total.ply", mesh)
+# exit()
 
 # meshs = []
 # # for chunk in chunks[0:5]:

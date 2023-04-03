@@ -1,1 +1,7 @@
-GET http://127.0.0.1:9999/download/mesh?pth=%2Fhome%2Fshilong%2FurbanAI%2FUrbanAI%2Fbackend%2Fsrc%2F1.ply 
+GET http://127.0.0.1:9999/v1/query/chunks
+
+###
+GET http://127.0.0.1:9999/v1/query/chunk?id=153370ea-07a4-4f96-a0d7-d7650111ab66
+
+### 
+GET http://127.0.0.1:9999/v1/download/4aa5660c-bff0-472d-bc66-0868a1477acf

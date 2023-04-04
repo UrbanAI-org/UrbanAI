@@ -17,33 +17,10 @@
 ### GET
 ```
 GET /v1/query/chunks
-Request:
-{
-    "type" : "polygon",
-    "data" : {
-        "polygon" : [
-            (-33.005, 151.0056),
-            (-33.021, 151.078),
-            (-33.037, 151.384),
-        ]
-    }
-}
-OR
-{
-    "type" : "circle",
-    "data" : {
-        "center" : [-33.5, 151.5],
-        "radius" : "2 km"
-    }
-}
-OR 
-MORE IF YOU WANT
-
 
 Response: 
 {
-    'geo-origin' : [-33.5, 151.5],
-    "resources" : [
+    "chunks" : [
         {
             "id" : chunk_id,
             'herf': f"/v1/query/chunk?id={chunk_id}"
@@ -52,7 +29,9 @@ Response:
 }
 
 ```
-Receive the corresponding search parameters and return the id of the corresponding existing chunks
+**Return All existing chunks ** 
+
+
 ### POST
 
 ```

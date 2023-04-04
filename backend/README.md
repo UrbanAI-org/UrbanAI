@@ -1,6 +1,6 @@
 **All backends use RESTFUL style**
 # Note
-1. GET /v1/query/chunk?id={id}&format={format} returns a base64 encoded binary file in its response body. You may need decoded it.
+1. GET /v1/query/chunk?id={id}&type={type} returns a base64 encoded binary file in its response body. You may need decoded it.
 # Routes Overview
 - /v1/query/chunks
     - GET : get a list of select of area chunks
@@ -192,7 +192,7 @@ Receive the ID and return the corresponding information
 ## /v1/resource
 ### GET: get resource from backend
 ```
-GET /v1/resource?id={id}
+GET /v1/resource?id={id}&type={type}
 
 Response:
 .ply file directly
@@ -216,7 +216,7 @@ If there is no resource file, according to the parameters sent by the backend be
 ## /v1/download
 ### GET
 ```
-GET /v1/download?id={id}
+GET /v1/download?id={id}&type={type}
 
 Response:
 .ply file directly

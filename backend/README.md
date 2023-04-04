@@ -11,6 +11,13 @@
     - POST: let the backend generate corresponding resources
 - /v1/download
     - GET: download corresponding resources
+# Start the server
+```bash
+cd backend
+python server.py
+```
+If it is a cold start, it will take a while.
+
 # How to use
 1. First send a POST request to create a chunk
 ``` 

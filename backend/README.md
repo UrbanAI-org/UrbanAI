@@ -1,4 +1,6 @@
 **All backends use RESTFUL style**
+# Note
+1. GET /v1/query/chunk?id={id}&format={format} returns a base64 encoded binary file in its response body. You may need decoded it.
 # Routes Overview
 - /v1/query/chunks
     - GET : get a list of select of area chunks

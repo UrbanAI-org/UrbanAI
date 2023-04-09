@@ -1,4 +1,5 @@
 .panel-control {
+    padding: 1vh;
     border: 1px solid black;
     width: 50vh;
     text-align: center;
@@ -8,7 +9,20 @@
     align-items: center;
 }
 
-.download-button {
+.type-selector {
+    border: 1px solid black;
+    width: 20vh;
+    height: 2vh;
+    padding: 20px;
+    margin: 20px;
+}
+
+.input-field {
+    padding: 10px;
+    margin: 1vh;
+}
+
+.generate-button {
     border: 1px solid black;
     padding: 20px;
     padding-left: 50px;
@@ -19,13 +33,10 @@
     font-size: 15px;
 }
 
-.download-button:hover {
+.generate-button:hover {
     cursor: pointer;
     background-color: white;
     color: black;
 }
 
-.input-field {
-    padding: 10px;
-    margin: 1vh;
-}
+

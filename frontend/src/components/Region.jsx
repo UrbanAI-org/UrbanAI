@@ -1,10 +1,8 @@
-import React, { useRef, useState, useEffect } from 'react'
-import { useFrame } from '@react-three/fiber'
+import React, { useState, useEffect } from 'react'
 import * as THREE from 'three';
-// // import { OrbitControls } from '@react-three/drei'
 import { PLYLoader } from 'three-stdlib'
 
-const MapPiece = ({ position }) => {
+const Region = ({ position }) => {
   const [geo, setGeo] = useState(new THREE.BoxGeometry());
 
   const attr = geo.attributes;
@@ -13,6 +11,7 @@ const MapPiece = ({ position }) => {
     loader.load(
       "test.ply",
       function (geometry) {
+        console.log(geometry)
         setGeo(geometry);
       },
       // called when loading is in progress
@@ -43,4 +42,4 @@ const MapPiece = ({ position }) => {
   )
 }
 
-export default MapPiece;
+export default Region;

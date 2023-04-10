@@ -15,10 +15,15 @@ const UserControlDetails = ({setIsRequestGenerated, setRequestBody, responseBody
         setIsRequestGenerated(false);
     }
 
+    const downloadUrl = "random"
+
     return (
         <div className="panel-control">
             <div className="panel-info">
-                Hello
+                <p>Some details go heres</p>
+            </div>
+            <div style={{ padding: "5px" }}>
+                <a href={downloadUrl} target="_blank" download style={{ color: 'blue' }}>Click here to download .ply</a>
             </div>
             <div className="user-control">
                 <form onSubmit={handleRestart}>

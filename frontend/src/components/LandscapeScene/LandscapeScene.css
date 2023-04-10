@@ -1,0 +1,13 @@
+.landscape-scene {
+    border: 1px solid black;
+    margin-left: 3vh;
+    width: 150vh;
+  }
+
+  .landscape-container {
+    margin: 25px;
+    height: 85vh;
+    display: flex;
+    justify-content: center;
+    /* align-items: center; Center vertically */
+  }

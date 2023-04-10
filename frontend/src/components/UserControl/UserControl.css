@@ -18,16 +18,27 @@
 }
 
 .input-field {
+    border: 1px solid black;
     padding: 10px;
     margin: 1vh;
 }
 
+.poly-input-field {
+    border: 1px solid black;
+    padding: 10px;
+    margin: 1vh;
+}
+
+.add-button {
+    width: 50%;
+}
 .generate-button {
     border: 1px solid black;
     padding: 20px;
     padding-left: 50px;
     padding-right: 50px;
     margin: 4vh;
+    margin-bottom: 0.5vh;
     background-color: black;
     color: white;
     font-size: 15px;

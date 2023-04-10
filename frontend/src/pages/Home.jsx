@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import NavBar from "../components/NavBar";
 import '../App.css';
 
-import LandscapeScene from "../components/LandscapeScene";
+import LandscapeScene from "../components/LandscapeScene/LandscapeScene";
 import UserControl from "../components/UserControl/UserControl";
 
 const Home = () => {

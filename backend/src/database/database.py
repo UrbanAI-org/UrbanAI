@@ -70,6 +70,15 @@ class Database(metaclass=SingletonMeta):
         self.work_queue.put(((sql, params), result_queue))
         return result_queue.get(timeout=5)
 
+    def fetchall(self, sql, params = []):
+        return self.execute_in_worker(sql, params)
+
+    def fetchone(self, sql, params = []):
+        res = self.execute_in_worker(sql, params)
+        if len(res) == 0:
+            return None
+        return res[0]
+    
     def close(self):
         self.work_queue.put((("__STOP__", []), queue.Queue()))
 
@@ -122,7 +131,9 @@ create table if not exists chunks (
     origin_lon real not null,
     parent text not null,
     pcd integer references pcds(id),
-    mesh integer references meshs(id)
+    mesh integer references meshs(id),
+    max_altitude real not null,
+    min_altitude real not null
 
 );
 """

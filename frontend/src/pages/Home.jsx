@@ -17,7 +17,7 @@ const Home = () => {
 
 	async function fetchMeshes() {
 		try {
-			const response = await fetch("http://localhost:9999/PUT_REQUEST_HERE", {
+			const response = await fetch("http://localhost:9999/v1/api/region/mesh", {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify(requestBody)

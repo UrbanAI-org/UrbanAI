@@ -8,8 +8,9 @@ import os
 import time
 from src.database.database import database
 from src.tifProcess.tifLoader import Loader
-from src.resources.resource import load_from_meshes, load_from_pcds, process_pcd, process_mesh
-from src.query.chunks import RegionDataFetcher
+# from src.resources.resource import load_from_meshes, load_from_pcds, process_pcd, process_mesh
+from src.resources.resource import ResourceFetcher
+from backend.src.query.regionDataFetcher import RegionDataFetcher
 import base64
 # from src.dataFetchers.regionDataFetcher import RegionDataFetcher
 """
@@ -108,9 +109,9 @@ class V1Download(Resource):
         resource_type = request.args.get("type", "mesh")
         id = request.args.get("id", None)
         if resource_type == "mesh":
-            path = load_from_meshes(id)
+            path = ResourceFetcher.load_from_meshes(id)
         elif resource_type == "pcb":
-            path = load_from_pcds(id)
+            path = ResourceFetcher.load_from_pcds(id)
         else:
             return {"message" : "invalid format"}
         if path is None:

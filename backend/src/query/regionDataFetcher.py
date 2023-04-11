@@ -88,6 +88,11 @@ class RegionDataFetcher:
         pass
     @staticmethod
     def read_from_database(id):
+        """
+        TODO: load region from database. not sure whether this still useful.
+        """
+        pass 
+        return None 
         qry = """
         select * from chunks where id = ?;
         """

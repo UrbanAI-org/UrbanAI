@@ -10,7 +10,7 @@ from src.database.database import database
 from src.tifProcess.tifLoader import Loader
 # from src.resources.resource import load_from_meshes, load_from_pcds, process_pcd, process_mesh
 from src.resources.resource import ResourceFetcher
-from backend.src.query.regionDataFetcher import RegionDataFetcher
+from src.query.regionDataFetcher import RegionDataFetcher
 import base64
 # from src.dataFetchers.regionDataFetcher import RegionDataFetcher
 """

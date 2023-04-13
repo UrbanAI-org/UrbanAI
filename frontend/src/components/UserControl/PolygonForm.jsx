@@ -1,9 +1,9 @@
 import React from "react";
 import './UserControl.css';
 
-
 const PolygonForm = ({polygonItems, setPolygonItems}) => {
     const handleAddPolygonItem = (event) => {
+        console.log("here");
         event.preventDefault();
         console.log(event.target.lattitude.value);
 
@@ -26,25 +26,25 @@ const PolygonForm = ({polygonItems, setPolygonItems}) => {
     }
 
     return (
-        <div>
+        <div className>
             <form onSubmit={handleAddPolygonItem}>
                 <input
                     placeholder="latitude"
                     name="latitude"
                     type="decimal"
                     className="poly-input-field"
-                    />
+                />
                 <input
                     placeholder="longitude"
                     name="longitude"
                     type="decimal"
                     className="poly-input-field"
-                    />
+                />
                 <input
                     type="submit"
                     value="Add"
                     className="add-button"
-                    />
+                />
             </form>
         </div>
     )

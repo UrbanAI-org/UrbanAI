@@ -20,7 +20,11 @@ const UserControlDefault = ({setIsRequestGenerated, requestBody, setRequestBody}
         if (requestBody.type === "polygon") {
             handlePolygon();
         } else if (requestBody.type === "circle") {
-            handleCircle(event.target.radius.value);
+            handleCircle(
+                event.target.radius.value,
+                event.target.latitude.value,
+                event.target.longitude.value
+            );
         }
     }
 
@@ -35,19 +39,28 @@ const UserControlDefault = ({setIsRequestGenerated, requestBody, setRequestBody}
                 data: polygonItems
             }
         )
-
+        setPolygonItems([]);
         setIsRequestGenerated(true);
     }
 
-    function handleCircle(radius) {
+    function handleCircle(radius, lat, long) {
         if (radius < 0) {
             alert("Please ensure radius is an integer/decimal within the range of [0, inf]");
+            return;
+        }
+        if (lat < -90 || lat > 90) {
+            alert("decimals must range from -90 to 90 for latitude and -180 to 180 for longitude");
+            return;
+        } else if (long < -180 || long > 180) {
+            alert("decimals must range from -90 to 90 for latitude and -180 to 180 for longitude");
             return;
         }
         setRequestBody(
             {
                 type: "circle",
                 data: {
+                    lat: lat,
+                    long: long,
                     radius: radius
                 }
             }
@@ -93,6 +106,18 @@ const UserControlDefault = ({setIsRequestGenerated, requestBody, setRequestBody}
                 </div>
                 <div className="user-control">
                     <form onSubmit={handleInputsSubmit}>
+                        <input
+                            placeholder="latitude"
+                            name="latitude"
+                            type="decimal"
+                            className="poly-input-field"
+                        />
+                        <input
+                            placeholder="longitude"
+                            name="longitude"
+                            type="decimal"
+                            className="poly-input-field"
+                        />
                         <input
                             placeholder="radius"
                             name="radius"

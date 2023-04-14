@@ -12,25 +12,8 @@ const Region = ({ position }) => {
       "test.ply",
       function (geometry) {
         console.log(geometry)
+        console.log(geometry.boundingSphere.center)
         console.log(geometry.attributes.position.array)
-        geometry.attributes.position.array.forEach((_, i) => {
-          // get the height value for this vertex
-          const height = geometry.attributes.position.array[i];
-          // console.log(height)
-          // set the color based on the height value
-          const color = new THREE.Color();
-          if (height < 0.5) {
-            color.setRGB(1, 0, 0); // red for low values
-          } else if (height < 1) {
-            color.setRGB(1, 1, 0); // yellow for medium values
-          } else {
-            color.setRGB(0, 1, 0); // green for high values
-          }
-
-          // set the color of this vertex
-          geometry.attributes.color.setXYZ(i, color.r, color.g, color.b);
-        });
-
         setGeo(geometry);
       },
       // called when loading is in progress
@@ -44,12 +27,6 @@ const Region = ({ position }) => {
       }
     );
   }, []);
-
-  // const ref = useRef()
-  // useFrame((_, delta) => {
-  //   ref.current.rotation.x += delta
-  //   ref.current.rotation.y += 0.5 * delta
-  // })
 
   return (
     <mesh

@@ -4,7 +4,6 @@ import NavBar from "../components/NavBar";
 /**
  * Use this opportunity to play with react
  * - Insertion of clickable option followed by a 'next' person option
- * - drop down bar contains more information of each person 
  */
 
 // Returns or renders some jsx. Functional component.
@@ -15,7 +14,6 @@ const Person = (props) => {
         <>
         <h2>Name: {props.name}</h2>
         <h3>Last Name: {props.lastName}</h3>
-        <h3>Age: {props.age}</h3>
         <h3>Degree: {props.degree}</h3>
         </>
     )
@@ -25,28 +23,32 @@ const Person = (props) => {
 const Contributions = () => {
 
     // This is a hook. Only change this using its setter
-    const [clickText, setclickText] = useState('')
+    const [clickText, setclickText] = useState(0)
 
-    // // Initially set at 100 and does not change.
-    // useEffect(() => {
-    //     document.title = `You clicked 3 times`;
-    // }, [clickText]);
+    const peopleName = [
+    <Person name = 'Bob' lastName = 'He' degree = 'Econonmics/Computer Science'/> ,
+    <Person name = 'Hongyi' lastName = 'Zheng' degree = 'Commerce/Computer Science'/>,
+    <Person name = 'Alice' lastName = 'Wan' degree = 'Computer Science'/>,
+    <Person name = 'Shilong' lastName = 'Li' degree = 'Commerce/Computer Science'/>,
+    <Person name = 'Riley' lastName = 'Liu' degree = 'Commerce/Computer Science'/>,
+    ]
 
     return (
         <div className="Contributions">
+            <div style={{ textAlign: 'center' }}>
 
+                <NavBar />
 
-            <NavBar />
+                <h1>Contributions</h1>
+                <h2>List of people who have contributed to this project</h2>
 
-            <h1>Contributions</h1>
-            <h2>List of people who have contributed to this project</h2>
-            <div>
+                <div>{peopleName[clickText]}</div>
 
-            {/* Illustration on how states work. */}
+                {/* Illustration on how states work. */}
 
-            <button onClick={() => setclickText(<Person name = 'Bob' lastName = 'He' age = '20' degree = 'Econometrics'/>)}>-</button>
-            <h1>{clickText}</h1>
-            <button onClick={() => setclickText(<Person/>)}>+</button>
+                <button onClick={() => setclickText((clickText + 1) % peopleName.length)}>
+                Next
+                </button>
             </div>
 
         </div>

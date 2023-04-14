@@ -118,11 +118,11 @@ class TifChunk:
             bbox = o3d.geometry.AxisAlignedBoundingBox.create_from_points(o3d.utility.Vector3dVector(Loader._merge(self.points_[18: -18, 18 : -18], self.lat_array_[18: -18, 18 : -18], self.lon_array_[18: -18, 18 : -18], self.size_- 18 * 2)))
             p_mesh_crop = mesh.crop(bbox)
             if save:
-                o3d.io.write_triangle_mesh(f"data/meshs/{self.id_}.ply", p_mesh_crop, print_progress = True)
+                o3d.io.write_triangle_mesh(f"data/meshes/{self.id_}.ply", p_mesh_crop, print_progress = True)
                 database.execute_in_worker("""
                     insert or replace into meshes(uid,expired, last_update, pth) values (? , ?, ?, ?);
                 """,
-                [self.id_, 365, datetime.today().timestamp(), f"data/meshs/{self.id_}.ply"])
+                [self.id_, 365, datetime.today().timestamp(), f"data/meshes/{self.id_}.ply"])
                 database.execute_in_worker("""
                     update tifs set mesh = (select id from meshes where uid = ?) where uid = ?;
                 """,

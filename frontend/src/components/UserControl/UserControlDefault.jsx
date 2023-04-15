@@ -9,9 +9,9 @@ const UserControlDefault = ({setIsRequestGenerated, requestBody, setRequestBody}
     const polygonItemsDisplay = () => {
         let display_str = ""
         for (let i = 0; i < polygonItems.length; i++) {
-            display_str += `lat: ${polygonItems[i].lat}, long: ${polygonItems[i].long}\n`
+            display_str += `lat: ${polygonItems[i].latitude}, long: ${polygonItems[i].longitude}<br />`
         }
-        return display_str
+        return <div dangerouslySetInnerHTML={{ __html: display_str }} />;
     }
 
     const handleInputsSubmit = (event) => {
@@ -44,15 +44,21 @@ const UserControlDefault = ({setIsRequestGenerated, requestBody, setRequestBody}
     }
 
     function handleCircle(radius, lat, long) {
+        const regex = /^-?\d*\.?\d*$/;
+
+        if (regex.test(radius) || !regex.test(lat) || !regex.test(long)) {
+            alert("Please ensure radius is an integer/decimal within the range of [0, inf], latitude  must range from -90 to 90 and longitude must range from -180 to 180");
+            return;
+        }
         if (radius < 0) {
-            alert("Please ensure radius is an integer/decimal within the range of [0, inf]");
+            alert("Please ensure radius is an integer/decimal within the range of [0, inf], latitude  must range from -90 to 90 and longitude must range from -180 to 180");
             return;
         }
         if (lat < -90 || lat > 90) {
-            alert("decimals must range from -90 to 90 for latitude and -180 to 180 for longitude");
+            alert("Please ensure radius is an integer/decimal within the range of [0, inf], latitude  must range from -90 to 90 and longitude must range from -180 to 180");
             return;
         } else if (long < -180 || long > 180) {
-            alert("decimals must range from -90 to 90 for latitude and -180 to 180 for longitude");
+            alert("Please ensure radius is an integer/decimal within the range of [0, inf], latitude  must range from -90 to 90 and longitude must range from -180 to 180");
             return;
         }
         setRequestBody(
@@ -82,8 +88,8 @@ const UserControlDefault = ({setIsRequestGenerated, requestBody, setRequestBody}
                     <p>Please input at least two pairs of (lat, long)</p>
                 </div>
                 <div className="user-control">
+                    <PolygonForm polygonItems={polygonItems} setPolygonItems={setPolygonItems}/>
                     <form onSubmit={handleInputsSubmit}>
-                        <PolygonForm polygonItems={polygonItems} setPolygonItems={setPolygonItems}/>
                         <input
                             type="submit"
                             value="Generate"
@@ -109,19 +115,18 @@ const UserControlDefault = ({setIsRequestGenerated, requestBody, setRequestBody}
                         <input
                             placeholder="latitude"
                             name="latitude"
-                            type="decimal"
                             className="poly-input-field"
                         />
                         <input
                             placeholder="longitude"
                             name="longitude"
-                            type="decimal"
+                            type="text"
                             className="poly-input-field"
                         />
                         <input
                             placeholder="radius"
                             name="radius"
-                            type="decimal"
+                            type="text"
                             className="input-field"
                             style={{width: "15vh"}}
                         />

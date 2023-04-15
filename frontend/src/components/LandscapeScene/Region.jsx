@@ -107,7 +107,7 @@ const Region = ({ position, setLookAt }) => {
       <shaderMaterial
         vertexShader={vertexShader}
         fragmentShader={fragmentShader}
-        wireframe
+        wireframe={true}
         uniforms={{
           minHeight: { value: minHeight },
           maxHeight: { value: maxHeight },

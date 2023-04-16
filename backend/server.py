@@ -7,10 +7,10 @@ import traceback
 import os
 import time
 from src.database.database import database
-from src.tifProcess.tifLoader import Loader
+from src.loaders.tifLoader import Loader
 # from src.resources.resource import load_from_meshes, load_from_pcds, process_pcd, process_mesh
-from src.resources.resource import ResourceFetcher
-from src.query.regionDataFetcher import RegionDataFetcher
+from src.fetchers.resourceFetcher import ResourceFetcher
+from src.fetchers.regionDataFetcher import RegionDataFetcher
 import base64
 # from src.dataFetchers.regionDataFetcher import RegionDataFetcher
 """
@@ -159,9 +159,10 @@ class V1ApiRegionAdd(Resource):
         chunk.make_mesh()
         chunk.write_to_database()
         downlink = chunk.make_link("mesh")
+        mesh = chunk.get_mesh()
         return {
             "download" : downlink,
-            "mesh" : downlink,
+            "mesh" : mesh,
             "details" : chunk.to_details()
         }
 

@@ -1,3 +1,4 @@
+import base64
 from src.database.database import database
 from geopy import distance
 import uuid
@@ -31,7 +32,7 @@ def string_to_radius(string):
 
 
 class RegionDataFetcher:
-    def __init__(self, center, min_bound, max_bound,base, parent, id = None) -> None:
+    def __init__(self, center, min_bound, max_bound,base, parent, max_altitude, min_altitude, mesh = None, pcd = None, id = None) -> None:
         pass
         if id is None:
             self.id = str(uuid.uuid4())
@@ -44,8 +45,8 @@ class RegionDataFetcher:
         self.parent = parent
         self.mesh = None 
         self.pcd = None
-        self.max_altitude  = None 
-        self.min_altitude  = None    
+        self.max_altitude  = max_altitude 
+        self.min_altitude  = min_altitude    
 
     @staticmethod
     def create_by_polygon(polygon, base, parent):
@@ -91,8 +92,8 @@ class RegionDataFetcher:
         """
         TODO: load region from database. not sure whether this still useful.
         """
-        pass 
-        return None 
+        # pass 
+        # return None 
         qry = """
         select * from chunks where id = ?;
         """
@@ -113,12 +114,16 @@ class RegionDataFetcher:
             "parent" :  9,
             "pcd"  :  10,
             "mesh" : 11,
+            "max_altitude" : 12,
+            "min_altitude" : 13,
         }
-        chunk = RegionDataFetcher([data[index['center_x']], data[index["center_y"]]], 
+        region = RegionDataFetcher([data[index['center_x']], data[index["center_y"]]], 
                       [data[index["min_bound_x"]], data[index["min_bound_y"]]],
                       [data[index['max_bound_x']], data[index["max_bound_y"]]],
                       [data[index['origin_lat']], data[index["origin_lon"]]],
-                      data[index['parent']], data[index['id']]
+                      data[index['parent']], data[index['max_altitude']], data[index['min_altitude']],
+                      mesh=data[index['mesh']], pcd=data[index['pcd']],
+                      id = data[index['id']]
                       )
         # if data[index["pcd"]] is not None:
         #     qry = """
@@ -137,8 +142,8 @@ class RegionDataFetcher:
         #     chunk.mesh = {
         #         'id' : mesh[0],
         #         'expired' : mesh[1]
-        #     }
-        return chunk
+        #     } 
+        return region
         # database.execute_in_worker()
     
     def to_response(self):
@@ -194,6 +199,23 @@ class RegionDataFetcher:
         bbox = o3d.geometry.AxisAlignedBoundingBox(np.array(self.min + [-1000]), np.array(self.max + [3000]))
         return bbox
     
+    def get_mesh(self):
+        qry = """
+            select uid from meshes where id = ?;
+        """
+        id = database.fetchone(qry, [self.mesh])[0]
+        file = open(f"data/meshes/{id}.ply", "rb") 
+        binary_file_data = file.read()
+        base64_encoded_data = base64.b64encode(binary_file_data)
+        return  base64_encoded_data.decode("utf-8")
+
+    def get_pcd(self):
+        file = open(f"data/pcds/{self.pcd}.ply", "rb") 
+        file.read()
+        binary_file_data = file.read()
+        base64_encoded_data = base64.b64encode(binary_file_data)
+        return  base64_encoded_data
+
     def make_mesh(self):
         qry = """
         select pth from meshes where uid = ?;

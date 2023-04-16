@@ -5,6 +5,8 @@ import uuid
 import open3d as o3d
 import numpy as np 
 from datetime import datetime
+import src.fetchers.ResourceFetcher as ResourceFetcher
+from src.fetchers.Fetchersconsts import ResourceType, ResourceAttr
 def _relativeDistance(given : tuple, base: tuple) -> float:
     """
     return relative distance based on two points.
@@ -32,7 +34,7 @@ def string_to_radius(string):
 
 
 class RegionDataFetcher:
-    def __init__(self, center, min_bound, max_bound,base, parent, max_altitude, min_altitude, mesh = None, pcd = None, id = None) -> None:
+    def __init__(self, center, min_bound, max_bound,base, parent, max_altitude = -1000, min_altitude=10000, mesh = None, pcd = None, id = None) -> None:
         pass
         if id is None:
             self.id = str(uuid.uuid4())
@@ -86,14 +88,9 @@ class RegionDataFetcher:
         ]
         print(param)
         database.execute_in_worker(qry, param)
-        pass
+
     @staticmethod
     def read_from_database(id):
-        """
-        TODO: load region from database. not sure whether this still useful.
-        """
-        # pass 
-        # return None 
         qry = """
         select * from chunks where id = ?;
         """
@@ -125,141 +122,50 @@ class RegionDataFetcher:
                       mesh=data[index['mesh']], pcd=data[index['pcd']],
                       id = data[index['id']]
                       )
-        # if data[index["pcd"]] is not None:
-        #     qry = """
-        #     select uid, expired from pcds where id = ?;
-        #     """
-        #     pcd = database.execute_in_worker(qry, [data[index["pcd"]]])[0]
-        #     chunk.pcd = {
-        #         'id' : pcd[0],
-        #         'expired' : pcd[1]
-        #     }
-        # if data[index['mesh']] is not None:
-        #     qry = """
-        #     select uid,expired from meshes where id = ?;
-        #     """
-        #     mesh = database.execute_in_worker(qry, [data[index["mesh"]]])[0]
-        #     chunk.mesh = {
-        #         'id' : mesh[0],
-        #         'expired' : mesh[1]
-        #     } 
         return region
-        # database.execute_in_worker()
     
-    def to_response(self):
-        qry = """
-        select filename from tifs where uid = ?;"""
-        filename = database.execute_in_worker(qry, [self.parent])[0][0]
-        response = {
-            'id' : self.id,
-            'center' : self.center + [0],
-            'min-bound' : self.min + [-1000],
-            'max-bound' : self.max + [3000],
-            'geo-origin' : self.base,
-            'parent': filename,
-            'status' : { 'Mesh' : self._make_file_response(self.mesh, 'mesh'), 
-                        'Pcd' : self._make_file_response(self.pcd, 'pcd') },
-        }
-        return response
-
-    def _make_file_response(self, file, file_type):
-        response = {}
-        exist = file is not None
-        response.update({ "exist" : exist})
-        response.update(self._make_resource_url(file, file_type, exist))
-        response.update(self._make_download_url(file, file_type, exist))
-        if exist:
-            response.update(file)
-        return response
-    
-    def _make_resource_url(self, file, file_type, exist=True):
-        if exist:
-            return {
-                'herf': f"/v1/resource?id={file['id']}&type={file_type}", 
-            }
-        else:
-            return {
-                'herf': f"/v1/resource", 
-                'args' : {
-                    "chunk_id" : self.id,
-                    "type" : file_type
-                }
-
-            }
-
-    def _make_download_url(self, file, file_type, exist=True):
-        if not exist:
-            return {}
-        else:
-            return {
-                'download' : f"/v1/download?id={file['id']}&type={file_type}",
-            }
         
-    def to_bbox(self):
-        bbox = o3d.geometry.AxisAlignedBoundingBox(np.array(self.min + [-1000]), np.array(self.max + [3000]))
+    def get_bbox(self):
+        bbox = o3d.geometry.AxisAlignedBoundingBox(np.array(self.min + [self.min_altitude]), np.array(self.max + [self.max_altitude]))
         return bbox
     
-    def get_mesh(self):
-        qry = """
-            select uid from meshes where id = ?;
-        """
-        id = database.fetchone(qry, [self.mesh])[0]
-        file = open(f"data/meshes/{id}.ply", "rb") 
+    def get_mesh(self, encoded = lambda data: base64.b64encode(data).decode("utf-8")):
+        fetcher = ResourceFetcher.MeshResourceFetcher()
+        file = fetcher.get_content(ResourceFetcher.ResourceAttr.DB_ID, self.mesh)
         binary_file_data = file.read()
-        base64_encoded_data = base64.b64encode(binary_file_data)
-        return  base64_encoded_data.decode("utf-8")
+        return encoded(binary_file_data)
 
-    def get_pcd(self):
-        file = open(f"data/pcds/{self.pcd}.ply", "rb") 
-        file.read()
+    def get_pcd(self, encoded = lambda data: base64.b64encode(data).decode("utf-8")):
+        fetcher = ResourceFetcher.PcdResourceFetcher()
+        file = fetcher.get_content(ResourceFetcher.ResourceAttr.DB_ID, self.pcd)
         binary_file_data = file.read()
-        base64_encoded_data = base64.b64encode(binary_file_data)
-        return  base64_encoded_data
+        return  encoded(binary_file_data)
 
     def make_mesh(self):
-        qry = """
-        select pth from meshes where uid = ?;
-        """
-        data = database.execute_in_worker(qry, [self.parent])[0]
-        mesh = o3d.io.read_triangle_mesh(data[0])
-        croped_mesh = mesh.crop(self.to_bbox())
+        fetcher = ResourceFetcher.MeshResourceFetcher()
+        path = fetcher.get_pth(ResourceFetcher.ResourceAttr.UNIQUE_ID, self.parent)
+        mesh = o3d.io.read_triangle_mesh(path)
+        bbox = o3d.geometry.AxisAlignedBoundingBox(np.array(self.min + [-1000]), np.array(self.max + [10000]))
+        croped_mesh = mesh.crop(bbox)
         if len(croped_mesh.triangles) == 0:
             return
         mesh_id = str(uuid.uuid4())
-        o3d.io.write_triangle_mesh(f"data/meshes/{mesh_id}.ply", croped_mesh, print_progress = True)
-        qry = """
-            insert or replace into meshes(uid, expired, last_update, pth) 
-            values (?,?,?,?);
-            """
-        database.execute_in_worker(qry, [mesh_id, 3, datetime.now().timestamp(), f"data/meshes/{mesh_id}.ply"])
-        qry = """
-            select id from meshes where uid = ?;
-        """
-        id = database.fetchone(qry, [mesh_id])
-        self.mesh = id[0]
+        path = f"data/meshes/{mesh_id}.ply"
+        o3d.io.write_triangle_mesh(path, croped_mesh, print_progress = True)
+        self.mesh = fetcher.write_to_database(mesh_id, path)
         self.max_altitude = croped_mesh.get_max_bound().tolist()[2]
         self.min_altitude = croped_mesh.get_min_bound().tolist()[2]
-        pass 
 
     def make_pointcloud(self):
-        qry = """
-        select pth from pcds where uid = ?;
-        """
-        data = database.execute_in_worker(qry, [self.parent])[0]
-        pcd = o3d.io.read_point_cloud(data[0])
-        croped_pcd = pcd.crop(self.to_bbox())
+        fetcher = ResourceFetcher.PcdResourceFetcher()
+        path = fetcher.get_pth(ResourceFetcher.ResourceAttr.UNIQUE_ID, self.parent)
+        pcd = o3d.io.read_point_cloud(path)
+        bbox = o3d.geometry.AxisAlignedBoundingBox(np.array(self.min + [-1000]), np.array(self.max + [10000]))
+        croped_pcd = pcd.crop(bbox)
         pcd_id = str(uuid.uuid4())
-        o3d.io.write_point_cloud(f"data/pcds/{pcd_id}.pcd", croped_pcd, print_progress = True)
-        qry = """
-            insert or replace into pcds(uid, expired, last_update, pth) 
-            values (?,?,?,?);
-            """
-        database.execute_in_worker(qry, [pcd_id, 3, datetime.now().timestamp(), f"data/pcds/{pcd_id}.pcd"])
-        qry = """
-            select id from pcds where uid = ?;
-        """
-        id = database.fetchone(qry, [pcd_id])
-        self.pcd = id[0]
+        path = f"data/pcds/{pcd_id}.pcd"
+        o3d.io.write_point_cloud(path, croped_pcd, print_progress = True)
+        self.pcd = fetcher.write_to_database(pcd_id, path)
         self.max_altitude = croped_pcd.get_max_bound().tolist()[2]
         self.min_altitude = croped_pcd.get_min_bound().tolist()[2]
 
@@ -272,10 +178,15 @@ class RegionDataFetcher:
             'geo-origin' : self.base,
         }
     
-    def make_link(self, type):
-        if type == "mesh":
-            qry = """
-            select uid from meshes where id = ?;
-            """
-            uid = database.fetchone(qry, [self.mesh])[0]
-            return f"/v1/download?id={uid}&type=mesh"
+    def make_link(self, resource_type):
+        assert type(resource_type) is ResourceType
+        if resource_type == ResourceType.MESH:
+            fetcher = ResourceFetcher.MeshResourceFetcher()
+            uid = fetcher.get_uid(ResourceAttr.DB_ID, self.mesh)
+        else:
+            fetcher = ResourceFetcher.PcdResourceFetcher()
+            uid = fetcher.get_uid(ResourceAttr.DB_ID, self.pcd)
+        if uid is None:
+            raise ValueError("uid does not exist")
+        
+        return f"/v1/download?id={uid}&type=mesh"

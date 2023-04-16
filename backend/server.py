@@ -9,16 +9,9 @@ import time
 from src.database.database import database
 from src.loaders.tifLoader import Loader
 # from src.resources.resource import load_from_meshes, load_from_pcds, process_pcd, process_mesh
-from src.fetchers.resourceFetcher import ResourceFetcher
-from src.fetchers.regionDataFetcher import RegionDataFetcher
-import base64
-# from src.dataFetchers.regionDataFetcher import RegionDataFetcher
-"""
-!!!
-Make sure some mesh files are generated and do Manager().save() before running this server
-TODO:
-I will convert the Manager class into a database(sqlite or psql or whatever it is)
-"""
+from src.fetchers.ResourceFetcher import ResourceFetcher
+from src.fetchers.RegionDataFetcher import RegionDataFetcher
+from src.fetchers.Fetchersconsts import ResourceType
 PORT = 9999
 
 
@@ -158,7 +151,7 @@ class V1ApiRegionAdd(Resource):
             return {"message" : "invalid input"}, 400
         chunk.make_mesh()
         chunk.write_to_database()
-        downlink = chunk.make_link("mesh")
+        downlink = chunk.make_link(ResourceType.MESH)
         mesh = chunk.get_mesh()
         return {
             "download" : downlink,

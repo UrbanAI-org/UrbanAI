@@ -155,6 +155,7 @@ class RegionDataFetcher:
         self.mesh = fetcher.write_to_database(mesh_id, path)
         self.max_altitude = croped_mesh.get_max_bound().tolist()[2]
         self.min_altitude = croped_mesh.get_min_bound().tolist()[2]
+        return croped_mesh
 
     def make_pointcloud(self):
         fetcher = ResourceFetcher.PcdResourceFetcher()
@@ -168,6 +169,7 @@ class RegionDataFetcher:
         self.pcd = fetcher.write_to_database(pcd_id, path)
         self.max_altitude = croped_pcd.get_max_bound().tolist()[2]
         self.min_altitude = croped_pcd.get_min_bound().tolist()[2]
+        return croped_pcd
 
     def to_details(self):
         return {

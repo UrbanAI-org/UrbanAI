@@ -33,7 +33,6 @@ const Region = ({ position, setLookAt, isframe }) => {
   const [minHeight, setMinHeight] = useState(Number.POSITIVE_INFINITY);
   const [maxHeight, setMaxHeight] = useState(Number.NEGATIVE_INFINITY);
   const camera = useThree((state) => state.camera); // Access camera object
-
   // Create a ref to store the mesh material
   const materialRef = useRef();
   const frame = isframe === 'Yes' ? true : false;
@@ -76,6 +75,7 @@ const Region = ({ position, setLookAt, isframe }) => {
   // Function to calculate min and max heights
   const calculateMinMaxHeights = () => {
     const positions = geo.attributes.position.array;
+    
     const min = geo.boundingBox.min.z;
     const max = geo.boundingBox.max.z;
     // for (let i = 1; i < positions.length; i += 3) {
@@ -94,7 +94,8 @@ const Region = ({ position, setLookAt, isframe }) => {
       materialRef.current.uniforms.maxHeight.value = maxHeight;
     }
   }, [minHeight, maxHeight]);
-
+  console.log(frame);
+  console.log(isframe);
   return (
     <mesh
       position={[position.x, position.y, position.z]}
@@ -114,6 +115,7 @@ const Region = ({ position, setLookAt, isframe }) => {
           maxHeight: { value: maxHeight },
         }}
       />
+      
     </mesh>
   );
 };

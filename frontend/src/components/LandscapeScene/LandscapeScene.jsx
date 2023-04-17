@@ -2,7 +2,7 @@ import React, { useState, useRef } from "react";
 import Region from "./Region";
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
-import DatGui, { DatFolder, DatNumber, DatSelect } from "react-dat-gui";
+import DatGui, { DatNumber, DatSelect } from "react-dat-gui";
 import "react-dat-gui/dist/index.css";
 import "./LandscapeScene.css";
 import * as THREE from 'three';
@@ -14,6 +14,9 @@ const LandscapeScene = ({ responseBody }) => {
 
   const orbitControlsRef = useRef();
 
+  // function handleFramechange(newFrame) {
+  //   setFrame(newFrame);
+  // }
   if (responseBody === null) {
     return (
       <Canvas className="landscape-scene">

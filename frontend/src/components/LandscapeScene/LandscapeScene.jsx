@@ -21,14 +21,14 @@ const LandscapeScene = ({ responseBody }) => {
   } else {
     return (
       <div className="landscape-scene">
-        <DatGui data={position} onUpdate={setPosition} >
+        {/* <DatGui data={position} onUpdate={setPosition} className="gui-controller">
           <DatNumber path="x" label="X" min={-300} max={300} step={0.1} />
           <DatNumber path="y" label="Y" min={-300} max={300} step={0.1} />
           <DatNumber path="z" label="Z" min={-300} max={300} step={0.1} />
           <DatNumber path="rotationX" label="Rotation X" min={-Math.PI} max={Math.PI} step={0.01} />
           <DatNumber path="rotationY" label="Rotation Y" min={-Math.PI} max={Math.PI} step={0.01} />
           <DatNumber path="rotationZ" label="Rotation Z" min={-Math.PI} max={Math.PI} step={0.01} />
-        </DatGui>
+        </DatGui> */}
         <Canvas >
           <Region position={position} setLookAt={setLookAt}/>
           <OrbitControls ref={orbitControlsRef} target={new THREE.Vector3(lookAt[0], lookAt[1], lookAt[2])} />

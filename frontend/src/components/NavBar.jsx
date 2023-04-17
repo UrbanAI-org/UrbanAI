@@ -16,6 +16,7 @@ const NavBar = () => {
             <header onClick={() => {setPath('/')}}>Home</header>
             <header onClick={() => {setPath('/about')}}>About</header>
             <header onClick={() => {setPath('/contributions')}}>Contributions</header>
+            <header onClick={() => {setPath('/UserGuid')}}>How To Use</header>
 
             <button>
             <Link to="https://docs.google.com/forms/d/e/1FAIpQLSeDCRgAMDRd8n3Bz68ILfMUSrYcpRR4zKRpurCH_jJVqunqXw/viewform">

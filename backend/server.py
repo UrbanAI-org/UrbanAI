@@ -9,9 +9,9 @@ import time
 from src.database.database import database
 from src.loaders.TifLoader import TifLoader
 # from src.resources.resource import load_from_meshes, load_from_pcds, process_pcd, process_mesh
-from src.fetchers.ResourceFetcher import ResourceFetcher
+from src.fetchers.ResourceFetcher import MeshResourceFetcher, PcdResourceFetcher
 from src.fetchers.RegionDataFetcher import RegionDataFetcher
-from src.fetchers.FetchersConsts import ResourceType
+from src.fetchers.FetchersConsts import ResourceType, ResourceAttr
 from src.fetchers.TifRegionFetcher import TifRegionFetcher
 PORT = 9999
 
@@ -25,9 +25,11 @@ class V1Download(Resource):
         resource_type = request.args.get("type", "mesh")
         id = request.args.get("id", None)
         if resource_type == "mesh":
-            path = ResourceFetcher.load_from_meshes(id)
+            fetcher = MeshResourceFetcher()
+            path = fetcher.get_pth(ResourceAttr.UNIQUE_ID, id)
         elif resource_type == "pcb":
-            path = ResourceFetcher.load_from_pcds(id)
+            fetcher = PcdResourceFetcher()
+            path = fetcher.get_pth(ResourceAttr.UNIQUE_ID, id)
         else:
             return {"message" : "invalid format"}
         if path is None:

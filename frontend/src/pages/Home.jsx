@@ -17,6 +17,7 @@ const Home = () => {
 
 	async function fetchMeshes() {
 		try {
+            console.log(JSON.stringify(requestBody));
 			const response = await fetch("http://localhost:9999/v1/api/region/mesh", {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
@@ -40,6 +41,7 @@ const Home = () => {
     useEffect(() => {
         if (isRequestGenerated) {
             // handle fetching request
+            fetchMeshes()
             setResponseBody(
                 {
                     download_link: "oiwefoi",

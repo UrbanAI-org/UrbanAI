@@ -1,9 +1,11 @@
 import React, {useEffect, useState} from "react";
 import './styles/NavBar.css'
 import { useNavigate, Link } from "react-router-dom";
+import bugImage from './assets/bug.jpeg';
 
 
 const NavBar = () => {
+    
     const [path, setPath] = useState('');
     const nav = useNavigate();
 
@@ -17,10 +19,9 @@ const NavBar = () => {
             <header onClick={() => {setPath('/about')}}>About</header>
             <header onClick={() => {setPath('/contributions')}}>Contributions</header>
 
-            <button>
-            <Link to="https://docs.google.com/forms/d/e/1FAIpQLSeDCRgAMDRd8n3Bz68ILfMUSrYcpRR4zKRpurCH_jJVqunqXw/viewform">
-            Report a bug  </Link>
-            </button>         
+            <a href="https://docs.google.com/forms/d/e/1FAIpQLSeDCRgAMDRd8n3Bz68ILfMUSrYcpRR4zKRpurCH_jJVqunqXw/viewform">
+                <img src={bugImage} alt="Random Image"/>
+            </a>
 
         </div>
     )

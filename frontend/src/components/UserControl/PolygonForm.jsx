@@ -1,14 +1,18 @@
 import React from "react";
 import './UserControl.css';
 
-
 const PolygonForm = ({polygonItems, setPolygonItems}) => {
     const handleAddPolygonItem = (event) => {
         event.preventDefault();
-        console.log(event.target.lattitude.value);
 
-        const lat = event.target.lattitude.value;
-        const long = event.target.longitude.value;
+        const lat = event.target.elements.latitude.value;
+        const long = event.target.elements.longitude.value;
+        const regex = /^-?\d*\.?\d*$/;
+
+        if (!regex.test(lat) || !regex.test(long)) {
+            alert("decimals must range from -90 to 90 for latitude and -180 to 180 for longitude");
+            return;
+        }
 
         if (lat < -90 || lat > 90) {
             alert("decimals must range from -90 to 90 for latitude and -180 to 180 for longitude");
@@ -17,12 +21,10 @@ const PolygonForm = ({polygonItems, setPolygonItems}) => {
             alert("decimals must range from -90 to 90 for latitude and -180 to 180 for longitude");
             return;
         }
-
-        setPolygonItems([...polygonItems, {
-            latitude: lat,
-            longitude: long
-        }]);
-        console.log(polygonItems);
+        setPolygonItems((prevPolygonItems) => [
+            ...prevPolygonItems,
+            { latitude: parseFloat(lat), longitude: parseFloat(long) }
+        ])
     }
 
     return (
@@ -31,20 +33,20 @@ const PolygonForm = ({polygonItems, setPolygonItems}) => {
                 <input
                     placeholder="latitude"
                     name="latitude"
-                    type="decimal"
+                    type="text"
                     className="poly-input-field"
-                    />
+                />
                 <input
                     placeholder="longitude"
                     name="longitude"
-                    type="decimal"
+                    type="text"
                     className="poly-input-field"
-                    />
+                />
                 <input
                     type="submit"
                     value="Add"
                     className="add-button"
-                    />
+                />
             </form>
         </div>
     )

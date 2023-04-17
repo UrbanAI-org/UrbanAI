@@ -47,10 +47,7 @@ const Home = () => {
                     details: "",
                 }
             )
-        } else {
-            setResponseBody(null)
         }
-
 
     }, [isRequestGenerated])
 

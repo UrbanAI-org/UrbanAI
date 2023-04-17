@@ -46,7 +46,7 @@ const UserControlDefault = ({setIsRequestGenerated, requestBody, setRequestBody}
     function handleCircle(radius, lat, long) {
         const regex = /^-?\d*\.?\d*$/;
 
-        if (regex.test(radius) || !regex.test(lat) || !regex.test(long)) {
+        if (!regex.test(radius) || !regex.test(lat) || !regex.test(long)) {
             alert("Please ensure radius is an integer/decimal within the range of [0, inf], latitude  must range from -90 to 90 and longitude must range from -180 to 180");
             return;
         }
@@ -65,8 +65,8 @@ const UserControlDefault = ({setIsRequestGenerated, requestBody, setRequestBody}
             {
                 type: "circle",
                 data: {
-                    lat: lat,
-                    long: long,
+                    latitude: lat,
+                    longitude: long,
                     radius: radius
                 }
             }

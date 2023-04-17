@@ -28,7 +28,7 @@ def string_to_radius(string):
     distance = int(''.join(filter(str.isdigit, string)))
     unit = str(''.join(filter(str.isalpha, string))).lower()
     if unit not in option.keys():
-        return distance
+        return distance * 1000
     return distance * option[unit]
 
 
@@ -148,6 +148,7 @@ class RegionDataFetcher:
         bbox = o3d.geometry.AxisAlignedBoundingBox(np.array(self.min + [-1000]), np.array(self.max + [10000]))
         croped_mesh = mesh.crop(bbox)
         if len(croped_mesh.triangles) == 0:
+            print("bbox too small")
             return
         mesh_id = str(uuid.uuid4())
         path = f"data/meshes/{mesh_id}.ply"

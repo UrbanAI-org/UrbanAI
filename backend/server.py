@@ -63,7 +63,7 @@ def phrase_polygon(data):
     return polygon
 
 def phrase_lat_lon(data):
-    return [data['latitude'], data['longitude']]
+    return [float(data['latitude']), float(data['longitude'])]
 
 @cross_origin
 @API.route("/v1/api/region/mesh")
@@ -73,11 +73,12 @@ class V1ApiRegionAdd(Resource):
             data = json.loads(request.data)
         else:
             data = request.json
+        print(data)
         tif = database.execute_in_worker("select uid, origin_lat, origin_lon from tifs where filename=?", ['s34_e151_1arc_v3.tif'])[0]
         if data['type'] == 'polygon':
             chunk = RegionDataFetcher.create_by_polygon(phrase_polygon(data['data']), tif[1:], tif[0])
         elif data['type'] == 'circle':
-            chunk = RegionDataFetcher.create_by_circle(phrase_lat_lon(data['data']['center']), data['data']['radius'], tif[1:], tif[0])
+            chunk = RegionDataFetcher.create_by_circle(phrase_lat_lon(data['data']), data['data']['radius'], tif[1:], tif[0])
         else:
             return {"message" : "invalid input"}, 400
        

@@ -3,7 +3,7 @@ from src.loaders.utils import merge
 import open3d as o3d
 import uuid
 import src.fetchers.ResourceFetcher as ResourceFetcher
-from src.fetchers.Fetchersconsts import ResourceAttr
+from src.fetchers.FetchersConsts import ResourceAttr
 from src.database.database import database
 class TifRegionFetcher:
     def __init__(self, points : np.ndarray, lat_array : np.ndarray, lon_array: np.ndarray, id = None) -> None:

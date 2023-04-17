@@ -11,7 +11,7 @@ from src.loaders.TifLoader import TifLoader
 # from src.resources.resource import load_from_meshes, load_from_pcds, process_pcd, process_mesh
 from src.fetchers.ResourceFetcher import ResourceFetcher
 from src.fetchers.RegionDataFetcher import RegionDataFetcher
-from src.fetchers.Fetchersconsts import ResourceType
+from src.fetchers.FetchersConsts import ResourceType
 from src.fetchers.TifRegionFetcher import TifRegionFetcher
 PORT = 9999
 

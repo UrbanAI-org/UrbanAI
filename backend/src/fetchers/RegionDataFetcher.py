@@ -6,7 +6,7 @@ import open3d as o3d
 import numpy as np 
 from datetime import datetime
 import src.fetchers.ResourceFetcher as ResourceFetcher
-from src.fetchers.Fetchersconsts import ResourceType, ResourceAttr
+from src.fetchers.FetchersConsts import ResourceType, ResourceAttr
 def _relativeDistance(given : tuple, base: tuple) -> float:
     """
     return relative distance based on two points.

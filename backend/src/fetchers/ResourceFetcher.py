@@ -1,6 +1,6 @@
 from io import BufferedReader
 from src.database.database import database
-from src.fetchers.Fetchersconsts import ResourceAttr, ResourceType
+from src.fetchers.FetchersConsts import ResourceAttr, ResourceType
 from datetime import datetime
 class ResourceFetcher:
     def __init__(self, domain) -> None:

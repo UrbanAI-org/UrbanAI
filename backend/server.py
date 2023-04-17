@@ -1,5 +1,5 @@
 from flask import Flask, request, make_response, Response, stream_with_context
-# from flask_cors import CORS
+from flask_cors import CORS, cross_origin
 from flask_restx import Api, Resource, fields, inputs, reqparse
 # from flask_restx import 
 import json
@@ -14,9 +14,11 @@ from src.fetchers.RegionDataFetcher import RegionDataFetcher
 from src.fetchers.FetchersConsts import ResourceType, ResourceAttr
 from src.fetchers.TifRegionFetcher import TifRegionFetcher
 PORT = 9999
-
-
 app = Flask(__name__)
+
+CORS(app, origins="*")
+
+
 API = Api(app)
 
 @API.route("/v1/download")
@@ -63,10 +65,14 @@ def phrase_polygon(data):
 def phrase_lat_lon(data):
     return [data['latitude'], data['longitude']]
 
+@cross_origin
 @API.route("/v1/api/region/mesh")
 class V1ApiRegionAdd(Resource):
     def post(self):
-        data = request.json
+        if request.headers.get("Content-Type") == "text/plain":
+            data = json.loads(request.data)
+        else:
+            data = request.json
         tif = database.execute_in_worker("select uid, origin_lat, origin_lon from tifs where filename=?", ['s34_e151_1arc_v3.tif'])[0]
         if data['type'] == 'polygon':
             chunk = RegionDataFetcher.create_by_polygon(phrase_polygon(data['data']), tif[1:], tif[0])
@@ -74,6 +80,7 @@ class V1ApiRegionAdd(Resource):
             chunk = RegionDataFetcher.create_by_circle(phrase_lat_lon(data['data']['center']), data['data']['radius'], tif[1:], tif[0])
         else:
             return {"message" : "invalid input"}, 400
+       
         chunk.make_mesh()
         chunk.write_to_database()
         downlink = chunk.make_link(ResourceType.MESH)
@@ -83,6 +90,9 @@ class V1ApiRegionAdd(Resource):
             "mesh" : mesh,
             "details" : chunk.to_details()
         }
+    def options(self):
+        
+        return Response(headers={"Access-Control-Allow-Methods" : "POST,GET,DELETE,OPTIONS"})
 
 
 
@@ -138,8 +148,8 @@ class V1ApiRegionAdd(Resource):
 
 if __name__ == "__main__":
     database.start()
-    loader = TifLoader("data/s34_e151_1arc_v3.tif")
-    fetcher = TifRegionFetcher.create_by_loader(loader)
-    fetcher.make_pcd()
-    fetcher.make_mesh()
+    # loader = TifLoader("data/s34_e151_1arc_v3.tif")
+    # fetcher = TifRegionFetcher.create_by_loader(loader)
+    # fetcher.make_pcd()
+    # fetcher.make_mesh()
     app.run(port=PORT) 

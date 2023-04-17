@@ -18,9 +18,12 @@ const Home = () => {
 	async function fetchMeshes() {
 		try {
             console.log(JSON.stringify(requestBody));
+            let formData = new FormData();
+            formData.append('json', JSON.stringify(requestBody))
 			const response = await fetch("http://localhost:9999/v1/api/region/mesh", {
 				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
+                mode : "cors",
+				headers: { 'Content-Type': 'text/plain' },
 				body: JSON.stringify(requestBody)
 			})
 
@@ -29,6 +32,7 @@ const Home = () => {
 			} else {
 				response.json().then((repsonseValues) => {
                     console.log(repsonseValues);
+                    setResponseBody(repsonseValues)
                 }).catch((error) => {
                     console.log("Promise rejected");
                 })
@@ -42,13 +46,13 @@ const Home = () => {
         if (isRequestGenerated) {
             // handle fetching request
             fetchMeshes()
-            setResponseBody(
-                {
-                    download_link: "oiwefoi",
-                    mesh: "",
-                    details: "",
-                }
-            )
+            // setResponseBody(
+            //     {
+            //         download_link: "oiwefoi",
+            //         mesh: "",
+            //         details: "",
+            //     }
+            // )
         }
 
     }, [isRequestGenerated])

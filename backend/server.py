@@ -1,7 +1,7 @@
 from flask import Flask, request, make_response, Response, stream_with_context
 from flask_cors import CORS, cross_origin
 from flask_restx import Api, Resource, fields, inputs, reqparse
-# from flask_restx import 
+# from flask_restx import
 import json
 import traceback
 import os
@@ -81,7 +81,7 @@ class V1ApiRegionAdd(Resource):
             chunk = RegionDataFetcher.create_by_circle(phrase_lat_lon(data['data']), data['data']['radius'], tif[1:], tif[0])
         else:
             return {"message" : "invalid input"}, 400
-       
+
         chunk.make_mesh()
         chunk.write_to_database()
         downlink = chunk.make_link(ResourceType.MESH)
@@ -92,7 +92,7 @@ class V1ApiRegionAdd(Resource):
             "details" : chunk.to_details()
         }
     def options(self):
-        
+
         return Response(headers={"Access-Control-Allow-Methods" : "POST,GET,DELETE,OPTIONS"})
 
 
@@ -149,8 +149,8 @@ class V1ApiRegionAdd(Resource):
 
 if __name__ == "__main__":
     database.start()
-    # loader = TifLoader("data/s34_e151_1arc_v3.tif")
-    # fetcher = TifRegionFetcher.create_by_loader(loader)
-    # fetcher.make_pcd()
-    # fetcher.make_mesh()
-    app.run(port=PORT) 
+    loader = TifLoader("data/s34_e151_1arc_v3.tif")
+    fetcher = TifRegionFetcher.create_by_loader(loader)
+    fetcher.make_pcd()
+    fetcher.make_mesh()
+    app.run(port=PORT)

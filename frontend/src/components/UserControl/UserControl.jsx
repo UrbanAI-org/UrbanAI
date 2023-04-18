@@ -6,7 +6,7 @@ import UserControlDetails from "./UserControlDetails";
 const UserControl = ({
     isRequestGenerated, setIsRequestGenerated, requestBody, setRequestBody, responseBody, setResponseBody
 }) => {
-    if (!isRequestGenerated) {
+    if (responseBody == null) {
         return (
             <UserControlDefault
                 setIsRequestGenerated={setIsRequestGenerated}

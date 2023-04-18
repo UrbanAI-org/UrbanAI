@@ -28,8 +28,7 @@ const fragmentShader = `
   }
 `;
 
-const Region = ({ position, setLookAt, mesh_url }) => {
-  console.log(mesh_url)
+const Region = ({ position, setLookAt, responseBody }) => {
   const [geo, setGeo] = useState(null);
   const [minHeight, setMinHeight] = useState(Number.POSITIVE_INFINITY);
   const [maxHeight, setMaxHeight] = useState(Number.NEGATIVE_INFINITY);
@@ -37,20 +36,20 @@ const Region = ({ position, setLookAt, mesh_url }) => {
 
   // Create a ref to store the mesh material
   const materialRef = useRef();
-
+  console.log("here")
+  console.log(responseBody.mesh)
   useEffect(() => {
     const loader = new PLYLoader();
     loader.load(
-      // "http://localhost:9999" + "/v1/download?id=9c86f06b-f01d-4ca4-bf91-4520369d2915&type=mesh",
-      "http://localhost:9999" + mesh_url,
+      "http://localhost:9999" + responseBody.download_link,
       // "test.ply",
       function (geometry) {
-        // setLookAt([
-        //   geometry.boundingSphere.center.x,
-        //   geometry.boundingSphere.center.y,
-        //   geometry.boundingSphere.center.z
-        // ]);
-        console.log(geometry)
+        setLookAt([
+          geometry.boundingSphere.center.y,
+          geometry.boundingSphere.center.x,
+          geometry.boundingSphere.center.z
+        ]);
+
         setGeo(geometry);
 
         // Set far property of the camera
@@ -100,7 +99,7 @@ const Region = ({ position, setLookAt, mesh_url }) => {
 
   return (
     <mesh
-      // position={[position.x, position.y, position.z]}
+      position={[position.x, position.y, position.z]}
       geometry={geo}
       onCreated={(mesh) => {
         // Store the material in the ref

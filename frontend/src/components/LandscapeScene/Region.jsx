@@ -4,6 +4,7 @@ import { PLYLoader } from 'three-stdlib';
 import { useThree } from '@react-three/fiber';
 
 // Custom vertex shader
+
 const vertexShader = `
   varying vec3 vPosition;
 
@@ -13,17 +14,15 @@ const vertexShader = `
   }
 `;
 
-// Custom fragment shader
 const fragmentShader = `
   varying vec3 vPosition;
   uniform float minHeight;
   uniform float maxHeight;
-
   void main() {
     // Calculate normalized height value (0 to 1)
     float height = (vPosition.z - minHeight) / (maxHeight - minHeight);
     // Use height value to interpolate gradient color
-    vec3 color = mix(vec3(1.0, 0.0, 0.0), vec3(0.0, 1.0, 0.0), height);
+    vec3 color = mix(vec3(0.0,0.0,1.0), vec3(0.0,1.0,0.0), height);
     gl_FragColor = vec4(color, 1.0);
   }
 `;
@@ -36,6 +35,7 @@ const Region = ({ position, setLookAt, isframe }) => {
   // Create a ref to store the mesh material
   const materialRef = useRef();
   const frame = isframe === 'Yes' ? true : false;
+  
   useEffect(() => {
     const loader = new PLYLoader();
     loader.load(
@@ -46,6 +46,7 @@ const Region = ({ position, setLookAt, isframe }) => {
           geometry.boundingSphere.center.x,
           geometry.boundingSphere.center.z
         ]);
+        geometry.needsUpdate = true;
         geometry.computeBoundingBox();
         setGeo(geometry);
         console.log(geometry);
@@ -74,16 +75,8 @@ const Region = ({ position, setLookAt, isframe }) => {
 
   // Function to calculate min and max heights
   const calculateMinMaxHeights = () => {
-    const positions = geo.attributes.position.array;
-    
     const min = geo.boundingBox.min.z;
     const max = geo.boundingBox.max.z;
-    // for (let i = 1; i < positions.length; i += 3) {
-    //   const height = positions[i];
-    //   min = Math.min(min, height);
-    //   max = Math.max(max, height);
-    // }
-
     return { min, max };
   };
 
@@ -94,8 +87,8 @@ const Region = ({ position, setLookAt, isframe }) => {
       materialRef.current.uniforms.maxHeight.value = maxHeight;
     }
   }, [minHeight, maxHeight]);
-  console.log(frame);
-  console.log(isframe);
+
+
   return (
     <mesh
       position={[position.x, position.y, position.z]}
@@ -114,6 +107,7 @@ const Region = ({ position, setLookAt, isframe }) => {
           minHeight: { value: minHeight },
           maxHeight: { value: maxHeight },
         }}
+        uniformsNeedUpdate = {true}
       />
       
     </mesh>

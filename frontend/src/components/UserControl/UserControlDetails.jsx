@@ -1,7 +1,7 @@
 import React from "react";
 import './UserControl.css';
 
-const UserControlDetails = ({setIsRequestGenerated, setRequestBody, responseBody}) => {
+const UserControlDetails = ({setIsRequestGenerated, setRequestBody, responseBody, setResponseBody}) => {
     const handleRestart = (event) => {
         event.preventDefault();
 
@@ -13,18 +13,19 @@ const UserControlDetails = ({setIsRequestGenerated, setRequestBody, responseBody
         )
 
         setIsRequestGenerated(false);
+        setResponseBody(null);
     }
 
-    const downloadUrl = "random"
-
+    const downloadURL = "http://localhost:9999" + responseBody.download_link;
     return (
         <div className="panel-control">
             <div className="panel-info">
                 <p>Some details go heres</p>
             </div>
             <div style={{ padding: "5px" }}>
-                <a href={downloadUrl} target="_blank" download style={{ color: 'blue' }}>Click here to download .ply</a>
+                <a href={downloadURL} target="_blank" download style={{ color: 'blue' }}>Click here to download .ply</a>
             </div>
+            <p>{responseBody.download_link}</p>
             <div className="user-control">
                 <form onSubmit={handleRestart}>
                     <input

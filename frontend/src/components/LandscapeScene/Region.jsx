@@ -4,6 +4,7 @@ import { PLYLoader } from 'three-stdlib';
 import { useThree } from '@react-three/fiber';
 
 // Custom vertex shader
+
 const vertexShader = `
   varying vec3 vPosition;
 
@@ -13,31 +14,28 @@ const vertexShader = `
   }
 `;
 
-// Custom fragment shader
 const fragmentShader = `
   varying vec3 vPosition;
   uniform float minHeight;
   uniform float maxHeight;
-
   void main() {
     // Calculate normalized height value (0 to 1)
-    float height = (vPosition.y - minHeight) / (maxHeight - minHeight);
+    float height = (vPosition.z - minHeight) / (maxHeight - minHeight);
     // Use height value to interpolate gradient color
-    vec3 color = mix(vec3(1.0, 0.0, 0.0), vec3(0.0, 1.0, 0.0), height);
+    vec3 color = mix(vec3(0.0,0.0,1.0), vec3(0.0,1.0,0.0), height);
     gl_FragColor = vec4(color, 1.0);
   }
 `;
 
-const Region = ({ position, setLookAt, responseBody }) => {
+const Region = ({ position, setLookAt, responseBody , isframe}) => {
   const [geo, setGeo] = useState(null);
   const [minHeight, setMinHeight] = useState(Number.POSITIVE_INFINITY);
   const [maxHeight, setMaxHeight] = useState(Number.NEGATIVE_INFINITY);
   const camera = useThree((state) => state.camera); // Access camera object
-
   // Create a ref to store the mesh material
   const materialRef = useRef();
-  console.log("here")
-  console.log(responseBody.mesh)
+  const frame = isframe === 'Yes' ? true : false;
+  
   useEffect(() => {
     const loader = new PLYLoader();
     loader.load(
@@ -49,9 +47,10 @@ const Region = ({ position, setLookAt, responseBody }) => {
           geometry.boundingSphere.center.x,
           geometry.boundingSphere.center.z
         ]);
-
+        geometry.needsUpdate = true;
+        geometry.computeBoundingBox();
         setGeo(geometry);
-
+        console.log(geometry);
         // Set far property of the camera
         camera.far = 1000000; // Set a large value for far property
         camera.updateProjectionMatrix(); // Apply changes to camera
@@ -77,15 +76,8 @@ const Region = ({ position, setLookAt, responseBody }) => {
 
   // Function to calculate min and max heights
   const calculateMinMaxHeights = () => {
-    const positions = geo.attributes.position.array;
-    let min = Number.POSITIVE_INFINITY;
-    let max = Number.NEGATIVE_INFINITY;
-    for (let i = 1; i < positions.length; i += 3) {
-      const height = positions[i];
-      min = Math.min(min, height);
-      max = Math.max(max, height);
-    }
-
+    const min = geo.boundingBox.min.z;
+    const max = geo.boundingBox.max.z;
     return { min, max };
   };
 
@@ -96,6 +88,7 @@ const Region = ({ position, setLookAt, responseBody }) => {
       materialRef.current.uniforms.maxHeight.value = maxHeight;
     }
   }, [minHeight, maxHeight]);
+
 
   return (
     <mesh
@@ -109,12 +102,15 @@ const Region = ({ position, setLookAt, responseBody }) => {
       <shaderMaterial
         vertexShader={vertexShader}
         fragmentShader={fragmentShader}
-        wireframe={true}
+        wireframe={frame}
+        side={THREE.DoubleSide}
         uniforms={{
           minHeight: { value: minHeight },
           maxHeight: { value: maxHeight },
         }}
+        uniformsNeedUpdate = {true}
       />
+      
     </mesh>
   );
 };

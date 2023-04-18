@@ -2,13 +2,14 @@ from src.database.database import database
 from geopy import distance
 import uuid
 import open3d as o3d
-import numpy as np 
+import numpy as np
 from datetime import datetime
+
 def _relativeDistance(given : tuple, base: tuple) -> float:
     """
     return relative distance based on two points.
     """
-    distance_ = distance.distance(given, base).m 
+    distance_ = distance.distance(given, base).m
     if given[0] < base[0] or given[1] < base[1]:
         return -1 * distance_
     return distance_
@@ -42,10 +43,10 @@ class RegionDataFetcher:
         self.max = max_bound
         self.base = base
         self.parent = parent
-        self.mesh = None 
+        self.mesh = None
         self.pcd = None
-        self.max_altitude  = None 
-        self.min_altitude  = None    
+        self.max_altitude  = None
+        self.min_altitude  = None
 
     @staticmethod
     def create_by_polygon(polygon, base, parent):
@@ -74,10 +75,10 @@ class RegionDataFetcher:
             _relativeDistance((base[0], coord[1]), base),
         ]
         return xy
-    
+
     def write_to_database(self):
         qry = f"""
-        insert or replace into chunks(id, center_x, center_y, min_bound_x, min_bound_y, max_bound_x, max_bound_y, origin_lat, origin_lon, parent, pcd, mesh, max_altitude, min_altitude) 
+        insert or replace into chunks(id, center_x, center_y, min_bound_x, min_bound_y, max_bound_x, max_bound_y, origin_lat, origin_lon, parent, pcd, mesh, max_altitude, min_altitude)
         values ({','.join(['?'] * 14)});
         """
         param = [
@@ -91,8 +92,8 @@ class RegionDataFetcher:
         """
         TODO: load region from database. not sure whether this still useful.
         """
-        pass 
-        return None 
+        pass
+        return None
         qry = """
         select * from chunks where id = ?;
         """
@@ -114,7 +115,7 @@ class RegionDataFetcher:
             "pcd"  :  10,
             "mesh" : 11,
         }
-        chunk = RegionDataFetcher([data[index['center_x']], data[index["center_y"]]], 
+        chunk = RegionDataFetcher([data[index['center_x']], data[index["center_y"]]],
                       [data[index["min_bound_x"]], data[index["min_bound_y"]]],
                       [data[index['max_bound_x']], data[index["max_bound_y"]]],
                       [data[index['origin_lat']], data[index["origin_lon"]]],
@@ -140,7 +141,7 @@ class RegionDataFetcher:
         #     }
         return chunk
         # database.execute_in_worker()
-    
+
     def to_response(self):
         qry = """
         select filename from tifs where uid = ?;"""
@@ -152,7 +153,7 @@ class RegionDataFetcher:
             'max-bound' : self.max + [3000],
             'geo-origin' : self.base,
             'parent': filename,
-            'status' : { 'Mesh' : self._make_file_response(self.mesh, 'mesh'), 
+            'status' : { 'Mesh' : self._make_file_response(self.mesh, 'mesh'),
                         'Pcd' : self._make_file_response(self.pcd, 'pcd') },
         }
         return response
@@ -166,15 +167,15 @@ class RegionDataFetcher:
         if exist:
             response.update(file)
         return response
-    
+
     def _make_resource_url(self, file, file_type, exist=True):
         if exist:
             return {
-                'herf': f"/v1/resource?id={file['id']}&type={file_type}", 
+                'herf': f"/v1/resource?id={file['id']}&type={file_type}",
             }
         else:
             return {
-                'herf': f"/v1/resource", 
+                'herf': f"/v1/resource",
                 'args' : {
                     "chunk_id" : self.id,
                     "type" : file_type
@@ -189,11 +190,11 @@ class RegionDataFetcher:
             return {
                 'download' : f"/v1/download?id={file['id']}&type={file_type}",
             }
-        
+
     def to_bbox(self):
         bbox = o3d.geometry.AxisAlignedBoundingBox(np.array(self.min + [-1000]), np.array(self.max + [3000]))
         return bbox
-    
+
     def make_mesh(self):
         qry = """
         select pth from meshes where uid = ?;
@@ -206,7 +207,7 @@ class RegionDataFetcher:
         mesh_id = str(uuid.uuid4())
         o3d.io.write_triangle_mesh(f"data/meshes/{mesh_id}.ply", croped_mesh, print_progress = True)
         qry = """
-            insert or replace into meshes(uid, expired, last_update, pth) 
+            insert or replace into meshes(uid, expired, last_update, pth)
             values (?,?,?,?);
             """
         database.execute_in_worker(qry, [mesh_id, 3, datetime.now().timestamp(), f"data/meshes/{mesh_id}.ply"])
@@ -217,7 +218,7 @@ class RegionDataFetcher:
         self.mesh = id[0]
         self.max_altitude = croped_mesh.get_max_bound().tolist()[2]
         self.min_altitude = croped_mesh.get_min_bound().tolist()[2]
-        pass 
+        pass
 
     def make_pointcloud(self):
         qry = """
@@ -229,7 +230,7 @@ class RegionDataFetcher:
         pcd_id = str(uuid.uuid4())
         o3d.io.write_point_cloud(f"data/pcds/{pcd_id}.pcd", croped_pcd, print_progress = True)
         qry = """
-            insert or replace into pcds(uid, expired, last_update, pth) 
+            insert or replace into pcds(uid, expired, last_update, pth)
             values (?,?,?,?);
             """
         database.execute_in_worker(qry, [pcd_id, 3, datetime.now().timestamp(), f"data/pcds/{pcd_id}.pcd"])
@@ -249,7 +250,7 @@ class RegionDataFetcher:
             'max-bound' : self.max + [self.max_altitude],
             'geo-origin' : self.base,
         }
-    
+
     def make_link(self, type):
         if type == "mesh":
             qry = """

@@ -27,7 +27,7 @@ const fragmentShader = `
   }
 `;
 
-const Region = ({ position, setLookAt, isframe }) => {
+const Region = ({ position, setLookAt, responseBody , isframe}) => {
   const [geo, setGeo] = useState(null);
   const [minHeight, setMinHeight] = useState(Number.POSITIVE_INFINITY);
   const [maxHeight, setMaxHeight] = useState(Number.NEGATIVE_INFINITY);
@@ -39,7 +39,8 @@ const Region = ({ position, setLookAt, isframe }) => {
   useEffect(() => {
     const loader = new PLYLoader();
     loader.load(
-      "test.ply",
+      "http://localhost:9999" + responseBody.download_link,
+      // "test.ply",
       function (geometry) {
         setLookAt([
           geometry.boundingSphere.center.y,

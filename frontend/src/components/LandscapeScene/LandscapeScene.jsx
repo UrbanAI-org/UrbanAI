@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import Region from "./Region";
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";

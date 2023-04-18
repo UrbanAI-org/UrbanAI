@@ -15,41 +15,42 @@ const Home = () => {
     );
     const [responseBody, setResponseBody] = useState(null);
 
-	async function fetchMeshes() {
-		try {
-			const response = await fetch("http://localhost:9999/v1/api/region/mesh", {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify(requestBody)
-			})
+    const fetchMeshes = async () => {
+        try {
+          const response = await fetch("http://localhost:9999/v1/api/region/mesh", {
+            method: 'POST',
+            mode: "cors",
+            headers: { 'Content-Type': 'text/plain' },
+            body: JSON.stringify(requestBody)
+          });
 
-			if (!response.ok) {
-				throw new Error(`Error has occurred: ${response.status}`);
-			} else {
-				response.json().then((repsonseValues) => {
-                    console.log(repsonseValues);
-                }).catch((error) => {
-                    console.log("Promise rejected");
-                })
-			}
-		} catch(e) {
-			console.log("Network error occured");
-		}
-	}
+          if (!response.ok) {
+            throw new Error(`Error has occurred: ${response.status}`);
+          } else {
+            response.json().then((values) => {
+                console.log(values)
+                setResponseBody({
+                    download_link: values.download,
+                    mesh: values.mesh
+                });
+            }).catch((error) => {
+                console.log("Promise rejected");
+            })
+          }
+        } catch(e) {
+          console.log("Network error occurred");
+        }
+      };
+
 
     useEffect(() => {
-        if (isRequestGenerated) {
-            // handle fetching request
-            setResponseBody(
-                {
-                    download_link: "oiwefoi",
-                    mesh: "",
-                    details: "",
-                }
-            )
-        }
-
-    }, [isRequestGenerated])
+        const fetchData = async () => {
+          if (isRequestGenerated) {
+            fetchMeshes()
+          }
+        };
+        fetchData();
+      }, [isRequestGenerated]);
 
     return (
         <div className="home">

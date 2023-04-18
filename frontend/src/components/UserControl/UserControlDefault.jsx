@@ -65,8 +65,8 @@ const UserControlDefault = ({setIsRequestGenerated, requestBody, setRequestBody}
             {
                 type: "circle",
                 data: {
-                    lat: lat,
-                    long: long,
+                    latitude: lat,
+                    longitude: long,
                     radius: radius
                 }
             }

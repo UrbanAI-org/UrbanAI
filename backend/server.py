@@ -1,5 +1,5 @@
 from flask import Flask, request, make_response, Response, stream_with_context
-# from flask_cors import CORS
+from flask_cors import CORS, cross_origin
 from flask_restx import Api, Resource, fields, inputs, reqparse
 # from flask_restx import 
 import json
@@ -7,101 +7,19 @@ import traceback
 import os
 import time
 from src.database.database import database
-from src.tifProcess.tifLoader import Loader
+from src.loaders.TifLoader import TifLoader
 # from src.resources.resource import load_from_meshes, load_from_pcds, process_pcd, process_mesh
-from src.resources.resource import ResourceFetcher
-from src.query.regionDataFetcher import RegionDataFetcher
-import base64
-# from src.dataFetchers.regionDataFetcher import RegionDataFetcher
-"""
-!!!
-Make sure some mesh files are generated and do Manager().save() before running this server
-TODO:
-I will convert the Manager class into a database(sqlite or psql or whatever it is)
-"""
+from src.fetchers.ResourceFetcher import MeshResourceFetcher, PcdResourceFetcher
+from src.fetchers.RegionDataFetcher import RegionDataFetcher
+from src.fetchers.FetchersConsts import ResourceType, ResourceAttr
+from src.fetchers.TifRegionFetcher import TifRegionFetcher
 PORT = 9999
-
-
 app = Flask(__name__)
+
+CORS(app, origins="*")
+
+
 API = Api(app)
-# APP.config['TRAP_HTTP_EXCEPTIONS'] = True
-# APP.register_error_handler(Exception, defaultHandler)
-# chunk_id = "153370ea-07a4-4f96-a0d7-d7650111ab66"
-# chunk_id = "abc"
-# mesh_resource_id = "4aa5660c-bff0-472d-bc66-0868a1477acf"
-# mesh_resource_id = "4aa5660c-bff0-472d-bc66-0868a1477acf"
-# pcd_resource_id = "b16be8bf-4c0d-4898-9a63-f683f9f2cb7a"
-# pcd_resource_id = "b16be8bf-4c0d-4898-9a63-f683f9f2cb7a"
-
-# @API.route("/v1/query/chunks")
-# class V1QueryChunks(Resource):
-#     def get(self):
-        
-#         return {
-#             }
-
-#     def post(self):
-#         data = request.json
-#         tif = database.execute_in_worker("select uid, origin_lat, origin_lon from tifs where filename=?", ['s34_e151_1arc_v3.tif'])[0]
-#         if data['type'] == 'polygon':
-#             chunk = RegionDataFetcher.create_by_polygon(data['data']['polygon'], tif[1:], tif[0])
-#         elif data['type'] == 'circle':
-#             chunk = RegionDataFetcher.create_by_circle(data['data']['center'], data['data']['radius'], tif[1:], tif[0])
-#         else:
-#             return {"message" : "invalid input"}, 400
-#         chunk.write_to_database()
-#         resource = {
-#             'id' : chunk.id,
-#             'herf': f"/v1/query/chunk?id={chunk.id}", 
-#         }
-#         return resource
-
-# @API.route("/v1/query/chunk")
-# class V1QueryChunk(Resource):
-#     def get(self):
-#         id = request.args.get('id')
-#         chunk = RegionDataFetcher.read_from_database(id)
-#         if chunk is None:
-#             return {}
-#         return chunk.to_response()
-
-# @API.route("/v1/resource")
-# class V1Resource(Resource):
-#     def get(self):
-#         id = request.args.get("id")
-#         print(id)
-#         resource_type = request.args.get("type", "mesh")
-#         if resource_type == "mesh":
-#             path = load_from_meshes(id)
-#         elif resource_type == "pcb":
-#             path = load_from_pcds(id)
-#         else:
-#             return {"message" : "invalid format"}, 400
-#         if path is None:
-#             return {"message" : "invalid id"}, 400
-#         else:
-#             file = open(path, "rb")
-#             file_str = base64.b64encode(file.read())
-#             file.close()
-#             return Response(file_str, mimetype="text/plain")
-        
-
-#     def post(self):
-#         data = request.get_json()
-#         chunk = RegionDataFetcher.read_from_database(data['chunk_id'])
-#         if chunk is None:
-#             return {"message" : "chunk does not exist"}, 404
-#         if data['type'] == 'mesh':
-#             process_mesh(chunk)
-#         elif data['type'] == 'pcd':
-#             process_pcd(chunk)
-#         else:
-#             return {"message" : "invalid type"}, 400
-#         return {
-#             'id' : chunk,
-#             'herf': f"/v1/resource?id={chunk}&type={data['type']}",
-#             'expired' : 3
-#         }  
 
 @API.route("/v1/download")
 class V1Download(Resource):
@@ -109,9 +27,11 @@ class V1Download(Resource):
         resource_type = request.args.get("type", "mesh")
         id = request.args.get("id", None)
         if resource_type == "mesh":
-            path = ResourceFetcher.load_from_meshes(id)
+            fetcher = MeshResourceFetcher()
+            path = fetcher.get_pth(ResourceAttr.UNIQUE_ID, id)
         elif resource_type == "pcb":
-            path = ResourceFetcher.load_from_pcds(id)
+            fetcher = PcdResourceFetcher()
+            path = fetcher.get_pth(ResourceAttr.UNIQUE_ID, id)
         else:
             return {"message" : "invalid format"}
         if path is None:
@@ -143,27 +63,37 @@ def phrase_polygon(data):
     return polygon
 
 def phrase_lat_lon(data):
-    return [data['latitude'], data['longitude']]
+    return [float(data['latitude']), float(data['longitude'])]
 
+@cross_origin
 @API.route("/v1/api/region/mesh")
 class V1ApiRegionAdd(Resource):
     def post(self):
-        data = request.json
+        if request.headers.get("Content-Type") == "text/plain":
+            data = json.loads(request.data)
+        else:
+            data = request.json
+        print(data)
         tif = database.execute_in_worker("select uid, origin_lat, origin_lon from tifs where filename=?", ['s34_e151_1arc_v3.tif'])[0]
         if data['type'] == 'polygon':
             chunk = RegionDataFetcher.create_by_polygon(phrase_polygon(data['data']), tif[1:], tif[0])
         elif data['type'] == 'circle':
-            chunk = RegionDataFetcher.create_by_circle(phrase_lat_lon(data['data']['center']), data['data']['radius'], tif[1:], tif[0])
+            chunk = RegionDataFetcher.create_by_circle(phrase_lat_lon(data['data']), data['data']['radius'], tif[1:], tif[0])
         else:
             return {"message" : "invalid input"}, 400
+       
         chunk.make_mesh()
         chunk.write_to_database()
-        downlink = chunk.make_link("mesh")
+        downlink = chunk.make_link(ResourceType.MESH)
+        mesh = chunk.get_mesh()
         return {
             "download" : downlink,
-            "mesh" : downlink,
+            "mesh" : mesh,
             "details" : chunk.to_details()
         }
+    def options(self):
+        
+        return Response(headers={"Access-Control-Allow-Methods" : "POST,GET,DELETE,OPTIONS"})
 
 
 
@@ -219,8 +149,8 @@ class V1ApiRegionAdd(Resource):
 
 if __name__ == "__main__":
     database.start()
-    loader = Loader("data/s34_e151_1arc_v3.tif")
-    chunk = loader.toChunkWithXYPlaneCoord()
-    chunk.toPointCloud(save=True)
-    chunk.toMesh(save=True)
+    # loader = TifLoader("data/s34_e151_1arc_v3.tif")
+    # fetcher = TifRegionFetcher.create_by_loader(loader)
+    # fetcher.make_pcd()
+    # fetcher.make_mesh()
     app.run(port=PORT) 

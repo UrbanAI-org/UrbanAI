@@ -1,0 +1,7 @@
+.UserGuide {
+    background: white;
+    margin-left: 50px;
+    }
+    .UserGuide > p {
+        line-height: 1.2;
+    }

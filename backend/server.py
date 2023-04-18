@@ -1,11 +1,8 @@
-from flask import Flask, request, make_response, Response, stream_with_context
+from flask import Flask, request, Response, stream_with_context
 from flask_cors import CORS, cross_origin
-from flask_restx import Api, Resource, fields, inputs, reqparse
+from flask_restx import Api, Resource
 # from flask_restx import
 import json
-import traceback
-import os
-import time
 from src.database.database import database
 from src.loaders.TifLoader import TifLoader
 # from src.resources.resource import load_from_meshes, load_from_pcds, process_pcd, process_mesh
@@ -85,67 +82,15 @@ class V1ApiRegionAdd(Resource):
         chunk.make_mesh()
         chunk.write_to_database()
         downlink = chunk.make_link(ResourceType.MESH)
-        mesh = chunk.get_mesh()
+        # mesh = chunk.get_mesh()
         return {
             "download" : downlink,
-            "mesh" : mesh,
+            "mesh" : "mesh",
             "details" : chunk.to_details()
         }
     def options(self):
 
         return Response(headers={"Access-Control-Allow-Methods" : "POST,GET,DELETE,OPTIONS"})
-
-
-
-
-
-
-
-
-
-# @API.route("/query/mesh", methods=['POST'])
-# def get_meshs():
-#     data = request.get_json()
-#     assert type(data['polygon']) is list
-#     ids = Manager().searchChunk(data['polygon'])
-#     urls = []
-#     for id in ids:
-#         url = Manager().getChunkSavedURL(id, ".ply")
-#         if url is None:
-#             continue
-#         urls.append(url)
-#     return json.dumps(urls)
-
-# @API.route("/temp/ln", methods=['POST'])
-# def make_link():
-#     src = os.path.abspath("data/meshs")
-#     pths = request.get_json()
-#     for pth in pths['path']:
-#         os.symlink(src, pth)
-#     return {}
-
-# @API.route("/download/mesh", methods=['GET'])
-# def get_download():
-#     url = request.args.get("pth")
-#     CHUNK_SIZE = 8192
-#     def read_file_chunks(url):
-#         with open(url, 'rb') as fd:
-#             while 1:
-#                 buf = fd.read(CHUNK_SIZE)
-#                 if buf:
-#                     yield buf
-#                 else:
-#                     break
-#     try:
-#         return Response(
-#             stream_with_context(read_file_chunks(url)),
-#             headers={
-#                 'Content-Disposition': f'attachment; filename={"123.ply"}'
-#             }
-#         )
-#     except FileNotFoundError:
-#         return {"message" : "invalid id"}
-
 
 if __name__ == "__main__":
     database.start()

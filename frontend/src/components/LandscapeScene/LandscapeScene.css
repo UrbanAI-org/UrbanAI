@@ -18,3 +18,10 @@
     overflow: hidden;
     position: relative;
   }
+
+  .gui-controller {
+    margin-top: 15vh;
+    margin-right: 5vh;
+    z-index: 1;
+  }
+

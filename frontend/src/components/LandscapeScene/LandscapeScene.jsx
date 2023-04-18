@@ -28,33 +28,31 @@ const LandscapeScene = ({ responseBody }) => {
   } else {
     // ***********************************************
     // TODO: 
-    setPosition({
-      x : 54622.674343846564,
-      y : -45736.43317283617,
-      z : 274.990234375,
-      rotationX: 0, 
-      rotationY: 0, 
-      rotationZ: 0
-    });
-    setLookAt([54622.674343846564, -45736.43317283617, 274.990234375])
+    // setPosition({
+    //   x : 54622.674343846564,
+    //   y : -45736.43317283617,
+    //   z : 274.990234375,
+    //   rotationX: 0, 
+    //   rotationY: 0, 
+    //   rotationZ: 0
+    // });
+    // setLookAt([54622.674343846564, -45736.43317283617, 274.990234375])
     // ***********************************************
     console.log(position)
     console.log(lookAt)
     return (
-      <div className="landscape-scene">
-        {/* <DatGui data={position} onUpdate={setPosition} >
+        <Canvas className="landscape-scene">
+          {/* <DatGui data={position} onUpdate={setPosition} >
           <DatNumber path="x" label="X" min={-300} max={300} step={0.1} />
           <DatNumber path="y" label="Y" min={-300} max={300} step={0.1} />
           <DatNumber path="z" label="Z" min={-300} max={300} step={0.1} />
           <DatNumber path="rotationX" label="Rotation X" min={-Math.PI} max={Math.PI} step={0.01} />
           <DatNumber path="rotationY" label="Rotation Y" min={-Math.PI} max={Math.PI} step={0.01} />
           <DatNumber path="rotationZ" label="Rotation Z" min={-Math.PI} max={Math.PI} step={0.01} />
-        </DatGui> */}
-        <Canvas >
-          <Region position={position} setLookAt={setLookAt} mesh_url={responseBody.download}/>
+          </DatGui> */}
+          <Region position={position} setLookAt={setLookAt}/>
           <OrbitControls ref={orbitControlsRef} target={new THREE.Vector3(lookAt[0], lookAt[1], lookAt[2])} />
         </Canvas>
-      </div>
     );
   }
 };

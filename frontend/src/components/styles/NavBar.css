@@ -15,23 +15,41 @@
     background: white;
     color: black;
     cursor: grab;
+  } 
+
+  .NavBar > a {
+    display: flex;
+    align-items: center;
+    margin-left: auto;
+    margin-right: 10px;
+    text-decoration: none;
+  }
+  
+  .NavBar > a > img {
+    width: 25px;
+    height: 25px;
+    filter: invert(1);
   }
 
-  .NavBar > button {
+  .NavBar > a:hover::after {
+    content: "Report a Bug";
+    position: relative;
+    top: 0;
+    right: -100;
     background-color: black;
     color: white;
-    border: none;
-    padding: 10px 20px;
-    font-size: 20px;
-    font-family: monospace;
-    cursor: pointer;
+    padding: 10px;
+    font-size: 14px;
   }
 
-  .NavBar > button:hover {
-    background-color: white;
-    color: black;
-    cursor: grab;
+  
+@media only screen and (max-width: 768px) {
+  .NavBar > a > img {
+    width: 30px;
+    height: 30px;
   }
+}
+  
 
   
 

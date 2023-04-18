@@ -45,14 +45,14 @@ const Home = () => {
     useEffect(() => {
         if (isRequestGenerated) {
             // handle fetching request
-            fetchMeshes()
-            // setResponseBody(
-            //     {
-            //         download_link: "oiwefoi",
-            //         mesh: "",
-            //         details: "",
-            //     }
-            // )
+            // fetchMeshes()
+            setResponseBody(
+                {
+                    download_link: "oiwefoi",
+                    mesh: "",
+                    details: "",
+                }
+            )
         }
 
     }, [isRequestGenerated])

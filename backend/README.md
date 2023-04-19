@@ -15,7 +15,7 @@ The backend is a kind of tool for Mesh reconstruction based on the satatlite dat
     - Python >= 3.8
 
 # API and Classes Reference
-- [Server Reference](./docs/ClassesReference.md)
+- [Server Reference](./docs/RouteAPI.md)
 - [Classes Reference](./docs/ClassesReference.md)
 
 # Build Instructions

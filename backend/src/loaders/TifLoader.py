@@ -55,7 +55,7 @@ class TifLoader:
         lon_array, lat_array = self.geo_tiff.get_coord_arrays()
         return lat_array, lon_array
 
-    def get_Geo_coord_vectors(self) -> np.ndarray:
+    def get_geo_coord_lat_lon(self):
         """
         Returns 3D vector according to the geographic coordinates
         """

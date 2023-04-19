@@ -1,6 +1,10 @@
 # Documentation
 The backend is a kind of tool for Mesh reconstruction based on the satatlite data, especially for the file type .tif. It also provides an API to exact and download the topography in given region.
 # Quick Links
+- [build-instructions](#build-instructions)
+- [API and Classes Reference](#api-and-classes-reference)
+- [tutorial](#tutorial)
+
 # Supported platforms / languages
 - Supported platforms
     - GNU/Linux
@@ -11,7 +15,7 @@ The backend is a kind of tool for Mesh reconstruction based on the satatlite dat
     - Python >= 3.8
 
 # API and Classes Reference
-- [Route API](./docs/RouteAPI.md)
+- [Server Reference](./docs/ClassesReference.md)
 - [Classes Reference](./docs/ClassesReference.md)
 
 # Build Instructions
@@ -46,6 +50,10 @@ source env/bin/activate
 4. Installing packages
 ```
 pip3 install -r requirements.txt
+```
+5. runing server
+```
+python server.py
 ```
 # Tutorial
 A brief tutorial of how the backend work and a brief summary of topography processing
@@ -187,6 +195,7 @@ Database have a simple schema, you could find it the Database class documation.
         - pcds
             - xxx.pcd
         - xxx.tif
+
 If you want to change the cached tif file, please put tif file in the `data` folder, and delete the database and put path of tif into the server.py line 97.
 ```
 loader = TifLoader("data/any.tif")

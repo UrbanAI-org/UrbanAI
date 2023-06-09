@@ -2,19 +2,7 @@ from typing import Optional
 import numpy as np
 from geotiff import GeoTiff
 from multiprocessing.pool import ThreadPool
-import open3d as o3d
-from threading import Lock, Thread
 import uuid
-import math
-import random
-import string
-import json
-import os
-import sqlite3 
-import queue
-import datetime
-from datetime import datetime
-
 from src.database.database import database
 from src.loaders.utils import makeXYPlaneInterp, mapCoordtoXPPlane,merge
 THICKNESS = 10
@@ -67,7 +55,7 @@ class TifLoader:
         lon_array, lat_array = self.geo_tiff.get_coord_arrays()
         return lat_array, lon_array
 
-    def get_Geo_coord_vectors(self) -> np.ndarray:
+    def get_geo_coord_lat_lon(self):
         """
         Returns 3D vector according to the geographic coordinates
         """

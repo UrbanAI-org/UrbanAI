@@ -1,49 +1,5 @@
-# ###
-# GET http://127.0.0.1:9999/v1/query/chunks
-
 # ### 
-# POST http://127.0.0.1:9999/v1/query/chunks HTTP/1.1
-# content-type: application/json
-
-# {
-#     "type" : "polygon",
-#     "data" : {
-#         "polygon" : [
-#             [-33.005, 151.0056],
-#             [-33.021, 151.078],
-#             [-33.037, 151.384]
-#         ]
-#     }
-# }
-
-# ### 
-# POST http://127.0.0.1:9999/v1/query/chunks
-# content-type: application/json
-
-# {
-#     "type" : "circle",
-#     "data" : {
-#         "center" : [-33.7, 151.256],
-#         "radius" : "2 km"
-#     }
-# }
-
-# ### 
-# GET http://127.0.0.1:9999//v1/query/chunk?id=50258acb-e7cf-41ef-8cff-b18ec95c7d34
-
-# ###
-# GET http://127.0.0.1:9999/v1/resource?id=9e711dd8-e83c-4809-bcd0-05b377c432ad&type=mesh
-
-# ###
-# POST http://127.0.0.1:9999/v1/resource
-# content-type: application/json
-
-# {
-#     "chunk_id": "50258acb-e7cf-41ef-8cff-b18ec95c7d34",
-#     "type": "mesh"
-# }
-# ### 
-# GET http://127.0.0.1:9999/v1/download?id=9e711dd8-e83c-4809-bcd0-05b377c432ad&type=mesh
+GET http://127.0.0.1:9999/v1/download?id=9e711dd8-e83c-4809-bcd0-05b377c432ad&type=mesh
 
 ###
 POST http://127.0.0.1:9999/v1/api/region/mesh 
@@ -65,7 +21,8 @@ content-type: application/json
 {
     "type" : "circle",
     "data" : {
-        "center" : {"latitude" : -33.7, "longitude" :  151.256},
+        "latitude" : -33.7, 
+        "longitude" :  151.256,
         "radius" : 2
     }
 }

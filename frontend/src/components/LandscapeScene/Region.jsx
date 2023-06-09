@@ -35,7 +35,7 @@ const Region = ({ position, setLookAt, responseBody , isframe}) => {
   // Create a ref to store the mesh material
   const materialRef = useRef();
   const frame = isframe === 'Yes' ? true : false;
-  
+  console.log(responseBody.download_link);
   useEffect(() => {
     const loader = new PLYLoader();
     loader.load(

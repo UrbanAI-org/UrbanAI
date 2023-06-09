@@ -33,7 +33,7 @@ const LandscapeScene = ({ responseBody }) => {
         </DatGui>
         
         <Canvas >
-          <Region position={position} setLookAt={setLookAt} isframe={isframe} />
+          <Region position={position} setLookAt={setLookAt} responseBody={responseBody} isframe={isframe} />
           <OrbitControls ref={orbitControlsRef} target={new THREE.Vector3(lookAt[0], lookAt[1], lookAt[2])} />
         </Canvas>
       </div>

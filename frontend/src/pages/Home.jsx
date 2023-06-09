@@ -31,7 +31,7 @@ const Home = () => {
                 console.log(values)
                 setResponseBody({
                     download_link: values.download,
-                    mesh: values.mesh
+                    // mesh: values.mesh
                 });
             }).catch((error) => {
                 console.log("Promise rejected");

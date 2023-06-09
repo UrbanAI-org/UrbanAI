@@ -85,7 +85,7 @@ class V1ApiRegionAdd(Resource):
         # mesh = chunk.get_mesh()
         return {
             "download" : downlink,
-            "mesh" : "mesh",
+            # "mesh" : "mesh",
             "details" : chunk.to_details()
         }
     def options(self):

@@ -16,8 +16,8 @@ const NavBar = () => {
     return (
         <div className="NavBar">
             <header onClick={() => {setPath('/')}}>Home</header>
-            <header onClick={() => {setPath('/about')}}>About</header>
-            <header onClick={() => {setPath('/contributions')}}>Contributions</header>
+            {/* <header onClick={() => {setPath('/about')}}>About</header>
+            <header onClick={() => {setPath('/contributions')}}>Contributions</header> */}
             <header onClick={() => {setPath('/userguide')}}>How To Use</header>
 
             <a href="https://docs.google.com/forms/d/e/1FAIpQLSeDCRgAMDRd8n3Bz68ILfMUSrYcpRR4zKRpurCH_jJVqunqXw/viewform">

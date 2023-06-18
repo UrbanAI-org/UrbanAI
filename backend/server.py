@@ -11,6 +11,12 @@ from src.fetchers.RegionDataFetcher import RegionDataFetcher
 from src.fetchers.FetchersConsts import ResourceType, ResourceAttr
 from src.fetchers.TifRegionFetcher import TifRegionFetcher
 from src.fetchers.TifFetcher import TifFetcher
+import time
+from src.always_on.CacheClear import CaCheClear
+from src.always_on.AlwaysOnLauncher import Launcher
+from datetime import timedelta
+CLEAR_CACHE = hash(time.time())
+
 PORT = 9999
 app = Flask(__name__)
 
@@ -18,6 +24,16 @@ CORS(app, origins="*")
 
 
 API = Api(app)
+
+@API.route("/v1/clear/cache")
+class ClearCache(Resource):
+    def delete(self):
+        data = request.json
+        if data['key'] == CLEAR_CACHE:
+            database.clear_cache()
+            return {"message" : "Clear Cache"}, 200
+        else:
+            return {"message" : "Invalid Auth"}, 503
 
 @API.route("/v1/download")
 class V1Download(Resource):
@@ -71,7 +87,7 @@ class V1ApiRegionAdd(Resource):
             data = json.loads(request.data)
         else:
             data = request.json
-        print(data)
+        # print(data)
         # tif = database.execute_in_worker("select uid, origin_lat, origin_lon from tifs where filename=?", ['s34_e151_1arc_v3.tif'])[0]
         if data['type'] == 'polygon':
             chunk = RegionDataFetcher.create_by_polygon(phrase_polygon(data['data']))
@@ -79,10 +95,15 @@ class V1ApiRegionAdd(Resource):
             chunk = RegionDataFetcher.create_by_circle(phrase_lat_lon(data['data']), data['data']['radius'])
         else:
             return {"message" : "invalid input"}, 400
-
-        chunk.make_mesh()
-        chunk.write_to_database()
-        downlink = chunk.make_link(ResourceType.MESH)
+        if database.in_cache(chunk.to_range_string()):
+            data = database.get_cache(chunk.to_range_string())
+            chunk = RegionDataFetcher.read_from_database(data['id'])
+            downlink = data['download_link']
+        else:
+            chunk.make_mesh()
+            chunk.write_to_database()
+            downlink = chunk.make_link(ResourceType.MESH)
+            database.put_cache(chunk.to_range_string(), {"id" : chunk.id, "download_link": downlink, "mesh_id": chunk.mesh})
         return {
             "download" : downlink,
             "details" : chunk.to_details()
@@ -94,6 +115,10 @@ class V1ApiRegionAdd(Resource):
 if __name__ == "__main__":
     database.start()
     database.report()
+    launch = Launcher()
+    launch.add(CaCheClear(CLEAR_CACHE, timedelta(hours=6)))
+    launch.launch()
+    
     # loader = TifLoader("data/s34_e151_1arc_v3.tif")
     # fetcher = TifRegionFetcher.create_by_loader(loader)
     # fetcher.make_pcd()

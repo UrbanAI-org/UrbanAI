@@ -2,7 +2,7 @@ import sqlite3
 import queue
 from src.database.singletonMeta import SingletonMeta
 from threading import Thread
-
+import os
 # global database 
 # database = None
 class FileChecker:
@@ -37,6 +37,7 @@ class Database(metaclass=SingletonMeta):
         self.tables = tables
         self.dbloop = True
         self.debug = debug
+        self.cache = {}
 
     def start(self):
         def run():
@@ -84,10 +85,6 @@ class Database(metaclass=SingletonMeta):
     def close(self):
         self.work_queue.put((("__STOP__", []), queue.Queue()))
 
-
-    def env_check(self, envChecker):
-        pass
-
     def report(self):
         qry = """
         select count(*) from tifs;"""
@@ -103,6 +100,35 @@ class Database(metaclass=SingletonMeta):
         count_regions = result[0]
         print(f"""Database Report:\nThere is {count_tifs} tifs, {count_meshes} Meshes, {count_regions} User Defined Regions\n""")
     
+    def put_cache(self, cache_key, cache_value):
+        self.cache.update({cache_key: cache_value})
+
+    def get_cache(self, cache_key, cache_value = None):
+        value = self.cache.get(cache_key)
+        if value is None:
+            return cache_value
+        return value
+    
+    def in_cache(self, cache_key):
+        return cache_key in self.cache.keys()
+    
+    def clear_cache(self):
+        self.cache = {}
+        temp = self.cache
+        for value in temp.values():
+            chunk_id = value['id']
+            qry = """
+            delete from chunks where id = ?;
+            """
+            self.execute_in_worker(qry, [chunk_id])
+            mesh_id = value['mesh_id']
+            pth = self.fetchone("select pth from meshes where id = ?;", [mesh_id])[0]
+            self.execute_in_worker("delete from meshes where id = ?;", [mesh_id])
+            if os.path.exists(pth):
+                os.remove(pth)
+                
+        pass
+
 tables = """
 create table if not exists meshes (
     id integer primary key AUTOINCREMENT,

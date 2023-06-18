@@ -206,3 +206,6 @@ class RegionDataFetcher:
             raise ValueError("uid does not exist")
         
         return f"/v1/download?id={uid}&type=mesh"
+
+    def to_range_string(self):
+        return f"{self.min}-{self.max}"

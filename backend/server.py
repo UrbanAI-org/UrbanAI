@@ -82,10 +82,8 @@ class V1ApiRegionAdd(Resource):
         chunk.make_mesh()
         chunk.write_to_database()
         downlink = chunk.make_link(ResourceType.MESH)
-        # mesh = chunk.get_mesh()
         return {
             "download" : downlink,
-            # "mesh" : "mesh",
             "details" : chunk.to_details()
         }
     def options(self):
@@ -94,8 +92,9 @@ class V1ApiRegionAdd(Resource):
 
 if __name__ == "__main__":
     database.start()
-    loader = TifLoader("data/s34_e151_1arc_v3.tif")
-    fetcher = TifRegionFetcher.create_by_loader(loader)
-    fetcher.make_pcd()
-    fetcher.make_mesh()
+    database.report()
+    # loader = TifLoader("data/s34_e151_1arc_v3.tif")
+    # fetcher = TifRegionFetcher.create_by_loader(loader)
+    # fetcher.make_pcd()
+    # fetcher.make_mesh()
     app.run(port=PORT)

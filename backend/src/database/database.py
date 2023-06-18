@@ -31,11 +31,12 @@ class FileChecker:
 
 class Database(metaclass=SingletonMeta):
 
-    def __init__(self, db, tables) -> None:
+    def __init__(self, db, tables, debug = False) -> None:
         self.work_queue = queue.Queue()
         self.db = db
         self.tables = tables
         self.dbloop = True
+        self.debug = debug
 
     def start(self):
         def run():
@@ -51,9 +52,10 @@ class Database(metaclass=SingletonMeta):
                         break
                     cur.execute(sql, params)
                     res = cur.fetchall()
-                    print("------ SQL WORKER ------")
-                    print(sql, params, res, sep="\n")
-                    print("-----------------------")
+                    if self.debug:
+                        print("------ SQL WORKER ------")
+                        print(sql, params, res, sep="\n")
+                        print("-----------------------")
                     con.commit()
                     result_queue.put(res)
                 except Exception as e:
@@ -85,6 +87,21 @@ class Database(metaclass=SingletonMeta):
 
     def env_check(self, envChecker):
         pass
+
+    def report(self):
+        qry = """
+        select count(*) from tifs;"""
+        result = self.fetchone(qry)
+        count_tifs = result[0]
+        qry = """
+        select count(*) from meshes;"""
+        result = self.fetchone(qry)
+        count_meshes = result[0]
+        qry = """
+        select count(*) from chunks;"""
+        result = self.fetchone(qry)
+        count_regions = result[0]
+        print(f"""Database Report:\nThere is {count_tifs} tifs, {count_meshes} Meshes, {count_regions} User Defined Regions\n""")
     
 tables = """
 create table if not exists meshes (

@@ -27,7 +27,7 @@ database.start()
 for filename in filenames:
     if filename is not None:
         print("Open file:", filename)
-        loader = TifLoader(f"data/{filename}")
+        loader = TifLoader(f"data/{filename}", origin=[(-35 + -30) / 2, (148+150) / 2])
         fetcher = TifRegionFetcher.create_by_loader(loader)
         fetcher.make_pcd()
         fetcher.make_mesh()

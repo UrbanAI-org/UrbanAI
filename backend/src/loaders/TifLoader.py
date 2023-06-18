@@ -8,8 +8,8 @@ from src.loaders.utils import makeXYPlaneInterp, mapCoordtoXPPlane,merge
 THICKNESS = 10
 global default_path_
 default_path_ = "./"
-global global_base_coord_
-global_base_coord_ = (-34, 151)
+# global global_base_coord_
+# global_base_coord_ = (-34, 151)
 
 
 

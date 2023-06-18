@@ -10,6 +10,7 @@ from src.fetchers.ResourceFetcher import MeshResourceFetcher, PcdResourceFetcher
 from src.fetchers.RegionDataFetcher import RegionDataFetcher
 from src.fetchers.FetchersConsts import ResourceType, ResourceAttr
 from src.fetchers.TifRegionFetcher import TifRegionFetcher
+from src.fetchers.TifFetcher import TifFetcher
 PORT = 9999
 app = Flask(__name__)
 
@@ -71,11 +72,11 @@ class V1ApiRegionAdd(Resource):
         else:
             data = request.json
         print(data)
-        tif = database.execute_in_worker("select uid, origin_lat, origin_lon from tifs where filename=?", ['s34_e151_1arc_v3.tif'])[0]
+        # tif = database.execute_in_worker("select uid, origin_lat, origin_lon from tifs where filename=?", ['s34_e151_1arc_v3.tif'])[0]
         if data['type'] == 'polygon':
-            chunk = RegionDataFetcher.create_by_polygon(phrase_polygon(data['data']), tif[1:], tif[0])
+            chunk = RegionDataFetcher.create_by_polygon(phrase_polygon(data['data']))
         elif data['type'] == 'circle':
-            chunk = RegionDataFetcher.create_by_circle(phrase_lat_lon(data['data']), data['data']['radius'], tif[1:], tif[0])
+            chunk = RegionDataFetcher.create_by_circle(phrase_lat_lon(data['data']), data['data']['radius'])
         else:
             return {"message" : "invalid input"}, 400
 

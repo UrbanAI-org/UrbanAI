@@ -27,6 +27,9 @@ class ResourceFetcher:
         assert type(result) is ResourceAttr
         if value is None:
             return None
+        if type(value) is list:
+            return [self._get_attr_by_attr(result, by, each) for each in value]
+                
         qry = f"""
         select {result.value} from {self.domain} where {by.value} = ?;
         """

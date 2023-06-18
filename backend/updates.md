@@ -1,3 +1,9 @@
+# 2023-06-18 updates
+- Add a script to download tifs in any area
+- Use the downloaded tifs to expand the dataset.
+- prev: [README](./updates/README_v4.md)
+
+
 # 2023-04-18 updates
 - wired up the frontend and backend;
 - adding detailed documentation

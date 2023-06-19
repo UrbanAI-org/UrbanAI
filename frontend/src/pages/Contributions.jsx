@@ -1,5 +1,7 @@
 import React, {useState, useEffect} from "react";
 import NavBar from "../components/NavBar";
+import '../components/styles/Contributions.css'
+
 
 /**
  * Use this opportunity to play with react
@@ -22,38 +24,41 @@ const Person = (props) => {
 
 const Contributions = () => {
 
-    // This is a hook. Only change this using its setter
-    const [clickText, setclickText] = useState(0)
+    // // This is a hook. Only change this using its setter
+    // const [clickText, setclickText] = useState(0)
 
-    const peopleName = [
-    <Person name = 'Bob' lastName = 'He' degree = 'Econonmics/Computer Science'/> ,
-    <Person name = 'Hongyi' lastName = 'Zheng' degree = 'Commerce/Computer Science'/>,
-    <Person name = 'Alice' lastName = 'Wan' degree = 'Computer Science'/>,
-    <Person name = 'Shilong' lastName = 'Li' degree = 'Commerce/Computer Science'/>,
-    <Person name = 'Riley' lastName = 'Liu' degree = 'Commerce/Computer Science'/>,
-    ]
+    // const peopleName = [
+    // <Person name = 'Bob' lastName = 'He' degree = 'Econonmics/Computer Science'/> ,
+    // <Person name = 'Hongyi' lastName = 'Zheng' degree = 'Commerce/Computer Science'/>,
+    // <Person name = 'Alice' lastName = 'Wan' degree = 'Computer Science'/>,
+    // <Person name = 'Shilong' lastName = 'Li' degree = 'Commerce/Computer Science'/>,
+    // <Person name = 'Riley' lastName = 'Liu' degree = 'Commerce/Computer Science'/>,
+    // ]
 
     return (
-        <div className="Contributions">
-            <div style={{ textAlign: 'center' }}>
+        <div>
+            <NavBar/>
+        <div>
 
-                <NavBar />
-
-                <h1>Contributions</h1>
-                <h2>List of people who have contributed to this project</h2>
-
-                <div>{peopleName[clickText]}</div>
-
-                {/* Illustration on how states work. */}
-
-                <button onClick={() => setclickText((clickText + 1) % peopleName.length)}>
-                Next
+        <div class="card-container">
+            <span class="pro">PRO</span>
+            <img class="round" src="https://randomuser.me/api/portraits/women/79.jpg" alt="user" />
+            <h3>Ricky Park</h3>
+            <h6>New York</h6>
+            <p>User interface designer and <br/> front-end developer</p>
+            <div class="buttons">
+                <button class="primary">
+                    Message
+                </button>
+                <button class="primary ghost">
+                    Following
                 </button>
             </div>
-
+        </div>
+            </div>
         </div>
 
-    )
+    );
 }
 
 

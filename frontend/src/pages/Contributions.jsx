@@ -38,23 +38,88 @@ const Contributions = () => {
     return (
         <div>
             <NavBar/>
-        <div>
+            <div>
+                <div class="container-wrapper">
+                    <div class="card-container">
+                        <img class="round" src="https://randomuser.me/api/portraits/women/79.jpg" alt="user" />
+                        <h3>Ricky Park</h3>
+                        <h6>New York</h6>
+                        <p>User interface designer and <br/> front-end developer</p>
+                        <div class="buttons">
+                            <button class="primary">
+                                &nbsp;&nbsp;Email&nbsp;&nbsp;
+                            </button>
+                            <button class="primary ghost">
+                                LinkedIn
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-container">
+                        <img class="round" src="https://randomuser.me/api/portraits/women/79.jpg" alt="user" />
+                        <h3>Ricky Park</h3>
+                        <h6>New York</h6>
+                        <p>User interface designer and <br/> front-end developer</p>
+                        <div class="buttons">
+                            <button class="primary">
+                                &nbsp;&nbsp;Email&nbsp;&nbsp;
+                            </button>
+                            <button class="primary ghost">
+                                LinkedIn
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-container">
+                        <img class="round" src="https://randomuser.me/api/portraits/women/79.jpg" alt="user" />
+                        <h3>Ricky Park</h3>
+                        <h6>New York</h6>
+                        <p>User interface designer and <br/> front-end developer</p>
+                        <div class="buttons">
+                            <button class="primary">
+                                &nbsp;&nbsp;Email&nbsp;&nbsp;
+                            </button>
+                            <button class="primary ghost">
+                                LinkedIn
+                            </button>
+                        </div>
+                    </div>
+                </div>
 
-        <div class="card-container">
-            <span class="pro">PRO</span>
-            <img class="round" src="https://randomuser.me/api/portraits/women/79.jpg" alt="user" />
-            <h3>Ricky Park</h3>
-            <h6>New York</h6>
-            <p>User interface designer and <br/> front-end developer</p>
-            <div class="buttons">
-                <button class="primary">
-                    Message
-                </button>
-                <button class="primary ghost">
-                    Following
-                </button>
-            </div>
-        </div>
+                <div class="container-wrapper">
+                    <div class="card-container">
+                        <img class="round" src="https://randomuser.me/api/portraits/women/79.jpg" alt="user" />
+                        <h3>Ricky Park</h3>
+                        <h6>New York</h6>
+                        <p>User interface designer and <br/> front-end developer</p>
+                        <div class="buttons">
+                            <button class="primary">
+                                &nbsp;&nbsp;Email&nbsp;&nbsp;
+                            </button>
+                            <button class="primary ghost">
+                                LinkedIn
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-container">
+                        <img class="round" src="https://randomuser.me/api/portraits/women/79.jpg" alt="user" />
+                        <h3>Ricky Park</h3>
+                        <h6>New York</h6>
+                        <p>User interface designer and <br/> front-end developer</p>
+                        <div class="buttons">
+                            <button class="primary">
+                                &nbsp;&nbsp;Email&nbsp;&nbsp;
+                            </button>
+                            <button class="primary ghost">
+                                LinkedIn
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-container" >
+                        <br/><br/><br/><br/><br/>
+                        <h1 align="center"><font color="black">URBAN</font></h1>
+                        <h1>AI</h1>
+                    </div>
+                    
+                </div>
             </div>
         </div>
 

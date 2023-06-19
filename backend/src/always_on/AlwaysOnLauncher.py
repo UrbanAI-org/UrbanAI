@@ -10,7 +10,7 @@ class Launcher:
         pass
 
     def add(self, always_on : AlwaysOnInterface):
-        next = always_on.next()
+        next = always_on.next(datetime.now())
         item = AlwaysOnItem(always_on, next)
         self.queue.append(item)
 
@@ -19,7 +19,7 @@ class Launcher:
         def start():
             while self.loop:
                 if len(self.queue) > 0:
-                    if datetime.now() > self.queue[0]:
+                    if datetime.now() > self.queue[0].runTime:
                         self.queue[0].update()
                         sorted(self.queue)
 
@@ -43,20 +43,33 @@ class AlwaysOnItem:
             self.always_on.__call__()
         pool.submit(run)
 
+    # @property
+    # def runTime(self):
+    #     return self.runTime
 
     def __lt__(self, obj):
+        if obj is None:
+            return False
         return ((self.runTime) < (obj.runTime))
   
     def __gt__(self, obj):
+        if obj is None:
+            return True
         return ((self.runTime) > (obj.runTime))
   
     def __le__(self, obj):
+        if obj is None:
+            return False
         return ((self.runTime) <= (obj.runTime))
   
     def __ge__(self, obj):
+        if obj is None:
+            return False
         return ((self.runTime) >= (obj.runTime))
   
     def __eq__(self, obj):
+        if obj is None:
+            return False
         return (self.runTime == obj.runTime)
   
     def __repr__(self):

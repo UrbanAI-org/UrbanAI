@@ -1,0 +1,2 @@
+class OutofServiceRange(Exception):
+    pass 

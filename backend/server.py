@@ -12,7 +12,7 @@ from src.fetchers.FetchersConsts import ResourceType, ResourceAttr
 from src.fetchers.TifRegionFetcher import TifRegionFetcher
 from src.fetchers.TifFetcher import TifFetcher
 import time
-from src.always_on.CacheClear import CaCheClear
+from src.always_on.CacheClear import CaCheClear, RegionsClear
 from src.always_on.AlwaysOnLauncher import Launcher
 from datetime import timedelta
 CLEAR_CACHE = hash(time.time())
@@ -21,8 +21,18 @@ PORT = 9999
 app = Flask(__name__)
 
 CORS(app, origins="*")
+def defaultHandler(err):
+    response = err.get_response()
+    print('response', err, err.get_response())
+    response.data = json.dumps({
+        "name": "System Error",
+        "message": err.get_description(),
+    })
+    response.content_type = 'application/json'
+    return response, 200
 
-
+app.config['TRAP_HTTP_EXCEPTIONS'] = True
+app.register_error_handler(Exception, defaultHandler)
 API = Api(app)
 
 @API.route("/v1/clear/cache")
@@ -31,9 +41,22 @@ class ClearCache(Resource):
         data = request.json
         if data['key'] == CLEAR_CACHE:
             database.clear_cache()
+            database.report()
             return {"message" : "Clear Cache"}, 200
         else:
             return {"message" : "Invalid Auth"}, 503
+        
+@API.route("/v1/clear/regions")
+class ClearRegions(Resource):
+    def delete(self):
+        data = request.json
+        if data['key'] == CLEAR_CACHE:
+            database.clear_regions()
+            database.report()
+            return {"message" : "Clear Cache"}, 200
+        else:
+            return {"message" : "Invalid Auth"}, 503
+
 
 @API.route("/v1/download")
 class V1Download(Resource):
@@ -96,6 +119,7 @@ class V1ApiRegionAdd(Resource):
         else:
             return {"message" : "invalid input"}, 400
         if database.in_cache(chunk.to_range_string()):
+            print("requested area is in cache")
             data = database.get_cache(chunk.to_range_string())
             chunk = RegionDataFetcher.read_from_database(data['id'])
             downlink = data['download_link']
@@ -116,11 +140,8 @@ if __name__ == "__main__":
     database.start()
     database.report()
     launch = Launcher()
-    launch.add(CaCheClear(CLEAR_CACHE, timedelta(hours=6)))
+    launch.add(CaCheClear(CLEAR_CACHE, timedelta(hours=3)))
+    launch.add(RegionsClear(CLEAR_CACHE, timedelta(hours=6)))
     launch.launch()
-    
-    # loader = TifLoader("data/s34_e151_1arc_v3.tif")
-    # fetcher = TifRegionFetcher.create_by_loader(loader)
-    # fetcher.make_pcd()
-    # fetcher.make_mesh()
+    print("Sensitive Operation Hash Key:", CLEAR_CACHE)
     app.run(port=PORT)

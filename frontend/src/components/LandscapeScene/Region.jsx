@@ -27,7 +27,7 @@ const fragmentShader = `
   }
 `;
 
-const Region = ({ position, setLookAt, responseBody , isframe}) => {
+const Region = ({ position, setLookAt, responseBody , isframe, setLoading}) => {
   const [geo, setGeo] = useState(null);
   const [minHeight, setMinHeight] = useState(Number.POSITIVE_INFINITY);
   const [maxHeight, setMaxHeight] = useState(Number.NEGATIVE_INFINITY);
@@ -43,6 +43,7 @@ const Region = ({ position, setLookAt, responseBody , isframe}) => {
       // "test.ply",
       function (geometry) {
         // console.log(geometry.boundingSphere)
+        setLoading(false)
         setLookAt([
           geometry.boundingSphere.center.x,
           geometry.boundingSphere.center.y,

@@ -64,9 +64,9 @@ class RegionDataFetcher:
 
     @staticmethod
     def create_by_circle(center, radius):
+        radius = string_to_radius(radius)
         base, parents = TifFetcher.fetch_by_circle(center, radius)
         center = RegionDataFetcher.to_XY_Plane(center, base)
-        radius = string_to_radius(radius)
         lats = [center[0] + radius, center[0] - radius]
         lons = [center[1] + radius, center[1] - radius]
         min_bound = [min(lats), min(lons)]
@@ -148,7 +148,7 @@ class RegionDataFetcher:
         fetcher = ResourceFetcher.MeshResourceFetcher()
         path = fetcher.get_pth(ResourceFetcher.ResourceAttr.UNIQUE_ID, self.parents)
         if len(path) == 1:
-            mesh = o3d.io.read_triangle_mesh(path)
+            mesh = o3d.io.read_triangle_mesh(path[0])
             bbox = o3d.geometry.AxisAlignedBoundingBox(np.array(self.min + [-1000]), np.array(self.max + [10000]))
             croped_mesh = mesh.crop(bbox)
         else:

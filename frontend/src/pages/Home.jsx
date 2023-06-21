@@ -4,7 +4,7 @@ import '../App.css';
 
 import LandscapeScene from "../components/LandscapeScene/LandscapeScene";
 import UserControl from "../components/UserControl/UserControl";
-
+import Loading from "../components/LandscapeScene/Loading";
 const Home = () => {
     const [isRequestGenerated, setIsRequestGenerated] = useState(false);
     const [requestBody, setRequestBody] = useState(
@@ -14,10 +14,14 @@ const Home = () => {
         }
     );
     const [responseBody, setResponseBody] = useState(null);
-
+    const [isWaitingResponse, setWaitingResponse] = useState(false);
+    const [isLoading, setLoading] = useState(false);
+    // const []
     const fetchMeshes = async () => {
         try {
-          const response = await fetch("http://localhost:9999/v1/api/region/mesh", {
+            // setLoading(true)
+            setWaitingResponse(true)
+            const response = await fetch("http://localhost:9999/v1/api/region/mesh", {
             method: 'POST',
             mode: "cors",
             headers: { 'Content-Type': 'text/plain' },
@@ -27,6 +31,8 @@ const Home = () => {
           if (!response.ok) {
             throw new Error(`Error has occurred: ${response.status}`);
           } else {
+            setWaitingResponse(false)
+            setLoading(true)
             response.json().then((values) => {
                 console.log(values)
                 setResponseBody({
@@ -64,7 +70,9 @@ const Home = () => {
                     responseBody={responseBody}
                     setResponseBody={setResponseBody}
                 />
-                <LandscapeScene responseBody={responseBody}/>
+                {isWaitingResponse && <Loading word={"Generating ..."}/> }
+                {isLoading && <Loading word={"Loading ..."}/>}
+                <LandscapeScene responseBody={responseBody} setLoading={setLoading}/>
             </div>
         </div>
     )

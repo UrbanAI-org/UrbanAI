@@ -38,6 +38,7 @@ class Database(metaclass=SingletonMeta):
         self.dbloop = True
         self.debug = debug
         self.cache = {}
+        self.hasStart = True
 
     def start(self):
         def run():
@@ -67,11 +68,14 @@ class Database(metaclass=SingletonMeta):
         
     
     def execute_in_worker(self, sql, params = []):
-        # you might not really need the results if you only use this
-        # for writing unless you use something like https://www.sqlite.org/lang_returning.html
-        result_queue = queue.Queue()
-        self.work_queue.put(((sql, params), result_queue))
-        return result_queue.get(timeout=5)
+        if self.hasStart:
+
+            # you might not really need the results if you only use this
+            # for writing unless you use something like https://www.sqlite.org/lang_returning.html
+            result_queue = queue.Queue()
+            self.work_queue.put(((sql, params), result_queue))
+            return result_queue.get(timeout=5)
+        return None
 
     def fetchall(self, sql, params = []):
         return self.execute_in_worker(sql, params)
@@ -205,10 +209,10 @@ create table if not exists tifs (
     pth text not null,
     origin_lat real not null,
     origin_lon real not null,
-    lat_begin real,
-    lat_end real,
-    lon_begin real,
-    lon_end real,
+    lat_begin integer,
+    lat_end integer,
+    lon_begin integer,
+    lon_end integer,
     pcd integer references pcds(id),
     mesh integer references meshs(id)
 
@@ -234,5 +238,5 @@ create table if not exists chunks (
 """
 # def start():
 global database 
-database = Database("urbanAI.db", tables)
+database = Database("urbanAI.db", tables, debug=True)
 

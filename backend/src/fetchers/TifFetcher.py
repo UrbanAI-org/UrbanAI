@@ -18,7 +18,8 @@ class TifFetcher:
         for each in result:
             if base == []:
                 base = each[1:]
-            elif base[0] != each[1] or base[1] != each[2]:
+            
+            if base[0] != each[1] or base[1] != each[2]:
                 print("please check your mesh gereation, Database data is not in the same coordinate system.")
                 print("Expected coordinate origin:", base, "Actual origin:", each[1:])
             else:

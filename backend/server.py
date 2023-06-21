@@ -139,6 +139,12 @@ class V1ApiRegionAdd(Resource):
 if __name__ == "__main__":
     database.start()
     database.report()
+    # print("Open file:", "s34_e151_1arc_v3.tif")
+    # loader = TifLoader("data/s34_e151_1arc_v3.tif", origin=[(-35 + -30) / 2, (148+150) / 2])
+    # fetcher = TifRegionFetcher.create_by_loader(loader)
+    # fetcher.make_pcd()
+    # fetcher.make_mesh()
+    
     launch = Launcher()
     launch.add(CaCheClear(CLEAR_CACHE, timedelta(hours=3)))
     launch.add(RegionsClear(CLEAR_CACHE, timedelta(hours=6)))

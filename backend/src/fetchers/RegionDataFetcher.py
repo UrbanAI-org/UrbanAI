@@ -8,6 +8,7 @@ from datetime import datetime
 import src.fetchers.ResourceFetcher as ResourceFetcher
 from src.fetchers.FetchersConsts import ResourceType, ResourceAttr
 from src.fetchers.TifFetcher import TifFetcher
+from src.fetchers.Exceptions import BBoxIsSmall
 def _relativeDistance(given : tuple, base: tuple) -> float:
     """
     return relative distance based on two points.
@@ -148,6 +149,7 @@ class RegionDataFetcher:
         fetcher = ResourceFetcher.MeshResourceFetcher()
         path = fetcher.get_pth(ResourceFetcher.ResourceAttr.UNIQUE_ID, self.parents)
         if len(path) == 1:
+            print("Within a path", path)
             mesh = o3d.io.read_triangle_mesh(path[0])
             bbox = o3d.geometry.AxisAlignedBoundingBox(np.array(self.min + [-1000]), np.array(self.max + [10000]))
             croped_mesh = mesh.crop(bbox)
@@ -157,7 +159,7 @@ class RegionDataFetcher:
             bbox = o3d.geometry.AxisAlignedBoundingBox.create_from_points(pcd.points)
             croped_mesh = mesh.crop(bbox)
         if len(croped_mesh.triangles) == 0:
-            print("bbox too small")
+            raise BBoxIsSmall("BBox given is small")
             return None
         if save:
             mesh_id = str(uuid.uuid4())

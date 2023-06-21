@@ -36,7 +36,7 @@ class TifLoader:
         if len(data) == 0:
             database.execute_in_worker(
                 """insert or replace into tifs(uid,filename,pth, origin_lat, origin_lon, lat_begin,lat_end, lon_begin,lon_end ) values (? , ?,?, ?, ?, ?, ?, ?, ?);""",
-                [self.id_, self.filename, default_path_ + filePath, self.origin[0], self.origin[1], lat_array_raw[0][0], lat_array_raw[-1][0], lon_array_raw[0][0], lon_array_raw[0][-1]]
+                [self.id_, self.filename, default_path_ + filePath, self.origin[0], self.origin[1], int(lat_array_raw[0][0]), int(lat_array_raw[-1][0]), int(lon_array_raw[0][0]), int(lon_array_raw[0][-1])]
                 )
         else:
             self.id_= data[0][0]

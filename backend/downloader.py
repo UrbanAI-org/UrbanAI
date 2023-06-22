@@ -27,15 +27,15 @@ print("Generate MESH ...")
 database.start()
 curr = 0
 filenames = [
-# "s34_e147_1arc_v3.tif",
-# "s34_e148_1arc_v3.tif",
-# "s34_e149_1arc_v3.tif",
-# "s35_e147_1arc_v3.tif",
-# "s35_e148_1arc_v3.tif",
+"s34_e147_1arc_v3.tif",
+"s34_e148_1arc_v3.tif",
+"s34_e149_1arc_v3.tif",
+"s35_e147_1arc_v3.tif",
+"s35_e148_1arc_v3.tif",
 "s35_e149_1arc_v3.tif",
-# "s36_e147_1arc_v3.tif",
-# "s36_e148_1arc_v3.tif",
-# "s36_e149_1arc_v3.tif"
+"s36_e147_1arc_v3.tif",
+"s36_e148_1arc_v3.tif",
+"s36_e149_1arc_v3.tif"
 ]
 max = len(filenames)
 

@@ -55,5 +55,5 @@ DELETE  http://127.0.0.1:9999/v1/clear/regions
 content-type: application/json
 
 {
-    "key": 359889948667699467
+    "key": 539326398030126706
 }

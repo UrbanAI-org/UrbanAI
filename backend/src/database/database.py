@@ -238,5 +238,5 @@ create table if not exists chunks (
 """
 # def start():
 global database 
-database = Database("urbanAI.db", tables, debug=True)
+database = Database("urbanAI.db", tables)
 

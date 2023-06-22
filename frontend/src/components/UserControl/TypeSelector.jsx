@@ -16,6 +16,7 @@ const TypeSelector = ({requestBody, setRequestBody}) => {
                 <option></option>
                 <option value="polygon">polygon</option>
                 <option value="circle">circle</option>
+                <option value="map">map</option>
             </select>
         </div>
 

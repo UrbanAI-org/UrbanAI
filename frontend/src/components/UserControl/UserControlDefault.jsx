@@ -3,7 +3,7 @@ import './UserControl.css';
 import TypeSelector from "./TypeSelector";
 import PolygonForm from "./PolygonForm";
 
-const UserControlDefault = ({setIsRequestGenerated, requestBody, setRequestBody}) => {
+const UserControlDefault = ({setIsRequestGenerated, requestBody, setRequestBody, isMap, setIsMap }) => {
     const [polygonItems, setPolygonItems] = useState([]);
 
     const polygonItemsDisplay = () => {
@@ -81,6 +81,7 @@ const UserControlDefault = ({setIsRequestGenerated, requestBody, setRequestBody}
             </div>
         )
     } else if (requestBody.type === "polygon") {
+        setIsMap(false)
         return (
             <div className="panel-control">
                 <TypeSelector requestBody={requestBody} setRequestBody={setRequestBody}/>
@@ -104,6 +105,8 @@ const UserControlDefault = ({setIsRequestGenerated, requestBody, setRequestBody}
             </div>
         )
     } else if (requestBody.type === "circle") {
+        setIsMap(false)
+
         return (
             <div className="panel-control">
                 <TypeSelector requestBody={requestBody} setRequestBody={setRequestBody}/>
@@ -130,6 +133,25 @@ const UserControlDefault = ({setIsRequestGenerated, requestBody, setRequestBody}
                             className="input-field"
                             style={{width: "15vh"}}
                         />
+                        <input
+                            type="submit"
+                            value="Generate"
+                            className="generate-button"
+                        />
+                    </form>
+                </div>
+            </div>
+        )
+    } else if (requestBody.type === "map") {
+        setIsMap(true)
+        return (
+            <div className="panel-control">
+                <TypeSelector requestBody={requestBody} setRequestBody={setRequestBody}/>
+                <div className="panel-info">
+                    <p>Please select the area you want in the map</p>
+                </div>
+                <div className="user-control">
+                    <form onSubmit={handleInputsSubmit}>
                         <input
                             type="submit"
                             value="Generate"

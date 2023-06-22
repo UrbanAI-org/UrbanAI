@@ -5,6 +5,7 @@ import '../App.css';
 import LandscapeScene from "../components/LandscapeScene/LandscapeScene";
 import UserControl from "../components/UserControl/UserControl";
 import Loading from "../components/LandscapeScene/Loading";
+import DrawableMap from "../components/LandscapeScene/MapScene";
 const Home = () => {
     const [isRequestGenerated, setIsRequestGenerated] = useState(false);
     const [requestBody, setRequestBody] = useState(
@@ -16,6 +17,7 @@ const Home = () => {
     const [responseBody, setResponseBody] = useState(null);
     const [isWaitingResponse, setWaitingResponse] = useState(false);
     const [isLoading, setLoading] = useState(false);
+    const [isMap, setIsMap] = useState(false)
     // const []
     const fetchMeshes = async () => {
         try {
@@ -48,7 +50,9 @@ const Home = () => {
         }
       };
 
+      function initMap() {
 
+      }
     useEffect(() => {
         const fetchData = async () => {
           if (isRequestGenerated) {
@@ -57,6 +61,9 @@ const Home = () => {
         };
         fetchData();
       }, [isRequestGenerated]);
+    useEffect(() => {
+      initMap()
+    }, [])
 
     return (
         <div className="home">
@@ -69,10 +76,14 @@ const Home = () => {
                     setRequestBody={setRequestBody}
                     responseBody={responseBody}
                     setResponseBody={setResponseBody}
+                    isMap = {isMap}
+                    setIsMap = {setIsMap}
                 />
                 {isWaitingResponse && <Loading word={"Generating ..."}/> }
                 {isLoading && <Loading word={"Loading ..."}/>}
-                <LandscapeScene responseBody={responseBody} setLoading={setLoading}/>
+                {isMap && <DrawableMap /> }
+                {<LandscapeScene responseBody={responseBody} setLoading={setLoading}/>}
+                
             </div>
         </div>
     )

@@ -26,12 +26,13 @@ TOKEN = "nlw5ez9CSadUl39UWBQouLcY@6PkA7QtuM@YCkZPN4MCTWAwzrT6XzlHYKzmqwIj"
 print("Generate MESH ...")
 database.start()
 curr = 0
-filenames = ["s34_e147_1arc_v3.tif",
+filenames = [
+# "s34_e147_1arc_v3.tif",
 # "s34_e148_1arc_v3.tif",
 # "s34_e149_1arc_v3.tif",
 # "s35_e147_1arc_v3.tif",
 # "s35_e148_1arc_v3.tif",
-# "s35_e149_1arc_v3.tif",
+"s35_e149_1arc_v3.tif",
 # "s36_e147_1arc_v3.tif",
 # "s36_e148_1arc_v3.tif",
 # "s36_e149_1arc_v3.tif"
@@ -42,7 +43,7 @@ for filename in filenames:
     if filename is not None:
         before = datetime.now()
         print("Open file:", filename)
-        loader = TifLoader(f"data/{filename}", origin=[(-35 + -30) / 2, (148+150) / 2])
+        loader = TifLoader(f"data/{filename}", origin=[-32.5, 147])
         fetcher = TifRegionFetcher.create_by_loader(loader)
         fetcher.make_pcd()
         fetcher.make_mesh()

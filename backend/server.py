@@ -35,6 +35,11 @@ app.config['TRAP_HTTP_EXCEPTIONS'] = True
 app.register_error_handler(Exception, defaultHandler)
 API = Api(app)
 
+@API.route("/v1/map/key")
+class MapKey(Resource):
+    def post(self):
+        pass
+
 @API.route("/v1/clear/cache")
 class ClearCache(Resource):
     def delete(self):

@@ -51,7 +51,11 @@ const Home = () => {
         };
         fetchData();
       }, [isRequestGenerated]);
-
+    
+    useEffect(() => {
+      document.title = "UNSW VIP Project - Urban Topological Visulisation Tool"
+    }, []);
+    
     return (
         <div className="home">
             <NavBar />

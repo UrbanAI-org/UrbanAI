@@ -4,6 +4,18 @@
 	box-sizing: border-box;
 }
 
+.email_a {
+	color: #f1f0f7;
+	text-decoration: none;
+}
+
+.linkedin_a {
+	color: #54a3e4;
+	
+}
+.linkedin_a:visited {
+    color: #54a3e4; /* Set the color for visited links */
+}
 
 .card-container {
 	background-color: #edf1f1;
@@ -12,10 +24,10 @@
 	color: #54a3e4;
 	padding-top: 15px;
 	position: relative;
-	width: 300px;
-	height: 375px;
+	width: 260px;
+	height: 60%;
 	/* margin-left: 30px; */
-	margin-top: 20px;
+	margin-top: 180px;
 	margin-left: auto;
   	margin-right: auto;
 	max-width: 100%;
@@ -48,10 +60,10 @@ button.primary.ghost {
 }
 
 .skills {
-	background-color: #1F1A36;
+	/* background-color: #1F1A36; */
 	text-align: left;
 	padding: 15px;
-	margin-top: 30px;
+	margin-top: 10px;
 }
 
 .skills ul {
@@ -61,7 +73,7 @@ button.primary.ghost {
 }
 
 .skills ul li {
-	border: 1px solid #2D2747;
+	border: 1px solid #54a3e4;
 	border-radius: 2px;
 	display: inline-block;
 	font-size: 12px;

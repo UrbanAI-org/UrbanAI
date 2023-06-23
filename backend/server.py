@@ -18,7 +18,7 @@ from datetime import timedelta
 from src.exceptions.ServerExceptions import InvalidResourceId, InvalidRequestType, InvalidInput, LargeSelectedArea, InvalidAuth, ResourceNotFound
 import logging
 import os
-logging.basicConfig(level=logging.ERROR, format='%(asctime)s %(levelname)s: %(message)s', handlers=[logging.StreamHandler(), logging.FileHandler("server.log")  ])
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s %(levelname)s: %(message)s', handlers=[logging.StreamHandler(), logging.FileHandler("server.log")  ])
 logger = logging.getLogger(__name__)
 CLEAR_CACHE = hash(time.time())
 
@@ -158,5 +158,6 @@ if __name__ == "__main__":
     # launch.add(CaCheClear(CLEAR_CACHE, timedelta(seconds=10)))
     # launch.add(RegionsClear(CLEAR_CACHE, timedelta(hours=6)))
     # launch.launch()
+    logger.debug(msg= f"Sensitive Operation Hash Key: {CLEAR_CACHE}")
     print("Sensitive Operation Hash Key:", CLEAR_CACHE)
     app.run(port=PORT)

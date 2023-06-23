@@ -11,7 +11,9 @@ class TifFetcher:
         lons = [row[1] for row in polygon]
         min_bound = [math.floor(min(lats)), math.floor(min(lons))]
         max_bound = [math.ceil(max(lats)), math.ceil(max(lons))]
-        result = database.fetchall("select uid, origin_lat, origin_lon from tifs where lat_begin  >= ? and  lat_end <= ? and lon_begin >= ? and lon_end <= ?;",
+        # print(min_bound)
+        # print(max_bound)
+        result = database.fetchall("select uid, origin_lat, origin_lon from tifs where not (lat_end  < ? or  lat_begin > ?) and lon_begin >= ? and lon_end <= ?;",
                           [min_bound[0], max_bound[0], min_bound[1], max_bound[1]])
         uid = []
         base = []
@@ -32,6 +34,7 @@ class TifFetcher:
     @staticmethod
     def fetch_by_circle(center, radius):
         est_arc = 1/111 * (radius / 1000)
+        print("est arc:", est_arc)
         polygon = []
         for f in [-1, 1]:
             for l in [-1, 1]:

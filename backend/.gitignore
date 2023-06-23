@@ -1,0 +1,15 @@
+
+
+
+
+# backend
+**/__pycache__
+
+urbanAI.db
+
+data/meshes/*.ply
+data/pcds/*.pcd
+data/*.tif
+!data/meshes/chunk.ply
+
+env

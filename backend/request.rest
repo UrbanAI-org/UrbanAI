@@ -21,9 +21,21 @@ content-type: application/json
 {
     "type" : "circle",
     "data" : {
-        "latitude" : -33.7, 
-        "longitude" :  151.256,
+        "latitude" : -34, 
+        "longitude" :  148,
         "radius" : 2
+    }
+}
+###
+POST http://127.0.0.1:9999/v1/api/region/mesh 
+content-type: application/json
+
+{
+    "type" : "circle",
+    "data" : {
+        "latitude" : -33.5, 
+        "longitude" :  151.5,
+        "radius" : 3
     }
 }
 ###
@@ -36,4 +48,12 @@ content-type: application/json
         {"latitude" : -33.005, "longitude" : 151.0056},
         {"latitude" : -33.01, "longitude" : 151.01}
     ]
+}
+
+###
+DELETE  http://127.0.0.1:9999/v1/clear/regions
+content-type: application/json
+
+{
+    "key": 539326398030126706
 }

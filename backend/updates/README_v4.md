@@ -1,9 +1,5 @@
 # Documentation
 The backend is a kind of tool for Mesh reconstruction based on the satatlite data, especially for the file type .tif. It also provides an API to exact and download the topography in given region.
-
-**YOU MUST DOWNLOAD THE TIF FILES, THEN RUN THE BACKEND**<br>
-**YOU MUST DOWNLOAD THE TIF FILES, THEN RUN THE BACKEND**<br>
-**YOU MUST DOWNLOAD THE TIF FILES, THEN RUN THE BACKEND**<br>
 # Quick Links
 - [build-instructions](#build-instructions)
 - [API and Classes Reference](#api-and-classes-reference)
@@ -55,11 +51,7 @@ source env/bin/activate
 ```
 pip3 install -r requirements.txt
 ```
-5. downloading tifs file(You may ask to enter YES to countine. The speed depends on USGS server while you are downloading files.)
-```
-python downloader.py
-```
-6. runing server
+5. runing server
 ```
 python server.py
 ```

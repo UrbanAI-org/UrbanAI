@@ -27,7 +27,7 @@ const fragmentShader = `
   }
 `;
 
-const Region = ({ position, setLookAt, responseBody , isframe}) => {
+const Region = ({ position, setLookAt, responseBody , isframe, setLoading}) => {
   const [geo, setGeo] = useState(null);
   const [minHeight, setMinHeight] = useState(Number.POSITIVE_INFINITY);
   const [maxHeight, setMaxHeight] = useState(Number.NEGATIVE_INFINITY);
@@ -35,19 +35,21 @@ const Region = ({ position, setLookAt, responseBody , isframe}) => {
   // Create a ref to store the mesh material
   const materialRef = useRef();
   const frame = isframe === 'Yes' ? true : false;
-  
+  // console.log(responseBody.download_link);
   useEffect(() => {
     const loader = new PLYLoader();
     loader.load(
       "http://localhost:9999" + responseBody.download_link,
       // "test.ply",
       function (geometry) {
+        // console.log(geometry.boundingSphere)
+        setLoading(false)
         setLookAt([
-          geometry.boundingSphere.center.y,
           geometry.boundingSphere.center.x,
+          geometry.boundingSphere.center.y,
           geometry.boundingSphere.center.z
         ]);
-        geometry.needsUpdate = true;
+        // geometry.needsUpdate = true;
         geometry.computeBoundingBox();
         setGeo(geometry);
         console.log(geometry);
@@ -64,7 +66,6 @@ const Region = ({ position, setLookAt, responseBody , isframe}) => {
       }
     );
   }, []);
-
   // Calculate min and max heights
   useEffect(() => {
     if (geo) {
@@ -108,7 +109,7 @@ const Region = ({ position, setLookAt, responseBody , isframe}) => {
           minHeight: { value: minHeight },
           maxHeight: { value: maxHeight },
         }}
-        uniformsNeedUpdate = {true}
+        // uniformsNeedUpdate = {true}
       />
       
     </mesh>

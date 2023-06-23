@@ -78,7 +78,7 @@ class TifRegionFetcher:
         fetcher = ResourceFetcher.MeshResourceFetcher()
         if self.mesh is None:
             print("make MESH")
-            mesh, densities = o3d.geometry.TriangleMesh.create_from_point_cloud_poisson(pcd, depth = 10)
+            mesh, densities = o3d.geometry.TriangleMesh.create_from_point_cloud_poisson(pcd)
             bbox = o3d.geometry.AxisAlignedBoundingBox.create_from_points(pcd.points)
             p_mesh_crop = mesh.crop(bbox)
             path = f"data/meshes/{self.id_}.ply"

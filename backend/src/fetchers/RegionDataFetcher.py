@@ -7,6 +7,8 @@ import numpy as np
 from datetime import datetime
 import src.fetchers.ResourceFetcher as ResourceFetcher
 from src.fetchers.FetchersConsts import ResourceType, ResourceAttr
+from src.fetchers.TifFetcher import TifFetcher
+from src.fetchers.Exceptions import BBoxIsSmall
 def _relativeDistance(given : tuple, base: tuple) -> float:
     """
     return relative distance based on two points.
@@ -34,7 +36,7 @@ def string_to_radius(string):
 
 
 class RegionDataFetcher:
-    def __init__(self, center, min_bound, max_bound,base, parent, max_altitude = -1000, min_altitude=10000, mesh = None, pcd = None, id = None) -> None:
+    def __init__(self, center, min_bound, max_bound,base, parents, max_altitude = -1000, min_altitude=10000, mesh = None, pcd = None, id = None) -> None:
         pass
         if id is None:
             self.id = str(uuid.uuid4())
@@ -44,31 +46,33 @@ class RegionDataFetcher:
         self.min = min_bound
         self.max = max_bound
         self.base = base
-        self.parent = parent
+        self.parents = parents
         self.mesh = None 
         self.pcd = None
         self.max_altitude  = max_altitude 
         self.min_altitude  = min_altitude    
 
     @staticmethod
-    def create_by_polygon(polygon, base, parent):
+    def create_by_polygon(polygon):
+        base, parents = TifFetcher.fetch_by_polygon(polygon)
         polygon = [RegionDataFetcher.to_XY_Plane(each, base) for each in polygon]
         lats = [row[0] for row in polygon]
         lons = [row[1] for row in polygon]
         min_bound = [min(lats), min(lons)]
         max_bound = [max(lats), max(lons)]
         center = [sum(lats) / len(lats), sum(lons) / len(lons)]
-        return RegionDataFetcher(center, min_bound, max_bound, base, parent)
+        return RegionDataFetcher(center, min_bound, max_bound, base, parents)
 
     @staticmethod
-    def create_by_circle(center, radius, base, parent):
-        center = RegionDataFetcher.to_XY_Plane(center, base)
+    def create_by_circle(center, radius):
         radius = string_to_radius(radius)
+        base, parents = TifFetcher.fetch_by_circle(center, radius)
+        center = RegionDataFetcher.to_XY_Plane(center, base)
         lats = [center[0] + radius, center[0] - radius]
         lons = [center[1] + radius, center[1] - radius]
         min_bound = [min(lats), min(lons)]
         max_bound = [max(lats), max(lons)]
-        return RegionDataFetcher(center, min_bound, max_bound, base, parent)
+        return RegionDataFetcher(center, min_bound, max_bound, base, parents)
 
     @staticmethod
     def to_XY_Plane(coord, base):
@@ -84,7 +88,7 @@ class RegionDataFetcher:
         values ({','.join(['?'] * 14)});
         """
         param = [
-            self.id, self.center[0], self.center[1], self.min[0], self.min[1], self.max[0], self.max[1], self.base[0], self.base[1], self.parent, self.pcd, self.mesh, self.max_altitude, self.min_altitude
+            self.id, self.center[0], self.center[1], self.min[0], self.min[1], self.max[0], self.max[1], self.base[0], self.base[1], ",".join(self.parents), self.pcd, self.mesh, self.max_altitude, self.min_altitude
         ]
         print(param)
         database.execute_in_worker(qry, param)
@@ -108,7 +112,7 @@ class RegionDataFetcher:
             "max_bound_y" :  6,
             "origin_lat" :  7,
             "origin_lon" :  8,
-            "parent" :  9,
+            "parents" :  9,
             "pcd"  :  10,
             "mesh" : 11,
             "max_altitude" : 12,
@@ -118,7 +122,7 @@ class RegionDataFetcher:
                       [data[index["min_bound_x"]], data[index["min_bound_y"]]],
                       [data[index['max_bound_x']], data[index["max_bound_y"]]],
                       [data[index['origin_lat']], data[index["origin_lon"]]],
-                      data[index['parent']], data[index['max_altitude']], data[index['min_altitude']],
+                      data[index['parents']].split(","), data[index['max_altitude']], data[index['min_altitude']],
                       mesh=data[index['mesh']], pcd=data[index['pcd']],
                       id = data[index['id']]
                       )
@@ -141,33 +145,50 @@ class RegionDataFetcher:
         binary_file_data = file.read()
         return  encoded(binary_file_data)
 
-    def make_mesh(self):
+    def make_mesh(self, save=True):
         fetcher = ResourceFetcher.MeshResourceFetcher()
-        path = fetcher.get_pth(ResourceFetcher.ResourceAttr.UNIQUE_ID, self.parent)
-        mesh = o3d.io.read_triangle_mesh(path)
-        bbox = o3d.geometry.AxisAlignedBoundingBox(np.array(self.min + [-1000]), np.array(self.max + [10000]))
-        croped_mesh = mesh.crop(bbox)
+        path = fetcher.get_pth(ResourceFetcher.ResourceAttr.UNIQUE_ID, self.parents)
+        if len(path) == 1:
+            print("Within a path", path)
+            mesh = o3d.io.read_triangle_mesh(path[0])
+            bbox = o3d.geometry.AxisAlignedBoundingBox(np.array(self.min + [-1000]), np.array(self.max + [10000]))
+            croped_mesh = mesh.crop(bbox)
+        else:
+            print("Generating Mesh required ...")
+            pcd = self.make_pointcloud(pcd_scale=1.1)
+            mesh, densities = o3d.geometry.TriangleMesh.create_from_point_cloud_poisson(pcd)
+            bbox = o3d.geometry.AxisAlignedBoundingBox(np.array(self.min + [-1000]), np.array(self.max + [10000]))
+            croped_mesh = mesh.crop(bbox)
         if len(croped_mesh.triangles) == 0:
-            print("bbox too small")
-            return
-        mesh_id = str(uuid.uuid4())
-        path = f"data/meshes/{mesh_id}.ply"
-        o3d.io.write_triangle_mesh(path, croped_mesh, print_progress = True)
-        self.mesh = fetcher.write_to_database(mesh_id, path)
+            raise BBoxIsSmall("BBox given is small")
+            return None
+        if save:
+            mesh_id = str(uuid.uuid4())
+            path = f"data/meshes/{mesh_id}.ply"
+            o3d.io.write_triangle_mesh(path, croped_mesh, print_progress = True)
+            self.mesh = fetcher.write_to_database(mesh_id, path)
         self.max_altitude = croped_mesh.get_max_bound().tolist()[2]
         self.min_altitude = croped_mesh.get_min_bound().tolist()[2]
         return croped_mesh
 
-    def make_pointcloud(self):
+    def make_pointcloud(self, save=False, pcd_scale = 1):
         fetcher = ResourceFetcher.PcdResourceFetcher()
-        path = fetcher.get_pth(ResourceFetcher.ResourceAttr.UNIQUE_ID, self.parent)
-        pcd = o3d.io.read_point_cloud(path)
+        paths = fetcher.get_pth(ResourceFetcher.ResourceAttr.UNIQUE_ID, self.parents)
+        pcd = o3d.geometry.PointCloud()
         bbox = o3d.geometry.AxisAlignedBoundingBox(np.array(self.min + [-1000]), np.array(self.max + [10000]))
-        croped_pcd = pcd.crop(bbox)
-        pcd_id = str(uuid.uuid4())
-        path = f"data/pcds/{pcd_id}.pcd"
-        o3d.io.write_point_cloud(path, croped_pcd, print_progress = True)
-        self.pcd = fetcher.write_to_database(pcd_id, path)
+        bbox.scale(pcd_scale, bbox.get_center())
+        for path in paths:
+            pcd += o3d.io.read_point_cloud(path).crop(bbox)
+        # croped_pcd = pcd.crop(bbox)
+        croped_pcd = pcd.remove_duplicated_points()
+        croped_pcd.normals = o3d.utility.Vector3dVector(np.zeros((1, 3)))
+        croped_pcd.estimate_normals()
+        if save:
+            pcd_id = str(uuid.uuid4())
+            path = f"data/pcds/{pcd_id}.pcd"
+            print(path)
+            o3d.io.write_point_cloud(path, croped_pcd, print_progress = True)
+            self.pcd = fetcher.write_to_database(pcd_id, path)
         self.max_altitude = croped_pcd.get_max_bound().tolist()[2]
         self.min_altitude = croped_pcd.get_min_bound().tolist()[2]
         return croped_pcd
@@ -193,3 +214,6 @@ class RegionDataFetcher:
             raise ValueError("uid does not exist")
         
         return f"/v1/download?id={uid}&type=mesh"
+
+    def to_range_string(self):
+        return f"{self.min}-{self.max}"

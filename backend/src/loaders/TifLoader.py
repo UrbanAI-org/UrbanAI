@@ -8,8 +8,8 @@ from src.loaders.utils import makeXYPlaneInterp, mapCoordtoXPPlane,merge
 THICKNESS = 10
 global default_path_
 default_path_ = "./"
-global global_base_coord_
-global_base_coord_ = (-34, 151)
+# global global_base_coord_
+# global_base_coord_ = (-34, 151)
 
 
 
@@ -36,7 +36,7 @@ class TifLoader:
         if len(data) == 0:
             database.execute_in_worker(
                 """insert or replace into tifs(uid,filename,pth, origin_lat, origin_lon, lat_begin,lat_end, lon_begin,lon_end ) values (? , ?,?, ?, ?, ?, ?, ?, ?);""",
-                [self.id_, self.filename, default_path_ + filePath, self.origin[0], self.origin[1], lat_array_raw[0][0], lat_array_raw[-1][0], lon_array_raw[0][0], lon_array_raw[0][-1]]
+                [self.id_, self.filename, default_path_ + filePath, self.origin[0], self.origin[1], int(lat_array_raw[0][0]), int(lat_array_raw[-1][0]), int(lon_array_raw[0][0]), int(lon_array_raw[0][-1])]
                 )
         else:
             self.id_= data[0][0]
@@ -55,7 +55,7 @@ class TifLoader:
         lon_array, lat_array = self.geo_tiff.get_coord_arrays()
         return lat_array, lon_array
 
-    def get_geo_coord_lat_lon(self):
+    def get_geo_coord_vectors(self):
         """
         Returns 3D vector according to the geographic coordinates
         """
@@ -111,8 +111,11 @@ class TifLoader:
         lon = self.pool_.apply_async(makeXYPlaneInterp, args=[lambda base, row: (base[0], row), lonSamplingRate, lon_array_raw, base])
         lat = self.pool_.apply_async(makeXYPlaneInterp, args=[lambda base, row: (row, base[1]), latSamplingRate, lat_array_raw, base])
         lon_xp, lon_fp = lon.get()
+        # print(lon_xp)
+        # print(lon_fp)
         lon = self.pool_.apply_async(mapCoordtoXPPlane, args=[lon_array_raw, lon_xp, lon_fp, self.size_])
         lat_xp, lat_fp = lat.get()
+        # print(lat_xp, lat_fp)
         lat = self.pool_.apply_async(mapCoordtoXPPlane, args=[lat_array_raw, lat_xp, lat_fp, self.size_])
         lon_xp_coord = lon.get()
         lat_xp_coord = lat.get()

@@ -154,9 +154,10 @@ class RegionDataFetcher:
             bbox = o3d.geometry.AxisAlignedBoundingBox(np.array(self.min + [-1000]), np.array(self.max + [10000]))
             croped_mesh = mesh.crop(bbox)
         else:
-            pcd = self.make_pointcloud(save=False)
+            print("Generating Mesh required ...")
+            pcd = self.make_pointcloud(pcd_scale=1.1)
             mesh, densities = o3d.geometry.TriangleMesh.create_from_point_cloud_poisson(pcd)
-            bbox = o3d.geometry.AxisAlignedBoundingBox.create_from_points(pcd.points)
+            bbox = o3d.geometry.AxisAlignedBoundingBox(np.array(self.min + [-1000]), np.array(self.max + [10000]))
             croped_mesh = mesh.crop(bbox)
         if len(croped_mesh.triangles) == 0:
             raise BBoxIsSmall("BBox given is small")
@@ -170,17 +171,22 @@ class RegionDataFetcher:
         self.min_altitude = croped_mesh.get_min_bound().tolist()[2]
         return croped_mesh
 
-    def make_pointcloud(self, save=True):
+    def make_pointcloud(self, save=False, pcd_scale = 1):
         fetcher = ResourceFetcher.PcdResourceFetcher()
         paths = fetcher.get_pth(ResourceFetcher.ResourceAttr.UNIQUE_ID, self.parents)
         pcd = o3d.geometry.PointCloud()
-        for path in paths:
-            pcd += o3d.io.read_point_cloud(path)
         bbox = o3d.geometry.AxisAlignedBoundingBox(np.array(self.min + [-1000]), np.array(self.max + [10000]))
-        croped_pcd = pcd.crop(bbox)
+        bbox.scale(pcd_scale, bbox.get_center())
+        for path in paths:
+            pcd += o3d.io.read_point_cloud(path).crop(bbox)
+        # croped_pcd = pcd.crop(bbox)
+        croped_pcd = pcd.remove_duplicated_points()
+        croped_pcd.normals = o3d.utility.Vector3dVector(np.zeros((1, 3)))
+        croped_pcd.estimate_normals()
         if save:
             pcd_id = str(uuid.uuid4())
             path = f"data/pcds/{pcd_id}.pcd"
+            print(path)
             o3d.io.write_point_cloud(path, croped_pcd, print_progress = True)
             self.pcd = fetcher.write_to_database(pcd_id, path)
         self.max_altitude = croped_pcd.get_max_bound().tolist()[2]

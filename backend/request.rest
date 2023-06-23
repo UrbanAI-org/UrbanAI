@@ -23,7 +23,7 @@ content-type: application/json
     "data" : {
         "latitude" : -34, 
         "longitude" :  148,
-        "radius" : 3
+        "radius" : 2
     }
 }
 ###

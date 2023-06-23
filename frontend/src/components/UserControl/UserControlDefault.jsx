@@ -25,6 +25,8 @@ const UserControlDefault = ({setIsRequestGenerated, requestBody, setRequestBody,
                 event.target.latitude.value,
                 event.target.longitude.value
             );
+        } else if (requestBody.type === "handelMap") {
+            handelMap()
         }
     }
 
@@ -74,6 +76,9 @@ const UserControlDefault = ({setIsRequestGenerated, requestBody, setRequestBody,
         setIsRequestGenerated(true);
     }
 
+    function handelMap() {
+
+    }
     if (requestBody.type === "") {
         return (
             <div className="panel-control">
@@ -148,8 +153,11 @@ const UserControlDefault = ({setIsRequestGenerated, requestBody, setRequestBody,
             <div className="panel-control">
                 <TypeSelector requestBody={requestBody} setRequestBody={setRequestBody}/>
                 <div className="panel-info">
-                    <p>Please select the area you want in the map</p>
+                    <p>Please select the area you want in the map</p><br/>
+                    <p>The current latitude and longitude of the mouse:</p>
                 </div>
+                <div id='coordinates'></div>
+                <div id="rectangle_bounds"></div>
                 <div className="user-control">
                     <form onSubmit={handleInputsSubmit}>
                         <input

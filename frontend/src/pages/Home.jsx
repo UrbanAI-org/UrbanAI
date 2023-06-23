@@ -18,6 +18,7 @@ const Home = () => {
     const [isWaitingResponse, setWaitingResponse] = useState(false);
     const [isLoading, setLoading] = useState(false);
     const [isMap, setIsMap] = useState(false)
+    const [isMapJsLoaded, setMapJsLoaded] = useState(false)
     // const []
     const fetchMeshes = async () => {
         try {
@@ -81,8 +82,8 @@ const Home = () => {
                 />
                 {isWaitingResponse && <Loading word={"Generating ..."}/> }
                 {isLoading && <Loading word={"Loading ..."}/>}
-                {isMap && <DrawableMap /> }
-                {<LandscapeScene responseBody={responseBody} setLoading={setLoading}/>}
+                {isMap && <DrawableMap isMapJsLoaded={isMapJsLoaded} setMapJsLoaded={setMapJsLoaded}/> }
+                {!isMap && <LandscapeScene responseBody={responseBody} setLoading={setLoading}/>}
                 
             </div>
         </div>

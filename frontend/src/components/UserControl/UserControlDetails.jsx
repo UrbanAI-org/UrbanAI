@@ -25,7 +25,7 @@ const UserControlDetails = ({setIsRequestGenerated, setRequestBody, responseBody
             <div style={{ padding: "5px" }}>
                 <a href={downloadURL} target="_blank" download style={{ color: 'blue' }}>Click here to download .ply</a>
             </div>
-            <p>{responseBody.download_link}</p>
+            {/* <p>{responseBody.download_link}</p> */}
             <div className="user-control">
                 <form onSubmit={handleRestart}>
                     <input

@@ -25,3 +25,6 @@
     position: fixed;
   }
 
+  #map {
+    height: 100%;
+  }

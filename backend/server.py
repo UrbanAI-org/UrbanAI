@@ -118,6 +118,8 @@ class V1ApiRegionAdd(Resource):
                 chunk = RegionDataFetcher.create_by_polygon(phrase_polygon(data['data']))
             elif data['type'] == 'circle':
                 chunk = RegionDataFetcher.create_by_circle(phrase_lat_lon(data['data']), data['data']['radius'])
+            elif data['type'] == 'map':
+                chunk = RegionDataFetcher.create_by_polygon(phrase_polygon(data['data']))
             else:
                 raise InvalidRequestType(f"Invalid format {data['type']}, expect polygon or circle.")
         except KeyError:

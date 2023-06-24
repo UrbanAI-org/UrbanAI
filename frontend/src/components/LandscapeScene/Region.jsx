@@ -19,7 +19,7 @@ const fragmentShader = `
   uniform float minHeight;
   uniform float maxHeight;
   void main() {
-    // Calculate normalized height value (0 to 1)
+    // Calculate normalizoi ed height value (0 to 1)
     float height = (vPosition.z - minHeight) / (maxHeight - minHeight);
     // Use height value to interpolate gradient color
     vec3 color = mix(vec3(0.0,0.0,1.0), vec3(0.0,1.0,0.0), height);

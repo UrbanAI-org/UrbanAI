@@ -158,8 +158,10 @@ class RegionDataFetcher:
             croped_mesh = mesh.crop(bbox)
         else:
             print("Generating Mesh required ...")
-            pcd = self.make_pointcloud(pcd_scale=1.1)
-            mesh, densities = o3d.geometry.TriangleMesh.create_from_point_cloud_poisson(pcd)
+            print("load pcds")
+            pcd = self.make_pointcloud(save=False, pcd_scale=1.2)
+            print("make")
+            mesh, densities = o3d.geometry.TriangleMesh.create_from_point_cloud_poisson(pcd, depth = 6)
             bbox = o3d.geometry.AxisAlignedBoundingBox(np.array(self.min + [-1000]), np.array(self.max + [10000]))
             croped_mesh = mesh.crop(bbox)
         if len(croped_mesh.triangles) == 0:
@@ -173,7 +175,7 @@ class RegionDataFetcher:
         self.min_altitude = croped_mesh.get_min_bound().tolist()[2]
         return croped_mesh
 
-    def make_pointcloud(self, save=False, pcd_scale = 1):
+    def make_pointcloud(self, save=True, pcd_scale = 1):
         fetcher = ResourceFetcher.PcdResourceFetcher()
         paths = fetcher.get_pth(ResourceFetcher.ResourceAttr.UNIQUE_ID, self.parents)
         pcd = o3d.geometry.PointCloud()

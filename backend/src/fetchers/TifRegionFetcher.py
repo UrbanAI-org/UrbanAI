@@ -73,12 +73,12 @@ class TifRegionFetcher:
             pcd = o3d.io.read_point_cloud(pth)
         return pcd
 
-    def make_mesh(self):
+    def make_mesh(self, depth = 10):
         pcd = self.make_pcd()
         fetcher = ResourceFetcher.MeshResourceFetcher()
         if self.mesh is None:
             print("make MESH")
-            mesh, densities = o3d.geometry.TriangleMesh.create_from_point_cloud_poisson(pcd)
+            mesh, densities = o3d.geometry.TriangleMesh.create_from_point_cloud_poisson(pcd, depth = depth)
             bbox = o3d.geometry.AxisAlignedBoundingBox.create_from_points(pcd.points)
             p_mesh_crop = mesh.crop(bbox)
             path = f"data/meshes/{self.id_}.ply"

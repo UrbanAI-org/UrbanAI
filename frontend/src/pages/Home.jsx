@@ -17,12 +17,13 @@ const Home = () => {
     const [responseBody, setResponseBody] = useState(null);
     const [isWaitingResponse, setWaitingResponse] = useState(false);
     const [isLoading, setLoading] = useState(false);
-    const [isMap, setIsMap] = useState(false)
+    const [isDisplayingMap, setIsDisplayingMap] = useState(false)
     const [isMapJsLoaded, setMapJsLoaded] = useState(false)
     // const []
     const fetchMeshes = async () => {
         try {
             // setLoading(true)
+            console.log(requestBody)
             setWaitingResponse(true)
             const response = await fetch("http://localhost:9999/v1/api/region/mesh", {
             method: 'POST',
@@ -43,17 +44,24 @@ const Home = () => {
                     // mesh: values.mesh
                 });
             }).catch((error) => {
+                setWaitingResponse(false)
+                setLoading(false)
+                alert("Promise rejected")
+
                 console.log("Promise rejected");
             })
           }
         } catch(e) {
           console.log("Network error occurred");
+          setWaitingResponse(false)
+          setLoading(false)
+          alert("Network error occurred")
         }
       };
 
-      function initMap() {
+      // function initMap() {
 
-      }
+      // }
     useEffect(() => {
         const fetchData = async () => {
           if (isRequestGenerated) {
@@ -62,9 +70,9 @@ const Home = () => {
         };
         fetchData();
       }, [isRequestGenerated]);
-    useEffect(() => {
-      initMap()
-    }, [])
+    // useEffect(() => {
+    //   initMap()
+    // }, [])
 
     return (
         <div className="home">
@@ -77,13 +85,13 @@ const Home = () => {
                     setRequestBody={setRequestBody}
                     responseBody={responseBody}
                     setResponseBody={setResponseBody}
-                    isMap = {isMap}
-                    setIsMap = {setIsMap}
+                    isMap = {isDisplayingMap}
+                    setIsMap = {setIsDisplayingMap}
                 />
                 {isWaitingResponse && <Loading word={"Generating ..."}/> }
                 {isLoading && <Loading word={"Loading ..."}/>}
-                {isMap && <DrawableMap isMapJsLoaded={isMapJsLoaded} setMapJsLoaded={setMapJsLoaded}/> }
-                {!isMap && <LandscapeScene responseBody={responseBody} setLoading={setLoading}/>}
+                {isDisplayingMap && <DrawableMap isMapJsLoaded={isMapJsLoaded} setMapJsLoaded={setMapJsLoaded}/> }
+                {!isDisplayingMap && <LandscapeScene responseBody={responseBody} setLoading={setLoading}/>}
                 
             </div>
         </div>

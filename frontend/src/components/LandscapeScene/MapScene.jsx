@@ -1,9 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react';
 import "./LandscapeScene.css";
+import {reactLocalStorage} from 'reactjs-localstorage';
+
 function DrawableMap({isMapJsLoaded, setMapJsLoaded}) {
     const boundsRef = useRef(null);
     const rectangleBoundsDivRef = useRef(null);
-    const [rectangle, setRectangle] = useState(null)
     let map;
     
     window.initMap = initMap
@@ -11,8 +12,8 @@ function DrawableMap({isMapJsLoaded, setMapJsLoaded}) {
     rectangleBoundsDivRef.current = document.getElementById('rectangle_bounds');
     function displayBoxCoord(bounds, div) {
         if ( bounds != null && !bounds.isEmpty()) {
-            div.innerHTML = 'North East corner: <br/>' + 'Latitude: ' +  bounds.getNorthEast().lat().toFixed(6) + ', Longitude: ' + bounds.getNorthEast().lng().toFixed(6) + '<br/>';
-            div.innerHTML += 'North East corner: <br/>' + 'Latitude: ' +  bounds.getSouthWest().lat().toFixed(6) + ', Longitude: ' + bounds.getSouthWest().lng().toFixed(6) + '<br/>';
+            div.innerHTML = 'North East corner: <br>' + 'Latitude: ' +  bounds.getNorthEast().lat().toFixed(6) + ', Longitude: ' + bounds.getNorthEast().lng().toFixed(6) + '<br>';
+            div.innerHTML += 'South West corner: <br>' + 'Latitude: ' +  bounds.getSouthWest().lat().toFixed(6) + ', Longitude: ' + bounds.getSouthWest().lng().toFixed(6) + '<br>';
         } else {
             div.textContent = ""
         }
@@ -24,9 +25,10 @@ function DrawableMap({isMapJsLoaded, setMapJsLoaded}) {
             center: { lat: -33.917, lng: 151.230 },
             zoom: 15,
         });
-        // var rectangle;
+        var rectangle;
         var markers = [];
         var bounds = new window.google.maps.LatLngBounds();
+        var previousBounds = bounds; 
         map.addListener('mousemove', function(event) {
             coordinatesDiv.textContent = 'Latitude: ' + event.latLng.lat().toFixed(6) + ', Longitude: ' + event.latLng.lng().toFixed(6);
             // console.log(boundsRef.current)
@@ -43,7 +45,7 @@ function DrawableMap({isMapJsLoaded, setMapJsLoaded}) {
               }
               bounds = new window.google.maps.LatLngBounds();
               boundsRef.current = bounds
-              setRectangle(null)
+              displayBoxCoord(null, rectangleBoundsDivRef.current)
             }
             var marker = new window.google.maps.Marker({
               position: event.latLng,
@@ -58,16 +60,43 @@ function DrawableMap({isMapJsLoaded, setMapJsLoaded}) {
                 var lngDiff = ne.lng() - sw.lng();
                 var latDiff = ne.lat() - sw.lat();
                 console.log(ne,sw,lngDiff, latDiff)
-                if (lngDiff > 0.5 || latDiff > 0.5) {
-                  alert('Rectangle exceeds the maximum length limit of 0.5');
+                if (lngDiff > 0.12 || latDiff > 0.12) {
+                  alert('Rectangle exceeds the maximum length limit of 0.12');
                 } else {
-                    var temp = new window.google.maps.Rectangle({
+                    rectangle = new window.google.maps.Rectangle({
                         bounds: bounds,
                         editable: true,
                         draggable: true,
                         map: map
                     });
-                    setRectangle(temp)
+                    reactLocalStorage.setObject("PolygonItems", [
+                        {latitude: ne.lat().toFixed(6), longitude: ne.lng().toFixed(6)},
+                        {latitude: sw.lat().toFixed(6), longitude: sw.lng().toFixed(6)},
+                    ])
+                    previousBounds = rectangle.getBounds()
+                    displayBoxCoord(rectangle.getBounds(), rectangleBoundsDivRef.current)
+                    window.google.maps.event.addListener(rectangle, 'bounds_changed', function() {
+                        var bounds = rectangle.getBounds()
+                        var ne = bounds.getNorthEast();
+                        var sw = bounds.getSouthWest();
+                        var lngDiff = ne.lng() - sw.lng();
+                        var latDiff = ne.lat() - sw.lat();
+                        console.log(ne,sw,lngDiff, latDiff)
+                        if (lngDiff > 0.12 || latDiff > 0.12) {
+                            alert('Rectangle exceeds the maximum length limit of 0.12');
+                            rectangle.setBounds(previousBounds);
+                        } else {
+                            previousBounds = bounds
+                            displayBoxCoord(rectangle.getBounds(), rectangleBoundsDivRef.current);
+                            reactLocalStorage.setObject("PolygonItems", [
+                                {latitude: bounds.getNorthEast().lat().toFixed(6), longitude: bounds.getNorthEast().lng().toFixed(6)},
+                                {latitude: bounds.getSouthWest().lat().toFixed(6), longitude: bounds.getSouthWest().lng().toFixed(6)},
+                            ])
+
+                        }
+                        
+                      });
+                
                 }
               
                 markers.forEach(function(marker) {
@@ -84,9 +113,6 @@ function DrawableMap({isMapJsLoaded, setMapJsLoaded}) {
         // });
     }
     useEffect(() => {
-        displayBoxCoord(boundsRef.current, rectangleBoundsDivRef.current)
-    }, [rectangle]);
-    useEffect(() => {
         if (!isMapJsLoaded) {
 
             const script = document.createElement('script');
@@ -100,7 +126,7 @@ function DrawableMap({isMapJsLoaded, setMapJsLoaded}) {
             };
         } else {
             console.log("Init Map")
-            // initMap()
+            initMap()
         }
       }, []);
     

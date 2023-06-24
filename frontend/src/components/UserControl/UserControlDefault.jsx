@@ -2,10 +2,10 @@ import React, { useState } from "react";
 import './UserControl.css';
 import TypeSelector from "./TypeSelector";
 import PolygonForm from "./PolygonForm";
+import {reactLocalStorage} from 'reactjs-localstorage';
 
 const UserControlDefault = ({setIsRequestGenerated, requestBody, setRequestBody, isMap, setIsMap }) => {
     const [polygonItems, setPolygonItems] = useState([]);
-
     const polygonItemsDisplay = () => {
         let display_str = ""
         for (let i = 0; i < polygonItems.length; i++) {
@@ -25,8 +25,9 @@ const UserControlDefault = ({setIsRequestGenerated, requestBody, setRequestBody,
                 event.target.latitude.value,
                 event.target.longitude.value
             );
-        } else if (requestBody.type === "handelMap") {
-            handelMap()
+        } else if (requestBody.type === "map") {
+            var corner = reactLocalStorage.getObject("PolygonItems", [])
+            handelMap(corner)
         }
     }
 
@@ -76,7 +77,21 @@ const UserControlDefault = ({setIsRequestGenerated, requestBody, setRequestBody,
         setIsRequestGenerated(true);
     }
 
-    function handelMap() {
+    function handelMap(corner) {
+        if (corner.length < 2) {
+            alert("Please select two points at on map");
+            return
+        }
+        setRequestBody(
+            {
+                type: "map",
+                data: corner
+            }
+        )
+        console.log(corner)
+        // setPolygonItems([]);
+        setIsRequestGenerated(true);
+        setIsMap(false)
 
     }
     if (requestBody.type === "") {
@@ -153,7 +168,7 @@ const UserControlDefault = ({setIsRequestGenerated, requestBody, setRequestBody,
             <div className="panel-control">
                 <TypeSelector requestBody={requestBody} setRequestBody={setRequestBody}/>
                 <div className="panel-info">
-                    <p>Please select the area you want in the map</p><br/>
+                    <p>Please select the area you want in the map</p>
                     <p>The current latitude and longitude of the mouse:</p>
                 </div>
                 <div id='coordinates'></div>

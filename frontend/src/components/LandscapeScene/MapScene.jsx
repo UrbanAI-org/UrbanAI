@@ -62,7 +62,7 @@ function DrawableMap({isMapJsLoaded, setMapJsLoaded}) {
                 var latDiff = ne.lat() - sw.lat();
                 console.log(ne,sw,lngDiff, latDiff)
                 if (lngDiff > 0.12 || latDiff > 0.12) {
-                  alert('Rectangle exceeds the maximum length limit of 0.12');
+                  alert('Rectangle exceeds the maximum length limit of 0.12 arc');
                 } else {
                     rectangle = new window.google.maps.Rectangle({
                         bounds: bounds,
@@ -84,7 +84,7 @@ function DrawableMap({isMapJsLoaded, setMapJsLoaded}) {
                         var latDiff = ne.lat() - sw.lat();
                         console.log(ne,sw,lngDiff, latDiff)
                         if (lngDiff > 0.12 || latDiff > 0.12) {
-                            alert('Rectangle exceeds the maximum length limit of 0.12');
+                            alert('Rectangle exceeds the maximum length limit of 0.12 arc');
                             rectangle.setBounds(previousBounds);
                         } else {
                             previousBounds = bounds

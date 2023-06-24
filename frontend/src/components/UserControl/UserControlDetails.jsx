@@ -16,7 +16,7 @@ const UserControlDetails = ({setIsRequestGenerated, setRequestBody, responseBody
         setResponseBody(null);
     }
 
-    const downloadURL = "http://localhost:9999" + responseBody.download_link;
+    const downloadURL = "http://13.210.146.135:5000" + responseBody.download_link;
     return (
         <div className="panel-control">
             <div className="panel-info">
@@ -25,7 +25,7 @@ const UserControlDetails = ({setIsRequestGenerated, setRequestBody, responseBody
             <div style={{ padding: "5px" }}>
                 <a href={downloadURL} target="_blank" download style={{ color: 'blue' }}>Click here to download .ply</a>
             </div>
-            <p>{responseBody.download_link}</p>
+            {/* <p>{responseBody.download_link}</p> */}
             <div className="user-control">
                 <form onSubmit={handleRestart}>
                     <input

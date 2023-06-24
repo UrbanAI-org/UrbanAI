@@ -1,0 +1,82 @@
+@import url('https://fonts.googleapis.com/css?family=Montserrat');
+
+* {
+	box-sizing: border-box;
+}
+
+.email_a {
+	color: #f1f0f7;
+	text-decoration: none;
+}
+
+.linkedin_a {
+	color: #54a3e4;
+	
+}
+.linkedin_a:visited {
+    color: #54a3e4; /* Set the color for visited links */
+}
+
+.card-container {
+	background-color: #edf1f1;
+	border-radius: 7px;
+	box-shadow: 0px 10px 20px -10px rgba(0,0,0,0.75);
+	color: #54a3e4;
+	padding-top: 15px;
+	position: relative;
+	width: 260px;
+	height: 60%;
+	/* margin-left: 30px; */
+	margin-top: 180px;
+	margin-left: auto;
+  	margin-right: auto;
+	max-width: 100%;
+	text-align: center;
+}
+
+.container-wrapper {
+	display: flex;
+  }
+
+.card-container .round {
+	border: 1px solid #54a3e4;
+	border-radius: 50%;
+	padding: 7px;
+}
+
+button.primary {
+	background-color: #54a3e4;
+	border: 1px solid #54a3e4;
+	border-radius: 3px;
+	color: #f1f0f7;
+	font-family: Montserrat, sans-serif;
+	font-weight: 500;
+	padding: 10px 25px;
+}
+
+button.primary.ghost {
+	background-color: transparent;
+	color: #318dd8;
+}
+
+.skills {
+	/* background-color: #1F1A36; */
+	text-align: left;
+	padding: 15px;
+	margin-top: 10px;
+}
+
+.skills ul {
+	list-style-type: none;
+	margin: 0;
+	padding: 0;
+}
+
+.skills ul li {
+	border: 1px solid #54a3e4;
+	border-radius: 2px;
+	display: inline-block;
+	font-size: 12px;
+	margin: 0 7px 7px 0;
+	padding: 7px;
+}

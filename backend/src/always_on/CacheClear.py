@@ -8,7 +8,7 @@ class CaCheClear(AlwaysOnInterface):
         self.period = period
 
     def __call__(self, *args: Any, **kwds: Any) -> Any:
-        requests.delete("localhost:9999/v1/clear/cache", json={"key":self.key})
+        requests.delete("http://localhost:9999/v1/clear/cache", json={"key":self.key})
 
     def next(self, curr: datetime):
         return curr + self.period
@@ -25,7 +25,7 @@ class RegionsClear(AlwaysOnInterface):
         self.period = period
 
     def __call__(self, *args: Any, **kwds: Any) -> Any:
-        requests.delete("localhost:9999/v1/clear/regions", json={"key":self.key})
+        requests.delete("http://localhost:9999/v1/clear/regions", json={"key":self.key})
 
     def next(self, curr: datetime):
         return curr + self.period

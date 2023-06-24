@@ -16,11 +16,14 @@ from src.always_on.CacheClear import CaCheClear, RegionsClear
 from src.always_on.AlwaysOnLauncher import Launcher
 from datetime import timedelta
 from src.exceptions.ServerExceptions import InvalidResourceId, InvalidRequestType, InvalidInput, LargeSelectedArea, InvalidAuth, ResourceNotFound
+import logging
+import os
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s %(levelname)s: %(message)s', handlers=[logging.StreamHandler(), logging.FileHandler("server.log")  ])
+logger = logging.getLogger(__name__)
 CLEAR_CACHE = hash(time.time())
 
 PORT = 9999
 app = Flask(__name__)
-
 CORS(app, origins="*")
 
 
@@ -115,6 +118,8 @@ class V1ApiRegionAdd(Resource):
                 chunk = RegionDataFetcher.create_by_polygon(phrase_polygon(data['data']))
             elif data['type'] == 'circle':
                 chunk = RegionDataFetcher.create_by_circle(phrase_lat_lon(data['data']), data['data']['radius'])
+            elif data['type'] == 'map':
+                chunk = RegionDataFetcher.create_by_polygon(phrase_polygon(data['data']))
             else:
                 raise InvalidRequestType(f"Invalid format {data['type']}, expect polygon or circle.")
         except KeyError:
@@ -139,27 +144,23 @@ class V1ApiRegionAdd(Resource):
 
 @API.errorhandler
 def defaultHandler(err):
-    # response = err.get_response()
-    print('response', err)
+    print('response', err, type(err))
     response = {
         "name": "System Error",
         "message": str(err),
     }
+    logger.exception(err)
 
     return response, getattr(err, 'code', 500)
 
 if __name__ == "__main__":
     database.start()
-    database.report()
-    # print("Open file:", "s34_e151_1arc_v3.tif")
-    # loader = TifLoader("data/s34_e151_1arc_v3.tif", origin=[(-35 + -30) / 2, (148+150) / 2])
-    # fetcher = TifRegionFetcher.create_by_loader(loader)
-    # fetcher.make_pcd()
-    # fetcher.make_mesh()
-    
-    launch = Launcher()
-    launch.add(CaCheClear(CLEAR_CACHE, timedelta(hours=3)))
-    launch.add(RegionsClear(CLEAR_CACHE, timedelta(hours=6)))
-    launch.launch()
+    database.report()    
+    # launch = Launcher()
+    # launch.add(CaCheClear(CLEAR_CACHE, timedelta(seconds=10)))
+    # launch.add(RegionsClear(CLEAR_CACHE, timedelta(hours=6)))
+    # launch.launch()
+    logger.debug(msg= f"Sensitive Operation Hash Key: {CLEAR_CACHE}")
     print("Sensitive Operation Hash Key:", CLEAR_CACHE)
-    app.run(port=PORT)
+    # app.run(port=PORT)
+    app.run(host='0.0.0.0')

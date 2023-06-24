@@ -8,7 +8,7 @@ from datetime import datetime
 import src.fetchers.ResourceFetcher as ResourceFetcher
 from src.fetchers.FetchersConsts import ResourceType, ResourceAttr
 from src.fetchers.TifFetcher import TifFetcher
-from src.fetchers.Exceptions import BBoxIsSmall
+from src.fetchers.Exceptions import BBoxIsSmall, BBoxIsLarge
 def _relativeDistance(given : tuple, base: tuple) -> float:
     """
     return relative distance based on two points.
@@ -43,6 +43,8 @@ class RegionDataFetcher:
         else:
             self.id = id
         self.center = center
+        if ((np.array(max_bound) - np.array(min_bound)) > 11_000).sum() > 0:
+            raise BBoxIsLarge("Given region is too large to process")
         self.min = min_bound
         self.max = max_bound
         self.base = base
@@ -90,7 +92,6 @@ class RegionDataFetcher:
         param = [
             self.id, self.center[0], self.center[1], self.min[0], self.min[1], self.max[0], self.max[1], self.base[0], self.base[1], ",".join(self.parents), self.pcd, self.mesh, self.max_altitude, self.min_altitude
         ]
-        print(param)
         database.execute_in_worker(qry, param)
 
     @staticmethod
@@ -148,6 +149,7 @@ class RegionDataFetcher:
     def make_mesh(self, save=True):
         fetcher = ResourceFetcher.MeshResourceFetcher()
         path = fetcher.get_pth(ResourceFetcher.ResourceAttr.UNIQUE_ID, self.parents)
+        # print(path)
         if len(path) == 1:
             print("Within a path", path)
             mesh = o3d.io.read_triangle_mesh(path[0])
@@ -155,13 +157,14 @@ class RegionDataFetcher:
             croped_mesh = mesh.crop(bbox)
         else:
             print("Generating Mesh required ...")
-            pcd = self.make_pointcloud(pcd_scale=1.1)
-            mesh, densities = o3d.geometry.TriangleMesh.create_from_point_cloud_poisson(pcd)
+            print("load pcds")
+            pcd = self.make_pointcloud(save=False, pcd_scale=1.2)
+            print("make")
+            mesh, densities = o3d.geometry.TriangleMesh.create_from_point_cloud_poisson(pcd, depth = 6)
             bbox = o3d.geometry.AxisAlignedBoundingBox(np.array(self.min + [-1000]), np.array(self.max + [10000]))
             croped_mesh = mesh.crop(bbox)
         if len(croped_mesh.triangles) == 0:
-            raise BBoxIsSmall("BBox given is small")
-            return None
+            raise BBoxIsSmall("Given area is small. None of the triangule meshes exist.")
         if save:
             mesh_id = str(uuid.uuid4())
             path = f"data/meshes/{mesh_id}.ply"
@@ -171,7 +174,7 @@ class RegionDataFetcher:
         self.min_altitude = croped_mesh.get_min_bound().tolist()[2]
         return croped_mesh
 
-    def make_pointcloud(self, save=False, pcd_scale = 1):
+    def make_pointcloud(self, save=True, pcd_scale = 1):
         fetcher = ResourceFetcher.PcdResourceFetcher()
         paths = fetcher.get_pth(ResourceFetcher.ResourceAttr.UNIQUE_ID, self.parents)
         pcd = o3d.geometry.PointCloud()

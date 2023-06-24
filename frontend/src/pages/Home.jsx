@@ -25,21 +25,24 @@ const Home = () => {
             // setLoading(true)
             console.log(requestBody)
             setWaitingResponse(true)
+
             const response = await fetch("http://localhost:9999/v1/api/region/mesh", {
             method: 'POST',
             mode: "cors",
             headers: { 'Content-Type': 'text/plain' },
             body: JSON.stringify(requestBody)
           });
-
+          
           if (!response.ok) {
             response.json().then((values) => {
               alert(values.message)
+            setIsDisplayingMap(true)
+
             })
             setWaitingResponse(false)
             setLoading(false)
             throw new Error(`Error has occurred: ${response.status}`);
-            setIsRequestGenerated(false)
+            // setIsRequestGenerated(false)
           } else {
             setWaitingResponse(false)
             setLoading(true)
@@ -62,7 +65,7 @@ const Home = () => {
           setWaitingResponse(false)
           setLoading(false)
             setIsRequestGenerated(false)
-            alert("Network error occurred")
+            // alert("Network error occurred")
         }
       };
 
@@ -70,11 +73,13 @@ const Home = () => {
 
       // }
     useEffect(() => {
+        setIsDisplayingMap(false)
         const fetchData = async () => {
           if (isRequestGenerated) {
             fetchMeshes()
           }
         };
+        console.log(isDisplayingMap)
         fetchData();
       }, [isRequestGenerated]);
     // useEffect(() => {
@@ -97,8 +102,8 @@ const Home = () => {
                 />
                 {isWaitingResponse && <Loading word={"Generating ..."}/> }
                 {isLoading && <Loading word={"Loading ..."}/>}
-                {isDisplayingMap && <DrawableMap isMapJsLoaded={isMapJsLoaded} setMapJsLoaded={setMapJsLoaded}/> }
-                {!isDisplayingMap && <LandscapeScene responseBody={responseBody} setLoading={setLoading}/>}
+                {isDisplayingMap && !isRequestGenerated && <DrawableMap isMapJsLoaded={isMapJsLoaded} setMapJsLoaded={setMapJsLoaded}/> }
+                {(!isDisplayingMap || responseBody) && <LandscapeScene responseBody={responseBody} setLoading={setLoading}/>}
                 
             </div>
         </div>

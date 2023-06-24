@@ -173,6 +173,7 @@ class Database(metaclass=SingletonMeta):
         select id from chunks;
         """
         result = self.fetchall(qry)
+        self.cache = {}
         for each in result:
             self.delete_resource(each[0])
 

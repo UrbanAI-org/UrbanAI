@@ -16,7 +16,7 @@ const UserControlDetails = ({setIsRequestGenerated, setRequestBody, responseBody
         setResponseBody(null);
     }
 
-    const downloadURL = "http://localhost:9999" + responseBody.download_link;
+    const downloadURL = "http://13.210.146.135:5000" + responseBody.download_link;
     return (
         <div className="panel-control">
             <div className="panel-info">

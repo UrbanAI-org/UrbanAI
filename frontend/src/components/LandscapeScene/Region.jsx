@@ -39,7 +39,7 @@ const Region = ({ position, setLookAt, responseBody , isframe, setLoading}) => {
   useEffect(() => {
     const loader = new PLYLoader();
     loader.load(
-      "http://localhost:9999" + responseBody.download_link,
+      "http://13.210.146.135:5000" + responseBody.download_link,
       // "test.ply",
       function (geometry) {
         // console.log(geometry.boundingSphere)

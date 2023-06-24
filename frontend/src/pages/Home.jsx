@@ -33,6 +33,11 @@ const Home = () => {
           });
 
           if (!response.ok) {
+            response.json().then((values) => {
+              alert(values.message)
+            })
+            setWaitingResponse(false)
+            setLoading(false)
             throw new Error(`Error has occurred: ${response.status}`);
             setIsRequestGenerated(false)
           } else {

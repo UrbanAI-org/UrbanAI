@@ -15,25 +15,27 @@ import time
 from src.always_on.CacheClear import CaCheClear, RegionsClear
 from src.always_on.AlwaysOnLauncher import Launcher
 from datetime import timedelta
+from src.exceptions.ServerExceptions import InvalidResourceId, InvalidRequestType, InvalidInput, LargeSelectedArea, InvalidAuth, ResourceNotFound
+import logging
+import os
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s %(levelname)s: %(message)s', handlers=[logging.StreamHandler(), logging.FileHandler("server.log")  ])
+logger = logging.getLogger(__name__)
 CLEAR_CACHE = hash(time.time())
 
 PORT = 9999
 app = Flask(__name__)
-
 CORS(app, origins="*")
-def defaultHandler(err):
-    response = err.get_response()
-    print('response', err, err.get_response())
-    response.data = json.dumps({
-        "name": "System Error",
-        "message": err.get_description(),
-    })
-    response.content_type = 'application/json'
-    return response, 200
 
-app.config['TRAP_HTTP_EXCEPTIONS'] = True
-app.register_error_handler(Exception, defaultHandler)
+
+
+# app.config['TRAP_HTTP_EXCEPTIONS'] = True
+# app.register_error_handler(Exception, defaultHandler)
 API = Api(app)
+
+@API.route("/v1/map/key")
+class MapKey(Resource):
+    def post(self):
+        pass
 
 @API.route("/v1/clear/cache")
 class ClearCache(Resource):
@@ -42,9 +44,10 @@ class ClearCache(Resource):
         if data['key'] == CLEAR_CACHE:
             database.clear_cache()
             database.report()
-            return {"message" : "Clear Cache"}, 200
+            # raise
+            return {"message" : "Successed"}, 200
         else:
-            return {"message" : "Invalid Auth"}, 503
+            raise InvalidAuth("You have no premission.")
         
 @API.route("/v1/clear/regions")
 class ClearRegions(Resource):
@@ -53,9 +56,9 @@ class ClearRegions(Resource):
         if data['key'] == CLEAR_CACHE:
             database.clear_regions()
             database.report()
-            return {"message" : "Clear Cache"}, 200
+            return {"message" : "Successed"}, 200
         else:
-            return {"message" : "Invalid Auth"}, 503
+            raise InvalidAuth("You have no premission.")
 
 
 @API.route("/v1/download")
@@ -70,9 +73,9 @@ class V1Download(Resource):
             fetcher = PcdResourceFetcher()
             path = fetcher.get_pth(ResourceAttr.UNIQUE_ID, id)
         else:
-            return {"message" : "invalid format"}
+            raise InvalidRequestType(f"Invalid format {resource_type}, expect mesh or pcb.")
         if path is None:
-            return {"message" : "invalid id"}, 400
+            raise InvalidResourceId(f"Invalid Resource ID {id}, please check the url agagin")
         CHUNK_SIZE = 4096
         def read_file_chunks(url):
             with open(url, 'rb') as fd:
@@ -90,7 +93,7 @@ class V1Download(Resource):
                 }
             )
         except FileNotFoundError:
-            return {"message" : "invalid id"}, 400
+            raise ResourceNotFound("Resource not found.")
 
 
 def phrase_polygon(data):
@@ -110,16 +113,17 @@ class V1ApiRegionAdd(Resource):
             data = json.loads(request.data)
         else:
             data = request.json
-        # print(data)
-        # tif = database.execute_in_worker("select uid, origin_lat, origin_lon from tifs where filename=?", ['s34_e151_1arc_v3.tif'])[0]
-        if data['type'] == 'polygon':
-            chunk = RegionDataFetcher.create_by_polygon(phrase_polygon(data['data']))
-        elif data['type'] == 'circle':
-            chunk = RegionDataFetcher.create_by_circle(phrase_lat_lon(data['data']), data['data']['radius'])
-        elif data['type'] == 'map':
-            chunk = RegionDataFetcher.create_by_circle(phrase_lat_lon(data['data']), data['data']['radius'])
-        else:
-            return {"message" : "invalid input"}, 400
+        try:
+            if data['type'] == 'polygon':
+                chunk = RegionDataFetcher.create_by_polygon(phrase_polygon(data['data']))
+            elif data['type'] == 'circle':
+                chunk = RegionDataFetcher.create_by_circle(phrase_lat_lon(data['data']), data['data']['radius'])
+            elif data['type'] == 'map':
+                chunk = RegionDataFetcher.create_by_polygon(phrase_polygon(data['data']))
+            else:
+                raise InvalidRequestType(f"Invalid format {data['type']}, expect polygon or circle.")
+        except KeyError:
+            raise InvalidRequestType("You must include a type with data.")
         if database.in_cache(chunk.to_range_string()):
             print("requested area is in cache")
             data = database.get_cache(chunk.to_range_string())
@@ -138,18 +142,24 @@ class V1ApiRegionAdd(Resource):
 
         return Response(headers={"Access-Control-Allow-Methods" : "POST,GET,DELETE,OPTIONS"})
 
+@API.errorhandler
+def defaultHandler(err):
+    print('response', err, type(err))
+    response = {
+        "name": "System Error",
+        "message": str(err),
+    }
+    logger.exception(err)
+
+    return response, getattr(err, 'code', 500)
+
 if __name__ == "__main__":
     database.start()
-    database.report()
-    # print("Open file:", "s34_e151_1arc_v3.tif")
-    # loader = TifLoader("data/s34_e151_1arc_v3.tif", origin=[(-35 + -30) / 2, (148+150) / 2])
-    # fetcher = TifRegionFetcher.create_by_loader(loader)
-    # fetcher.make_pcd()
-    # fetcher.make_mesh()
-    
-    launch = Launcher()
-    launch.add(CaCheClear(CLEAR_CACHE, timedelta(hours=3)))
-    launch.add(RegionsClear(CLEAR_CACHE, timedelta(hours=6)))
-    launch.launch()
+    database.report()    
+    # launch = Launcher()
+    # launch.add(CaCheClear(CLEAR_CACHE, timedelta(seconds=10)))
+    # launch.add(RegionsClear(CLEAR_CACHE, timedelta(hours=6)))
+    # launch.launch()
+    logger.debug(msg= f"Sensitive Operation Hash Key: {CLEAR_CACHE}")
     print("Sensitive Operation Hash Key:", CLEAR_CACHE)
     app.run(port=PORT)

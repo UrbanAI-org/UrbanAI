@@ -111,6 +111,8 @@ class Database(metaclass=SingletonMeta):
         print("")
 
     def put_cache(self, cache_key, cache_value):
+        if len(self.cache.keys()) > 80:
+            self.clear_cache()
         self.cache.update({cache_key: cache_value})
 
     def get_cache(self, cache_key, cache_value = None):

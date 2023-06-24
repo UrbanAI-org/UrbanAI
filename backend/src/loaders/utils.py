@@ -21,7 +21,7 @@ def makeXYPlaneInterp(func, samplingNum: int, array : np.ndarray, base: tuple) -
     for row in array.reshape((samplingNum, -1)):
         yp.append(relativeDistance(func(base, row[0]), base))
         xp.append(row[0])
-    yp.append(distance.distance(func(base, array[-1]), base).m)
+    yp.append(relativeDistance(func(base, array[-1]), base))
     xp.append(array[-1])
     return [np.array(xp), np.array(yp)]
 

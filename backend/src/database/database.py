@@ -1,5 +1,6 @@
 import sqlite3
 import queue
+
 from src.database.singletonMeta import SingletonMeta
 from threading import Thread
 import os
@@ -72,9 +73,13 @@ class Database(metaclass=SingletonMeta):
 
             # you might not really need the results if you only use this
             # for writing unless you use something like https://www.sqlite.org/lang_returning.html
-            result_queue = queue.Queue()
-            self.work_queue.put(((sql, params), result_queue))
-            return result_queue.get(timeout=5)
+            try:
+
+                result_queue = queue.Queue()
+                self.work_queue.put(((sql, params), result_queue))
+                return result_queue.get(timeout=5)
+            except queue.Empty:
+                raise DatabaseError("Please check your input. If it is current, please concat us.")
         return None
 
     def fetchall(self, sql, params = []):
@@ -242,3 +247,5 @@ create table if not exists chunks (
 global database 
 database = Database("urbanAI.db", tables)
 
+class DatabaseError(Exception):
+    pass

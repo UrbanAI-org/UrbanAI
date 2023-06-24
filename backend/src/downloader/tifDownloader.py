@@ -96,7 +96,7 @@ class TifDownloader:
                         "productId": value[0]['id']
                     })
                 total_size += value[0]['filesize']
-        print(f"Estimated files will take {round(total_size / 1048576, 1) }MB")
+        print(f"Estimated {len(self.downloads)} files will take {round(total_size / 1048576, 1) }MB")
                 
 
     def requestResourceAccess(self):
@@ -160,12 +160,18 @@ class TifDownloader:
         print("\nAll downloads are available to download.\n")
         return list(download_links)
 
-    def fetchResource(self, links, concurrent_num = 5):
+    def fetchResource(self, links, concurrent_num = 5, skip_cache = True):
         def download(url):
             r = requests.get(url, stream=True)
             if r.ok:
                 filename = r.headers['Content-Disposition'].split('filename=')[1].replace('"', "")
                 print(f"Downloading {filename} ({round(int(r.headers['Content-Length']) / (1024 * 1024), 2)}MB)")
+                if os.path.isfile("data/" + filename):
+                    if skip_cache:
+                        print(f"File: {filename} already cached, skip downloading.")
+                        return filename
+                    else:
+                        os.remove("data/" + filename)
                 with open("data/" + filename + ".downloading", 'wb') as f:
                     for chunk in r.iter_content(chunk_size=1024 * 8):
                         if chunk:
@@ -173,7 +179,7 @@ class TifDownloader:
                             f.flush()
                             os.fsync(f.fileno())
                 os.rename("data/" + filename + ".downloading", "data/" + filename)
-                print(f"Downloaded {filename}")
+                print(f"Downloading {filename} Completed")
                 return filename
             else:  # HTTP status code 4XX/5XX
                 print("Download failed: status code {}\n{}".format(r.status_code, r.text))
@@ -185,6 +191,7 @@ class TifDownloader:
         wait(futures, return_when=ALL_COMPLETED, timeout= len(links) * 120 / concurrent_num * 1.2)
         filenames = [future.result() for future in futures]
         print("COMPLETE DOWNLOAD ALL")
+        print(filenames)
         return filenames
 
     def close(self):

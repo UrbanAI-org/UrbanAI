@@ -92,7 +92,6 @@ class RegionDataFetcher:
         param = [
             self.id, self.center[0], self.center[1], self.min[0], self.min[1], self.max[0], self.max[1], self.base[0], self.base[1], ",".join(self.parents), self.pcd, self.mesh, self.max_altitude, self.min_altitude
         ]
-        # print(param)
         database.execute_in_worker(qry, param)
 
     @staticmethod

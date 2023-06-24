@@ -160,4 +160,5 @@ if __name__ == "__main__":
     # launch.launch()
     logger.debug(msg= f"Sensitive Operation Hash Key: {CLEAR_CACHE}")
     print("Sensitive Operation Hash Key:", CLEAR_CACHE)
-    app.run(port=PORT)
+    # app.run(port=PORT)
+    app.run=('0.0.0.0')

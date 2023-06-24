@@ -65,6 +65,10 @@ const UserControlDefault = ({setIsRequestGenerated, requestBody, setRequestBody,
             alert("Please ensure radius is an integer/decimal within the range of [0, inf], latitude  must range from -90 to 90 and longitude must range from -180 to 180");
             return;
         }
+        if (2 * radius > 100) {
+            alert("Please enter a radius between 0 to 50, please refrain from generating a very large centre-point square.");
+            return;
+        } 
         setRequestBody(
             {
                 type: "circle",

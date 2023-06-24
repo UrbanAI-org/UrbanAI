@@ -12,10 +12,11 @@ function DrawableMap({isMapJsLoaded, setMapJsLoaded}) {
     rectangleBoundsDivRef.current = document.getElementById('rectangle_bounds');
     function displayBoxCoord(bounds, div) {
         if ( bounds != null && !bounds.isEmpty()) {
+            div.style.display = 'block';
             div.innerHTML = 'North East corner: <br>' + 'Latitude: ' +  bounds.getNorthEast().lat().toFixed(6) + ', Longitude: ' + bounds.getNorthEast().lng().toFixed(6) + '<br>';
             div.innerHTML += 'South West corner: <br>' + 'Latitude: ' +  bounds.getSouthWest().lat().toFixed(6) + ', Longitude: ' + bounds.getSouthWest().lng().toFixed(6) + '<br>';
         } else {
-            div.textContent = ""
+            div.style.display = 'none';
         }
     }
     
@@ -92,7 +93,6 @@ function DrawableMap({isMapJsLoaded, setMapJsLoaded}) {
                                 {latitude: bounds.getNorthEast().lat().toFixed(6), longitude: bounds.getNorthEast().lng().toFixed(6)},
                                 {latitude: bounds.getSouthWest().lat().toFixed(6), longitude: bounds.getSouthWest().lng().toFixed(6)},
                             ])
-
                         }
                         
                       });

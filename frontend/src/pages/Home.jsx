@@ -34,6 +34,7 @@ const Home = () => {
 
           if (!response.ok) {
             throw new Error(`Error has occurred: ${response.status}`);
+            setIsRequestGenerated(false)
           } else {
             setWaitingResponse(false)
             setLoading(true)
@@ -55,7 +56,8 @@ const Home = () => {
           console.log("Network error occurred");
           setWaitingResponse(false)
           setLoading(false)
-          alert("Network error occurred")
+            setIsRequestGenerated(false)
+            alert("Network error occurred")
         }
       };
 

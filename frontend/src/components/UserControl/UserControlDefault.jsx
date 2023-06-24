@@ -6,6 +6,7 @@ import {reactLocalStorage} from 'reactjs-localstorage';
 
 const UserControlDefault = ({setIsRequestGenerated, requestBody, setRequestBody, isMap, setIsMap }) => {
     const [polygonItems, setPolygonItems] = useState([]);
+    // const [needReflesh, setReflesh] = useState(false);
     const polygonItemsDisplay = () => {
         let display_str = ""
         for (let i = 0; i < polygonItems.length; i++) {
@@ -42,7 +43,7 @@ const UserControlDefault = ({setIsRequestGenerated, requestBody, setRequestBody,
                 data: polygonItems
             }
         )
-        setPolygonItems([]);
+        // setPolygonItems([]);
         setIsRequestGenerated(true);
     }
 
@@ -95,6 +96,7 @@ const UserControlDefault = ({setIsRequestGenerated, requestBody, setRequestBody,
 
     }
     if (requestBody.type === "") {
+        // setReflesh(false)
         return (
             <div className="panel-control">
                 <TypeSelector requestBody={requestBody} setRequestBody={setRequestBody}/>
@@ -102,6 +104,7 @@ const UserControlDefault = ({setIsRequestGenerated, requestBody, setRequestBody,
         )
     } else if (requestBody.type === "polygon") {
         setIsMap(false)
+        // setReflesh(false)
         return (
             <div className="panel-control">
                 <TypeSelector requestBody={requestBody} setRequestBody={setRequestBody}/>
@@ -126,7 +129,8 @@ const UserControlDefault = ({setIsRequestGenerated, requestBody, setRequestBody,
         )
     } else if (requestBody.type === "circle") {
         setIsMap(false)
-
+        // setPolygonItems([])
+        // setReflesh(false)
         return (
             <div className="panel-control">
                 <TypeSelector requestBody={requestBody} setRequestBody={setRequestBody}/>
@@ -164,15 +168,16 @@ const UserControlDefault = ({setIsRequestGenerated, requestBody, setRequestBody,
         )
     } else if (requestBody.type === "map") {
         setIsMap(true)
+        // setReflesh(true)
         return (
             <div className="panel-control">
                 <TypeSelector requestBody={requestBody} setRequestBody={setRequestBody}/>
                 <div className="panel-info">
                     <p>Please select the area you want in the map</p>
                     <p>The current latitude and longitude of the mouse:</p>
+                    <div id='coordinates'></div>
+                    <div id="rectangle_bounds"></div>
                 </div>
-                <div id='coordinates'></div>
-                <div id="rectangle_bounds"></div>
                 <div className="user-control">
                     <form onSubmit={handleInputsSubmit}>
                         <input

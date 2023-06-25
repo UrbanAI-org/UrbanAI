@@ -10,3 +10,11 @@ class ResourceAttr(Enum):
 class ResourceType(Enum):
     MESH = "meshes"
     PCD = "pcds"
+
+class TifAttr(Enum):
+    UNIQUE_ID = "uid"
+    DB_ID = "id"
+    PATH = "pth"
+    MESH = "mesh"
+    PCD = "pcd"
+    FILENAME = "filename"

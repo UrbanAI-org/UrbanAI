@@ -55,5 +55,18 @@ DELETE  http://127.0.0.1:9999/v1/clear/regions
 content-type: application/json
 
 {
-    "key": 2143593577548522940
+    "key": 478076453537553373
+}
+
+###
+POST http://127.0.0.1:9999/v1/api/region/mesh 
+content-type: application/json
+
+{
+    "type" : "circle",
+    "data" : {
+        "latitude" : -33, 
+        "longitude" :  148,
+        "radius" : 2
+    }
 }

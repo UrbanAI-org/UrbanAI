@@ -39,6 +39,7 @@ class Database(metaclass=SingletonMeta):
         self.debug = debug
         self.cache = {}
         self.hasStart = True
+        self.opened = False
 
     def start(self):
         def run():
@@ -65,9 +66,12 @@ class Database(metaclass=SingletonMeta):
             con.close()
         thread = Thread(target=run)
         thread.start()
+        self.opened = True
         
     
     def execute_in_worker(self, sql, params = []):
+        if not self.opened:
+            raise DatabaseOpened("Database is not opend")
         if self.hasStart:
 
             # you might not really need the results if you only use this
@@ -187,6 +191,9 @@ class Database(metaclass=SingletonMeta):
 
     # def 
 
+class DatabaseOpened(Exception):
+    pass
+
 tables = """
 create table if not exists meshes (
     id integer primary key AUTOINCREMENT,
@@ -238,6 +245,20 @@ create table if not exists chunks (
 
 );
 """
+# create table if not exists fragmented_pcds (
+#     id integer primary key AUTOINCREMENT,
+#     min_bound_x real not null,
+#     min_bound_y real not null,
+#     max_bound_x real not null,
+#     max_bound_y real not null,  
+#     parent text not null,
+#     pth text not null,
+#     parent_id integer references pcds(id)
+
+
+# );
+# """
+
 # def start():
 global database 
 database = Database("urbanAI.db", tables)

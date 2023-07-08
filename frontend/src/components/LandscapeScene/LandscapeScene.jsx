@@ -11,6 +11,7 @@ const LandscapeScene = ({ responseBody, setLoading }) => {
   const [position, setPosition] = useState({ x: 0, y: 0, z: 0, rotationX: 0, rotationY: 0, rotationZ: 0 });
   const [lookAt, setLookAt] = useState([0, 0, 0]);
   const [isframe, setFrame] = useState('Yes');
+  const [center, setCenter] = useState([0, 0, 0]);
 
   const orbitControlsRef = useRef();
 
@@ -32,10 +33,12 @@ const LandscapeScene = ({ responseBody, setLoading }) => {
           <DatNumber path="rotationZ" label="Rotation Z" min={-Math.PI} max={Math.PI} step={0.01} /> */}
           <DatSelect path="isframe" label="wireframe" options={['Yes', 'No']} value={isframe} onUpdate={setFrame} />
         </DatGui>
-        
         <Canvas >
-          <Region position={position} setLookAt={setLookAt} responseBody={responseBody} isframe={isframe} setLoading={setLoading} />
+          {/* <axesHelper args={[10000]} /> */}
+
+          <Region position={position} setLookAt={setLookAt} responseBody={responseBody} isframe={isframe} setLoading={setLoading}/>
           <OrbitControls ref={orbitControlsRef} target={new THREE.Vector3(lookAt[0], lookAt[1], lookAt[2])} />
+          {/* <OrbitControls ref={orbitControlsRef} target={new THREE.Vector3(0,0,0)} /> */}
         </Canvas>
       </div>
     );

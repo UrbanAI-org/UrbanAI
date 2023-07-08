@@ -31,6 +31,7 @@ const Region = ({ position, setLookAt, responseBody , isframe, setLoading}) => {
   const [geo, setGeo] = useState(null);
   const [minHeight, setMinHeight] = useState(Number.POSITIVE_INFINITY);
   const [maxHeight, setMaxHeight] = useState(Number.NEGATIVE_INFINITY);
+  const [center, setCenter] = useState([0, 0, 0]);
   const camera = useThree((state) => state.camera); // Access camera object
   // Create a ref to store the mesh material
   const materialRef = useRef();
@@ -39,22 +40,31 @@ const Region = ({ position, setLookAt, responseBody , isframe, setLoading}) => {
   useEffect(() => {
     const loader = new PLYLoader();
     loader.load(
-      "http://13.210.146.135:5000" + responseBody.download_link,
+      // "http://13.210.146.135:5000" + responseBody.download_link,
+      "http://127.0.0.1:9999" + responseBody.download_link,
       // "test.ply",
       function (geometry) {
-        // console.log(geometry.boundingSphere)
+        console.log(position)
         setLoading(false)
+        geometry.computeBoundingBox();
         setLookAt([
           geometry.boundingSphere.center.x,
           geometry.boundingSphere.center.y,
           geometry.boundingSphere.center.z
         ]);
+        // setCenter([geometry.boundingSphere.center.x, geometry.boundingSphere.center.y, geometry.boundingSphere.center.z])
+        // geometry.position.set(geometry.boundingSphere.center.x, geometry.boundingSphere.center.y, geometry.boundingSphere.center.z)
+        // geometry.scene.position.sub(geometry.boundingSphere.center); // Center the geometry
         // geometry.needsUpdate = true;
-        geometry.computeBoundingBox();
-        setGeo(geometry);
         console.log(geometry);
+        // geometry.up = new THREE.Vector3(1, 0, 0);
+        setGeo(geometry);
+
+        // rotate the geometry to the correct position
+        // geometry.rotateX(-Math.PI / 2);
         // Set far property of the camera
         camera.far = 1000000; // Set a large value for far property
+        camera.position.set(geometry.boundingSphere.center.x, geometry.boundingSphere.center.y , geometry.boundingSphere.center.z + 5000);
         camera.updateProjectionMatrix(); // Apply changes to camera
       },
       function (xhr) {
@@ -94,11 +104,13 @@ const Region = ({ position, setLookAt, responseBody , isframe, setLoading}) => {
   return (
     <mesh
       position={[position.x, position.y, position.z]}
+      // lookAt={[position.x, position.y, position.z]}
       geometry={geo}
       onCreated={(mesh) => {
         // Store the material in the ref
         materialRef.current = mesh.material;
       }}
+      // up={new THREE.Vector3(0, 0, 1)}
     >
       <shaderMaterial
         vertexShader={vertexShader}

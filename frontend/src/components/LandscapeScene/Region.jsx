@@ -40,8 +40,8 @@ const Region = ({ position, setLookAt, responseBody , isframe, setLoading}) => {
   useEffect(() => {
     const loader = new PLYLoader();
     loader.load(
-      // "http://13.210.146.135:5000" + responseBody.download_link,
-      "http://127.0.0.1:9999" + responseBody.download_link,
+      "http://13.210.146.135:5000" + responseBody.download_link,
+      // "http://127.0.0.1:9999" + responseBody.download_link,
       // "test.ply",
       function (geometry) {
         console.log(position)

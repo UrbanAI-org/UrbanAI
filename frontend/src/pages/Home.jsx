@@ -27,6 +27,7 @@ const Home = () => {
             setWaitingResponse(true)
 
             const response = await fetch("http://13.210.146.135:5000/v1/api/region/mesh", {
+            // const response = await fetch("http://127.0.0.1:9999/v1/api/region/mesh", {
             method: 'POST',
             mode: "cors",
             headers: { 'Content-Type': 'text/plain' },

@@ -18,3 +18,5 @@ class TifAttr(Enum):
     MESH = "mesh"
     PCD = "pcd"
     FILENAME = "filename"
+
+# class 

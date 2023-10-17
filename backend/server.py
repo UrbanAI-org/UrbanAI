@@ -18,6 +18,9 @@ from datetime import timedelta
 from src.exceptions.ServerExceptions import InvalidResourceId, InvalidRequestType, InvalidInput, LargeSelectedArea, InvalidAuth, ResourceNotFound
 import logging
 import os
+import concurrent
+from src.fetchers.GoogleMapFetcher import StatelliteFetcher
+from src.predictors.trees import tree_predictor
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s %(levelname)s: %(message)s', handlers=[logging.StreamHandler(), logging.FileHandler("server.log")  ])
 logger = logging.getLogger(__name__)
 CLEAR_CACHE = hash(time.time())
@@ -141,6 +144,32 @@ class V1ApiRegionAdd(Resource):
     def options(self):
 
         return Response(headers={"Access-Control-Allow-Methods" : "POST,GET,DELETE,OPTIONS"})
+
+@cross_origin
+@API.route("/v1/api/region/detect")
+class V1ApiRegionAdd(Resource):
+    def post(self):
+        if request.headers.get("Content-Type") == "text/plain":
+            data = json.loads(request.data)
+        else:
+            data = request.json
+        img = StatelliteFetcher.fetch_by_polygon(data)
+        height, width, _ = img.shape
+        response = {
+            "building": {},
+            "road": {},
+            "tree": {},
+            "size": {
+                "width" : width,
+                "height" : height
+            }
+        }
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            pred_future = executor.submit(tree_predictor.predict, img)
+            response["tree"] = pred_future.result()
+            
+        return response
+    
 
 @API.errorhandler
 def defaultHandler(err):

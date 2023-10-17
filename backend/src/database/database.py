@@ -1,7 +1,7 @@
 import sqlite3
 import queue
 
-from src.database.singletonMeta import SingletonMeta
+from database.singletonMeta import SingletonMeta
 from threading import Thread
 import os
 # global database 

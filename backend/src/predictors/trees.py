@@ -36,7 +36,7 @@ class TreePredictor(metaclass=SingletonMeta):
             # crop the image using the bounding box
             cropped_image = bgr_image[int(ymin):int(ymax), int(xmin):int(xmax)]
             feature = extract_features(cropped_image, self.feature_extractor, self.pca)
-            label = self.cluster_model.predict(feature)
+            label = self.cluster_model.predict(feature)[0]
             #  this class is highly likely not to be a tree
             if label == 8:
                 continue
@@ -57,7 +57,6 @@ def extract_features(image, model, pca):
     reshaped_img = img.reshape(1,224,224,3)
     imgx = preprocess_input(reshaped_img)
     features = model.predict(imgx, use_multiprocessing=True)
-    features = features.flatten()
     return pca.transform(features)
 
 

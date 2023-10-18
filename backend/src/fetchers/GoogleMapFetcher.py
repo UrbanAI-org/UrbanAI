@@ -2,8 +2,9 @@ import aiohttp
 import asyncio
 import numpy as np
 import cv2
+from fetchers.Exceptions import BBoxIsLarge
 from config import GOOGLE_STATICMAP_URL, GOOGLE_STATICMAP_TOKEN
-
+import geopy.distance
 # fetch one image from google static map api
 async def fetch_one(session, lat, lng, zoom = 19, maptype = 'satellite'):
     params={
@@ -109,6 +110,10 @@ class StatelliteFetcher:
         "west":min(lngs),
         "north":max(lats),
         "east":max(lngs)}
+        width = geopy.distance.distance((coords['east'], coords['north']), (coords['west'], coords['north'])).km
+        height = geopy.distance.distance((coords['east'], coords['north']), (coords['east'], coords['south'])).km
+        if width > 1 or height > 1:
+            raise BBoxIsLarge("Given region is too large to process")
         fetch_satellite_image(coords)
     
    

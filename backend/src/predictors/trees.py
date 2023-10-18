@@ -17,10 +17,10 @@ class TreePredictor(metaclass=SingletonMeta):
     cluster_model = None
     feature_extractor = None
     pca = None
-    def __init__(self, detect_model_path = None, cluster_model_path = None, pca = None) -> None:
+    def __init__(self, detect_model_path = None, cluster_model_path = None, pca_path = None) -> None:
         self.detect_model  = main.deepforest.load_from_checkpoint(detect_model_path)
         self.cluster_model = joblib.load(cluster_model_path)
-        self.pca = joblib.load(pca)
+        self.pca = joblib.load(pca_path)
         model = VGG16()
         model = Model(inputs = model.inputs, outputs = model.layers[-2].output)
         self.feature_extractor = model
@@ -32,7 +32,6 @@ class TreePredictor(metaclass=SingletonMeta):
         if pred is None:
             return trees
         for index, row in pred.iterrows():
-            # get bounding box coordinates
             xmin, ymin, xmax, ymax = row['xmin'], row['ymin'], row['xmax'], row['ymax']
             # crop the image using the bounding box
             cropped_image = bgr_image[int(ymin):int(ymax), int(xmin):int(xmax)]

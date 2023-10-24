@@ -8,9 +8,6 @@ import numpy as np
 import joblib
 import cv2
 # models
-from keras.applications.vgg16 import VGG16
-from keras.models import Model
-from keras.applications.vgg16 import preprocess_input
 
 class TreePredictor(metaclass=SingletonMeta):
     detect_model = None
@@ -21,61 +18,71 @@ class TreePredictor(metaclass=SingletonMeta):
         self.detect_model  = main.deepforest.load_from_checkpoint(detect_model_path)
         self.cluster_model = joblib.load(cluster_model_path)
         self.pca = joblib.load(pca_path)
-        model = VGG16()
-        model = Model(inputs = model.inputs, outputs = model.layers[-2].output)
-        self.feature_extractor = model
-        pass
 
     def predict(self, bgr_image):
-        pred = self.detect_model.predict_tile(image = bgr_image, return_plot = False, patch_size=700,patch_overlap=0.3)
-        trees = []
-        if pred is None:
-            return trees
-        for index, row in pred.iterrows():
-            xmin, ymin, xmax, ymax = row['xmin'], row['ymin'], row['xmax'], row['ymax']
-            # crop the image using the bounding box
-            cropped_image = bgr_image[int(ymin):int(ymax), int(xmin):int(xmax)]
-            feature = extract_features(cropped_image, self.feature_extractor, self.pca)
-            label = self.cluster_model.predict(feature)[0]
-            #  this class is highly likely not to be a tree
-            if label == 8:
-                continue
-            tree = {
-                'seq_number' : index,
-                'position' : {'x' : np.average([row['xmin'], row['xmax']]), 'y' : np.average([row['ymin'], row['ymax']])},
-                'size' : {'width': row['xmax'] - row['xmin'], 'height': row['ymax'] - row['ymin']},
-                'model_type' : map_label_to_tree_type(label)
-            }
-            trees.append(tree)
-        return trees
+        return _predict(bgr_image, self.detect_model, self.cluster_model, self.pca)
 
     def detect(self, bgr_image: np.ndarray):
         return self.detect_model.predict_tile(image = bgr_image, return_plot = False, patch_size=700,patch_overlap=0.3)
 
-def extract_features(image, model, pca):
-    img = cv2.resize(image, (224, 224))
-    reshaped_img = img.reshape(1,224,224,3)
-    imgx = preprocess_input(reshaped_img)
-    features = model.predict(imgx, use_multiprocessing=True)
-    return pca.transform(features)
+def _predict(bgr_image, detect_model, cluster_model, pca):
+    pred = detect_model.predict_tile(image = bgr_image, return_plot = False, patch_size=700,patch_overlap=0.3)
+    trees = []
+    tree_types = set()
+    if pred is None:
+        return trees, tree_types
+    pred['width'] = pred['xmax'] - pred['xmin']
+    pred['height'] = pred['ymax'] - pred['ymin']
+    pred = pred[~((pred['width'] > pred['height'] * 2) | (pred['width'] * 2 < pred['height']))]
+    for index, row in pred.iterrows():
+        xmin, ymin, xmax, ymax = row['xmin'], row['ymin'], row['xmax'], row['ymax']
+        # crop the image using the bounding box
+        cropped_image = bgr_image[int(ymin):int(ymax), int(xmin):int(xmax)]
+        feature = _extract_features(cropped_image, pca)
+        label = cluster_model.predict(feature)[0]
+        tree_type = _map_label_to_tree_type(label)
+        tree = {
+            'seq_number' : index,
+            'position' : {'x' : np.average([row['xmin'], row['xmax']]), 'y' : np.average([row['ymin'], row['ymax']])},
+            'size' : {'width': row['xmax'] - row['xmin'], 'height': row['ymax'] - row['ymin']},
+            'model_type' : tree_type
+        }
+        trees.append(tree)
+        tree_types.add(tree_type)
+    return trees, tree_types
+
+def _extract_features(cropped_image, pca, target_size=(100, 100)):
+    img = cv2.resize(cropped_image, target_size)
+    blue_channel, green_channel, red_channel = cv2.split(img)
+    mean_red = np.mean(red_channel)
+    std_dev_red = np.std(red_channel)
+    mean_green = np.mean(green_channel)
+    std_dev_green = np.std(green_channel)
+    mean_blue = np.mean(blue_channel)
+    std_dev_blue = np.std(blue_channel)
+    hist_red = cv2.calcHist([red_channel], [0], None, [256], [0, 256])
+    hist_green = cv2.calcHist([green_channel], [0], None, [256], [0, 256])
+    hist_blue = cv2.calcHist([blue_channel], [0], None, [256], [0, 256])
+    hist_red = hist_red.flatten() / hist_red.sum()
+    hist_green = hist_green.flatten() / hist_green.sum()
+    hist_blue = hist_blue.flatten() / hist_blue.sum()
+    features = np.concatenate([[mean_red, std_dev_red, mean_green, std_dev_green, mean_blue, std_dev_blue], hist_red])
+    features = np.concatenate([features, hist_green])
+    features = np.concatenate([features, hist_blue])
+    return pca.transform(features.reshape(1, -1))
 
 
-def map_label_to_tree_type(label):
+def _map_label_to_tree_type(label):
     # for example only
+    # ['Pine', 'Oak', 'Palm']
     maper = {
+        0 : 'Pine',
         1 : 'Pine',
         2 : 'Spruce',
         3 : 'Birch',
         4 : 'Oak',
         5 : 'Ash',
         6 : 'Maple',
-        7 : 'Aspen',
-        9 : 'Willow',
-        10 : 'Alder',
-        11 : 'Poplar',
-        12 : 'Fir',
-        13 : 'Cedar',
-        14 : 'Hemlock',
     }
     return maper[label]
 

@@ -21,6 +21,7 @@ import os
 import concurrent
 from src.fetchers.GoogleMapFetcher import StatelliteFetcher
 from src.predictors.trees import tree_predictor
+from src.predictors.buildings import building_predictor
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s %(levelname)s: %(message)s', handlers=[logging.StreamHandler(), logging.FileHandler("server.log")  ])
 logger = logging.getLogger(__name__)
 CLEAR_CACHE = hash(time.time())
@@ -165,8 +166,16 @@ class V1ApiRegionAdd(Resource):
             }
         }
         with concurrent.futures.ThreadPoolExecutor() as executor:
-            pred_future = executor.submit(tree_predictor.predict, img)
-            response["tree"] = pred_future.result()
+            pred_tree_future = executor.submit(building_predictor.predict, img)
+            pred_building_future = executor.submit(tree_predictor.predict, img)
+            trees, tree_types = pred_tree_future.result()
+            building = pred_building_future.result()
+            response['tree'] = {
+                "num_trees": len(trees),
+                "trees": trees,
+                "unique_tree_types": list(tree_types)
+            }
+            response["building"] = building
             
         return response
     

@@ -1,4 +1,4 @@
-from database.singletonMeta import SingletonMeta
+from src.database.singletonMeta import SingletonMeta
 
 class BuildingPredictor(metaclass=SingletonMeta):
     def __init__(self) -> None:

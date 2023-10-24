@@ -1,6 +1,9 @@
+from email.policy import default
+from logging.handlers import RotatingFileHandler
 from flask import Flask, request, Response, stream_with_context
 from flask_cors import CORS, cross_origin
 from flask_restx import Api, Resource
+from flask_restx import fields, inputs, reqparse, Namespace
 # from flask_restx import
 import json
 from src.database.database import database
@@ -26,21 +29,103 @@ logging.basicConfig(level=logging.DEBUG, format='%(asctime)s %(levelname)s: %(me
 logger = logging.getLogger(__name__)
 CLEAR_CACHE = hash(time.time())
 
+
 PORT = 9999
 app = Flask(__name__)
 CORS(app, origins="*")
+handler = RotatingFileHandler('users.log', backupCount=1)
+handler.setLevel(logging.INFO)
+handler.setFormatter(logging.Formatter('%(asctime)s %(levelname)s: %(message)s'))
+app.logger.addHandler(handler)
+
+API = Api(app)
 
 
+NS1 = Namespace(name="API - Topographic mesh viewer", description="Api for topographic mesh viewer", path="/v1/api")
+NS2 = Namespace(name="API - Satellite image detection", description="Api for satellite image detection", path="/v1/api")
+API.add_namespace(NS1)
+API.add_namespace(NS2)
 
 # app.config['TRAP_HTTP_EXCEPTIONS'] = True
 # app.register_error_handler(Exception, defaultHandler)
-API = Api(app)
+# region_mesh_parser = reqparse.RequestParser()
+# region_mesh_parser.add_argument('type', type=str, choices=["polygon", "circle", "map"], required=True)
+coord_model = API.model(
+    "CoordModel",
+    {
+        "latitude" : fields.Float(required=True, default=-32.5),
+        "longitude" : fields.Float(required=True, default=147.0)
+    }
+)
+# region_mesh_parser.add_argument('data', required=True)
 
-@API.route("/v1/map/key")
+region_mesh_model = NS1.model(
+    "RegionMeshModel",
+    {
+        "type" : fields.String(required=True, enum=["polygon", "circle", "map"]),
+        "data" : fields.List(fields.Raw, required=True, default=[{"latitude" : -32.5, "longitude" : 147.0}, {"latitude" : -33.5, "longitude" : 147.5}])
+    }
+)
+
+detect_model = NS2.model(
+    "DetectModel",
+    {
+        "data" : fields.List(fields.Nested(coord_model), required=True, default=[{"latitude" : -32.5, "longitude" : 147.0}, {"latitude" : -33.5, "longitude" : 147.5}])
+    }
+)
+import datetime
+request_counts = {}
+max_record_time = 100
+
+def record_user(request):
+    ip_address = request.remote_addr
+    now = datetime.datetime.now()
+    # increment request count for IP address
+    if ip_address in request_counts:
+        request_counts[ip_address]['last_access_time'] = now
+        request_counts[ip_address]['access_days'].add(now.date())
+    else:
+        request_counts[ip_address] = {
+            'last_access_time': now,
+            'access_days': {now.date()}
+        }
+    # log request count for IP address
+    app.logger.info(f'Request count for {ip_address}: {request_counts[ip_address]}')
+    if len(request_counts) > max_record_time:
+        app.logger.info(f'summery every 30 requests {ip_address}: {request_counts[ip_address]}')
+        
+
+@API.route(f"/v1/get/key/{CLEAR_CACHE}")
 class MapKey(Resource):
+    @API.doc(description="get the key for clear cache in local network, i.e. 127.0.0.1")
+    def get(self):
+        record_user(request)
+        if request.remote_addr == "127.0.0.1":
+            app.logger.info(f'Request KEY for {request.remote_addr}')
+            return {"key":  CLEAR_CACHE}
+        else:
+            raise InvalidAuth("You have no premission.")
+    
+    @API.doc(description="get the key for clear cache with password")
     def post(self):
-        pass
+        record_user(request)
+        data = request.json
+        if data['password'] == '__URBANAI__PASSWORD__':
+            return {"key":  CLEAR_CACHE}
+        else:
+            raise InvalidAuth("You have no premission.")
 
+@API.route("/v1/clear/log")
+class ClearLog(Resource):
+    def delete(self):
+        data = request.json
+        if data['key'] == CLEAR_CACHE:
+            database.clear_cache()
+            database.report()
+            # raise
+            return {"message" : "Successed"}, 200
+        else:
+            raise InvalidAuth("You have no premission.")
 @API.route("/v1/clear/cache")
 class ClearCache(Resource):
     def delete(self):
@@ -110,13 +195,18 @@ def phrase_lat_lon(data):
     return [float(data['latitude']), float(data['longitude'])]
 
 @cross_origin
-@API.route("/v1/api/region/mesh")
+@NS1.route("/region/mesh")
 class V1ApiRegionAdd(Resource):
+    @NS1.expect(region_mesh_model, validate=True)
+    @NS1.doc(description="Create a region mesh")
+    @NS1.response(200, "Success")
+    @NS1.response(500, "Invalid Input")
     def post(self):
         if request.headers.get("Content-Type") == "text/plain":
             data = json.loads(request.data)
         else:
             data = request.json
+        print(data)
         try:
             if data['type'] == 'polygon':
                 chunk = RegionDataFetcher.create_by_polygon(phrase_polygon(data['data']))
@@ -128,6 +218,9 @@ class V1ApiRegionAdd(Resource):
                 raise InvalidRequestType(f"Invalid format {data['type']}, expect polygon or circle.")
         except KeyError:
             raise InvalidRequestType("You must include a type with data.")
+        except TypeError:
+            raise InvalidRequestType("You must include a valid data type.")
+        record_user(request)
         if database.in_cache(chunk.to_range_string()):
             print("requested area is in cache")
             data = database.get_cache(chunk.to_range_string())
@@ -142,18 +235,24 @@ class V1ApiRegionAdd(Resource):
             "download" : downlink,
             "details" : chunk.to_details()
         }
-    def options(self):
+    # def options(self):
 
-        return Response(headers={"Access-Control-Allow-Methods" : "POST,GET,DELETE,OPTIONS"})
+    #     return Response(headers={"Access-Control-Allow-Methods" : "POST,GET,DELETE,OPTIONS"})
 
 @cross_origin
-@API.route("/v1/api/region/detect")
+@NS2.route("/region/detect")
 class V1ApiRegionAdd(Resource):
+    @NS2.expect(detect_model, validate=True)
+    @NS2.doc(description="detect trees, buildings, and roads")
+    @NS2.response(200, "Success")
+    @NS2.response(500, "Invalid Input: Large region")
+    @NS2.response(400, "Invalid Input: Invalid type")
     def post(self):
         if request.headers.get("Content-Type") == "text/plain":
             data = json.loads(request.data)
         else:
             data = request.json
+        record_user(request)
         img = StatelliteFetcher.fetch_by_polygon(data)
         height, width, _ = img.shape
         response = {

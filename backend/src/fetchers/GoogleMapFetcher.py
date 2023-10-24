@@ -2,8 +2,8 @@ import aiohttp
 import asyncio
 import numpy as np
 import cv2
-from fetchers.Exceptions import BBoxIsLarge
-from config import GOOGLE_STATICMAP_URL, GOOGLE_STATICMAP_TOKEN
+from src.fetchers.Exceptions import BBoxIsLarge
+from src.config import GOOGLE_STATICMAP_URL, GOOGLE_STATICMAP_TOKEN
 import geopy.distance
 # fetch one image from google static map api
 async def fetch_one(session, lat, lng, zoom = 19, maptype = 'satellite'):

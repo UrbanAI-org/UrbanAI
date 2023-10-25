@@ -61,26 +61,21 @@ class PcdResourceFetcher(ResourceFetcher):
     def __init__(self) -> None:
         super().__init__(ResourceType.PCD)
     
-    # def get_pth(self, by : ResourceAttr, value, allow_fragmented = False, min_bound = None, max_bound = None):
-    #     if not allow_fragmented:
-    #         return super().get_pth(by, value)
-    #     id = self.get_db_id(by, value)
-    #     if min_bound is None or max_bound is None:
-    #         qry = """
-    #         select pth from fragmented_pcds where parent_id = ?;
-    #         """
-    #         result = database.fetchall(qry, [id])
-    #         if result == []:
-    #             return super().get_pth(by, value)
-    #         return [each[0] for each in result]
-    #     else:
-    #         qry = """
-    #         select pth from fragmented_pcds where not (max_bound_x  < ? or  min_bound_x > ?) and not (max_bound_y  < ? or  min_bound_x > ?);
-    #         """
-    #         result = database.fetchall(qry, [
-    #             max_bound[0], min_bound[0], max_bound[1], min_bound[0]
-    #         ])
 
+class TreeModelResourceFetcher(ResourceFetcher):
+    def __init__(self, root_path = "data/treemodels/") -> None:
+        self.root_path = root_path
+
+    def get_pth(self, by : ResourceAttr, value):
+        if by.name == "UNIQUE_ID":
+            return f"{self.root_path}/{value}.obj"
     
+    def get_uid(self, by : ResourceAttr, value):
+        return value
     
+    def get_db_id(self, by: ResourceAttr, value):
+        return None
+    
+    def write_to_database(self, uid, path, expired = 3):
+        pass
    

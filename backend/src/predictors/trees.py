@@ -41,11 +41,13 @@ def _predict(bgr_image, detect_model, cluster_model, pca):
         feature = _extract_features(cropped_image, pca)
         label = cluster_model.predict(feature)[0]
         tree_type = _map_label_to_tree_type(label)
+
         tree = {
             'seq_number' : index,
             'position' : {'x' : np.average([row['xmin'], row['xmax']]), 'y' : np.average([row['ymin'], row['ymax']])},
-            'size' : {'width': row['xmax'] - row['xmin'], 'height': row['ymax'] - row['ymin']},
-            'model_type' : tree_type
+            'size' : {'width': row['width'], 'height': row['height']},
+            'model_type' : tree_type,
+            'height': _map_height(label, row['width'], row['height'])
         }
         trees.append(tree)
         tree_types.add(tree_type)
@@ -72,21 +74,24 @@ def _extract_features(cropped_image, pca, target_size=(100, 100)):
     return pca.transform(features.reshape(1, -1))
 
 
-def _map_label_to_tree_type(label):
-    # for example only
-    # ['Pine', 'Oak', 'Palm']
+def _map_label_to_tree_type(label, width, height):
     maper = {
-        0 : 'Pine',
-        1 : 'Pine',
-        2 : 'Spruce',
-        3 : 'Birch',
-        4 : 'Oak',
-        5 : 'Ash',
-        6 : 'Maple',
+        0 : 'class1',
+        1 : 'class4',
+        2 : 'class5',
+        3 : 'class10',
+        4 : 'class3',
+        5 : 'class1',
+        6 : 'class8',
     }
-    return maper[label]
+    tree_type = maper[label]
+    if label == 5:
+        if width > 80 or height > 80:
+            tree_type = 'class3'
+    return tree_type
 
-
+def _map_height(label, width, height):
+    return 10
 
 
 global tree_predictor

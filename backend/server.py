@@ -48,8 +48,10 @@ API.add_namespace(NS2)
 
 # app.config['TRAP_HTTP_EXCEPTIONS'] = True
 # app.register_error_handler(Exception, defaultHandler)
-# region_mesh_parser = reqparse.RequestParser()
-# region_mesh_parser.add_argument('type', type=str, choices=["polygon", "circle", "map"], required=True)
+resource_parser = reqparse.RequestParser()
+resource_parser.add_argument('type', type=str, choices=["mesh", "pcb", "trees", "geojson"], required=True)
+resource_parser.add_argument('id', type=str, required=True)
+
 coord_model = API.model(
     "CoordModel",
     {
@@ -152,6 +154,10 @@ class ClearRegions(Resource):
 
 @API.route("/v1/download")
 class V1Download(Resource):
+    @API.doc(description="Download a resource by id")
+    @API.expect(resource_parser, validate=True)
+    @API.response(200, "Success")
+    @API.response(400, "Invalid Input")
     def get(self):
         resource_type = request.args.get("type", "mesh")
         id = request.args.get("id", None)
@@ -274,7 +280,8 @@ class V1ApiRegionAdd(Resource):
             "size": {
                 "width" : width,
                 "height" : height
-            }
+            },
+            "download" : "xxxx/xxxx/xxx"
         }
         with concurrent.futures.ThreadPoolExecutor() as executor:
             pred_tree_future = executor.submit(building_predictor.predict, img)

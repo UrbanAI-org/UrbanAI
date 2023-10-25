@@ -1,9 +1,11 @@
 from io import BufferedReader
+# from src.database.database import database
 from src.database.database import database
 from src.fetchers.FetchersConsts import ResourceAttr, ResourceType
 from datetime import datetime
+import os
 class ResourceFetcher:
-    def __init__(self, domain) -> None:
+    def __init__(self, domain, database) -> None:
         assert type(domain) is ResourceType
         self.domain = domain.value
     
@@ -67,8 +69,10 @@ class TreeModelResourceFetcher(ResourceFetcher):
         self.root_path = root_path
 
     def get_pth(self, by : ResourceAttr, value):
-        if by.name == "UNIQUE_ID":
+        if by.name == "UNIQUE_ID" and os.path.exists(f"{self.root_path}/{value}.obj"):
             return f"{self.root_path}/{value}.obj"
+        else:
+            return None
     
     def get_uid(self, by : ResourceAttr, value):
         return value

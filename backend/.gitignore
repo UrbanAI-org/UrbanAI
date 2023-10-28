@@ -14,3 +14,4 @@ data/*.tif
 
 env
 server.log
+users.log

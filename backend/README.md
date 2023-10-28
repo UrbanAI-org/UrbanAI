@@ -4,6 +4,10 @@ The backend is a kind of tool for Mesh reconstruction based on the satatlite dat
 **YOU MUST DOWNLOAD THE TIF FILES, THEN RUN THE BACKEND**<br>
 **YOU MUST DOWNLOAD THE TIF FILES, THEN RUN THE BACKEND**<br>
 **YOU MUST DOWNLOAD THE TIF FILES, THEN RUN THE BACKEND**<br>
+# What's new
+- `backend/src/predictors/trees.py`: the source code to detect trees and clsuter them
+- `backend/src/fetchers/GoogleMapFetcher.py`: the source code to fetch data from google map
+- `backend/src/config.py`: the config file of models' path and google map token
 # Quick Links
 - [build-instructions](#build-instructions)
 - [API and Classes Reference](#api-and-classes-reference)

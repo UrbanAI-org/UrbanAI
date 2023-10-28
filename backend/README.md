@@ -13,6 +13,8 @@ The backend is a kind of tool for Mesh reconstruction based on the satatlite dat
 https://s3.console.aws.amazon.com/s3/buckets/urbanai?region=ap-southeast-2&tab=objects
 - `backend/notebooks`: the notebook that test backend code and training models
 
+Building: https://www.kaggle.com/code/creazyeeeeli/building-segmentation
+
 # Quick Links
 - [build-instructions](#build-instructions)
 - [API and Classes Reference](#api-and-classes-reference)

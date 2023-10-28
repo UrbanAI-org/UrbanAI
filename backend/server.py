@@ -29,7 +29,6 @@ logging.basicConfig(level=logging.DEBUG, format='%(asctime)s %(levelname)s: %(me
 logger = logging.getLogger(__name__)
 CLEAR_CACHE = hash(time.time())
 
-
 PORT = 9999
 app = Flask(__name__)
 CORS(app, origins="*")

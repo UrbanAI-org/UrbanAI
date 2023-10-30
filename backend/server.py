@@ -9,7 +9,7 @@ import json
 from src.database.database import database
 from src.loaders.TifLoader import TifLoader
 # from src.resources.resource import load_from_meshes, load_from_pcds, process_pcd, process_mesh
-from src.fetchers.ResourceFetcher import MeshResourceFetcher, PcdResourceFetcher, TreeModelResourceFetcher
+from src.fetchers.ResourceFetcher import MeshResourceFetcher, PcdResourceFetcher, TreeModelResourceFetcher, RoadModelResourceFetcher
 from src.fetchers.RegionDataFetcher import RegionDataFetcher
 from src.fetchers.FetchersConsts import ResourceType, ResourceAttr
 from src.fetchers.TifRegionFetcher import TifRegionFetcher
@@ -179,6 +179,10 @@ class V1Download(Resource):
             # fetcher = TreeModelResourceFetcher()
             # path = fetcher.get_pth(ResourceAttr.UNIQUE_ID, id)
             # tail_name = "obj"
+        elif resource_type == "roads":
+            fetcher = RoadModelResourceFetcher()
+            path = fetcher.get_pth(ResourceAttr.UNIQUE_ID, id)
+            tail_name = "obj"
         else:
             raise InvalidRequestType(f"Invalid format {resource_type}, expect mesh or pcb.")
         if path is None:

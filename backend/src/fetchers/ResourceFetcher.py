@@ -82,4 +82,7 @@ class TreeModelResourceFetcher(ResourceFetcher):
     
     def write_to_database(self, uid, path, expired = 3):
         pass
-   
+    
+class RoadModelResourceFetcher(ResourceFetcher):
+    def __init__(self, domain, database) -> None:
+        super().__init__(domain, database)

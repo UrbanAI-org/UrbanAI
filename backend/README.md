@@ -6,8 +6,15 @@ The backend is a kind of tool for Mesh reconstruction based on the satatlite dat
 **YOU MUST DOWNLOAD THE TIF FILES, THEN RUN THE BACKEND**<br>
 # What's new
 - `backend/src/predictors/trees.py`: the source code to detect trees and clsuter them
+- `backend/src/predictors/buildings.py`: the source code to segment trees 
 - `backend/src/fetchers/GoogleMapFetcher.py`: the source code to fetch data from google map
-- `backend/src/config.py`: the config file of models' path and google map token
+- `backend/src/config.py`: the config file of models' path and google map token, the model can be download from aws s3.  
+
+https://s3.console.aws.amazon.com/s3/buckets/urbanai?region=ap-southeast-2&tab=objects
+- `backend/notebooks`: the notebook that test backend code and training models
+
+Building: https://www.kaggle.com/code/creazyeeeeli/building-segmentation
+
 # Quick Links
 - [build-instructions](#build-instructions)
 - [API and Classes Reference](#api-and-classes-reference)

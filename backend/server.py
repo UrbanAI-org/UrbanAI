@@ -127,6 +127,8 @@ class ClearLog(Resource):
             return {"message" : "Successed"}, 200
         else:
             raise InvalidAuth("You have no premission.")
+        
+        
 @API.route("/v1/clear/cache")
 class ClearCache(Resource):
     def delete(self):
@@ -178,10 +180,10 @@ class V1Download(Resource):
             # fetcher = TreeModelResourceFetcher()
             # path = fetcher.get_pth(ResourceAttr.UNIQUE_ID, id)
             # tail_name = "obj"
-        elif resource_type == "roads":
-            fetcher = RoadModelResourceFetcher()
-            path = fetcher.get_pth(ResourceAttr.UNIQUE_ID, id)
-            tail_name = "obj"
+        # elif resource_type == "roads":
+        #     fetcher = RoadModelResourceFetcher()
+        #     path = fetcher.get_pth(ResourceAttr.UNIQUE_ID, id)
+        #     tail_name = "obj"
         else:
             raise InvalidRequestType(f"Invalid format {resource_type}, expect mesh or pcb.")
         if path is None:
@@ -289,15 +291,23 @@ class V1ApiRegionAdd(Resource):
         with concurrent.futures.ThreadPoolExecutor() as executor:
             pred_tree_future = executor.submit(building_predictor.predict, img)
             pred_building_future = executor.submit(tree_predictor.predict, img)
+            pred_road_future = executor.submit(tree_predictor.predict, img)
             trees, tree_types = pred_tree_future.result()
             building = pred_building_future.result()
+            roads = pred_road_future.result()
             response['tree'] = {
                 "num_trees": len(trees),
                 "trees": trees,
                 "unique_tree_types": list(tree_types)
             }
-            response["building"] = building
-            
+            response["building"] = {
+                "num_trees": len(building),
+                "buildings": building
+            }
+            response["building"] = {
+                "num_road_slice": len(roads),
+                "roads": roads
+            }
         return response
     
 

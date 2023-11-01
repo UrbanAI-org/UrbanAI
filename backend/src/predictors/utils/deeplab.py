@@ -86,7 +86,7 @@ def get_preprocessing(preprocessing_fn=None):
 
 encode = get_preprocessing(preprocessing_fn)
 
-class Yolov8BuildingSegModel(DetectionModel):
+class DeepLabRoadSeg(DetectionModel):
     def check_dependencies(self) -> None:
         # check_requirements(["ultralytics"])
         pass

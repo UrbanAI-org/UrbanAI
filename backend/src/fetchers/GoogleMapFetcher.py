@@ -22,6 +22,8 @@ async def fetch_one(session, lat, lng, zoom = 19, maptype = 'satellite'):
             cropped_image = image[0:image.shape[0]-20, 60:image.shape[1]-60]
             return cropped_image
         else:
+            print("Error fetching image from google static map api")
+            print(response.status)
             image = np.zeros((580, 480, 3), dtype=np.uint8)
             image.fill(255)
             return  image
@@ -114,6 +116,6 @@ class StatelliteFetcher:
         height = geopy.distance.distance((coords['north'], coords['east'],), ( coords['south'], coords['east'])).km
         if width > 1 or height > 1:
             raise BBoxIsLarge("Given region is too large to process")
-        return fetch_satellite_image(coords, maptype)
+        return fetch_satellite_image(coords)
     
    

@@ -71,7 +71,7 @@ region_mesh_model = NS1.model(
 detect_model = NS2.model(
     "DetectModel",
     {
-        "data" : fields.List(fields.Nested(coord_model), required=True, default=[{"latitude" : -33.8460, "longitude" : 151.9762}])
+        "data" : fields.List(fields.Nested(coord_model), required=True, default=[{"latitude" : -33.8460, "longitude" : 150.9762}])
     }
 )
 import datetime
@@ -307,7 +307,7 @@ class V1ApiRegionAdd(Resource):
             "num_trees": len(building),
             "buildings": building
         }
-        response["building"] = {
+        response["road"] = {
             "num_road_slice": len(roads),
             "roads": roads
         }

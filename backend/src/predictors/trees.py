@@ -40,7 +40,7 @@ def _predict(bgr_image, detect_model, cluster_model, pca):
         cropped_image = bgr_image[int(ymin):int(ymax), int(xmin):int(xmax)]
         feature = _extract_features(cropped_image, pca)
         label = cluster_model.predict(feature)[0]
-        tree_type = _map_label_to_tree_type(label)
+        tree_type = _map_label_to_tree_type(label, row['width'], row['height'])
 
         tree = {
             'seq_number' : index,

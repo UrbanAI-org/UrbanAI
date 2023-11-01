@@ -110,10 +110,10 @@ class StatelliteFetcher:
         "west":min(lngs),
         "north":max(lats),
         "east":max(lngs)}
-        width = geopy.distance.distance((coords['east'], coords['north']), (coords['west'], coords['north'])).km
-        height = geopy.distance.distance((coords['east'], coords['north']), (coords['east'], coords['south'])).km
+        width = geopy.distance.distance((coords['north'], coords['east'],), ( coords['north'], coords['west'])).km
+        height = geopy.distance.distance((coords['north'], coords['east'],), ( coords['south'], coords['east'])).km
         if width > 1 or height > 1:
             raise BBoxIsLarge("Given region is too large to process")
-        return fetch_satellite_image(coords)
+        return fetch_satellite_image(coords, maptype)
     
    

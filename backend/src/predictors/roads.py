@@ -1,7 +1,7 @@
 from src.database.singletonMeta import SingletonMeta
 from src.predictors.utils.deeplab import DeepLabRoadSeg
 from src.predictors.utils.predict import my_get_sliced_prediction
-from config import ROAD_DETECTION_MODEL
+from src.config import ROAD_DETECTION_MODEL
 import torch
 class RoadPredictor(metaclass=SingletonMeta):
     detect_model = None
@@ -11,7 +11,7 @@ class RoadPredictor(metaclass=SingletonMeta):
     def predict(self, bgr_image):
         result = my_get_sliced_prediction(
             bgr_image,
-            self.model,
+            self.detect_model,
             slice_height=480,
             slice_width=592,
             overlap_height_ratio=0.2,

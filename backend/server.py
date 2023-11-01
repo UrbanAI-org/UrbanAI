@@ -1,4 +1,3 @@
-from email.policy import default
 from logging.handlers import RotatingFileHandler
 from flask import Flask, request, Response, stream_with_context
 from flask_cors import CORS, cross_origin
@@ -24,6 +23,7 @@ import os
 import concurrent
 from src.fetchers.GoogleMapFetcher import StatelliteFetcher
 from src.predictors.trees import tree_predictor
+from src.predictors.roads import road_predictor
 from src.predictors.buildings import building_predictor
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s %(levelname)s: %(message)s', handlers=[logging.StreamHandler(), logging.FileHandler("server.log")  ])
 logger = logging.getLogger(__name__)
@@ -71,7 +71,7 @@ region_mesh_model = NS1.model(
 detect_model = NS2.model(
     "DetectModel",
     {
-        "data" : fields.List(fields.Nested(coord_model), required=True, default=[{"latitude" : -32.5, "longitude" : 147.0}, {"latitude" : -33.5, "longitude" : 147.5}])
+        "data" : fields.List(fields.Nested(coord_model), required=True, default=[{"latitude" : -33.8460, "longitude" : 151.9762}])
     }
 )
 import datetime
@@ -276,7 +276,7 @@ class V1ApiRegionAdd(Resource):
         else:
             data = request.json
         record_user(request)
-        img = StatelliteFetcher.fetch_by_polygon(data)
+        img = StatelliteFetcher.fetch_by_polygon(phrase_polygon(data['data']))
         height, width, _ = img.shape
         response = {
             "building": {},
@@ -288,26 +288,29 @@ class V1ApiRegionAdd(Resource):
             },
             "download" : "xxxx/xxxx/xxx"
         }
-        with concurrent.futures.ThreadPoolExecutor() as executor:
-            pred_tree_future = executor.submit(building_predictor.predict, img)
-            pred_building_future = executor.submit(tree_predictor.predict, img)
-            pred_road_future = executor.submit(tree_predictor.predict, img)
-            trees, tree_types = pred_tree_future.result()
-            building = pred_building_future.result()
-            roads = pred_road_future.result()
-            response['tree'] = {
-                "num_trees": len(trees),
-                "trees": trees,
-                "unique_tree_types": list(tree_types)
-            }
-            response["building"] = {
-                "num_trees": len(building),
-                "buildings": building
-            }
-            response["building"] = {
-                "num_road_slice": len(roads),
-                "roads": roads
-            }
+        building = building_predictor.predict(img)
+        roads = road_predictor.predict(img)
+        trees, tree_types = tree_predictor.predict(img)
+        # with concurrent.futures.ThreadPoolExecutor() as executor:
+            # pred_tree_future = executor.submit(building_predictor.predict, img)
+            # pred_building_future = executor.submit(tree_predictor.predict, img)
+            # pred_road_future = executor.submit(tree_predictor.predict, img)
+            # trees, tree_types = pred_tree_future.result()
+            # building = pred_building_future.result()
+            # roads = pred_road_future.result()
+        response['tree'] = {
+            "num_trees": len(trees),
+            "trees": trees,
+            "unique_tree_types": list(tree_types)
+        }
+        response["building"] = {
+            "num_trees": len(building),
+            "buildings": building
+        }
+        response["building"] = {
+            "num_road_slice": len(roads),
+            "roads": roads
+        }
         return response
     
 
@@ -331,5 +334,5 @@ if __name__ == "__main__":
     # launch.launch()
     logger.debug(msg= f"Sensitive Operation Hash Key: {CLEAR_CACHE}")
     print("Sensitive Operation Hash Key:", CLEAR_CACHE)
-    app.run(port=PORT)
+    app.run(port=PORT, debug=True)
     # app.run(host='0.0.0.0')

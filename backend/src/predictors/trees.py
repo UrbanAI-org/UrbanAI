@@ -1,7 +1,7 @@
 
 import math
-from database.singletonMeta import SingletonMeta
-from config import TREE_DETECTION_MODEL, TREE_CLUSTER_MODEL, TREE_PCA_MODEL
+from src.database.singletonMeta import SingletonMeta
+from src.config import TREE_DETECTION_MODEL, TREE_CLUSTER_MODEL, TREE_PCA_MODEL
 from deepforest import main
 import pickle
 import numpy as np

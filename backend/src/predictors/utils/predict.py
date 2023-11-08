@@ -3,35 +3,17 @@ from sahi.predict import get_prediction
 import logging
 import os
 import time
-from typing import List, Optional
 
-from sahi.utils.import_utils import is_available
-from functools import cmp_to_key
 import numpy as np
-from tqdm import tqdm
-from sahi.auto_model import AutoDetectionModel
-from sahi.models.base import DetectionModel
 from sahi.postprocess.combine import (
     GreedyNMMPostprocess,
     LSNMSPostprocess,
     NMMPostprocess,
     NMSPostprocess,
-    PostprocessPredictions,
 )
-from sahi.prediction import ObjectPrediction, PredictionResult
-from sahi.slicing import slice_image
-from sahi.utils.coco import Coco, CocoImage
-from sahi.utils.cv import (
-    IMAGE_EXTENSIONS,
-    VIDEO_EXTENSIONS,
-    crop_object_predictions,
-    cv2,
-    get_video_reader,
-    read_image_as_pil,
-    visualize_object_predictions,
-)
-from sahi.utils.file import Path, increment_path, list_files, save_json, save_pickle
-from sahi.utils.import_utils import check_requirements
+from sahi.prediction import PredictionResult
+
+
 
 POSTPROCESS_NAME_TO_CLASS = {
     "GREEDYNMM": GreedyNMMPostprocess,

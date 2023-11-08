@@ -325,13 +325,24 @@ def defaultHandler(err):
 
     return response, getattr(err, 'code', 500)
 
+
+def check_cuda():
+    import torch
+    if torch.cuda.is_available():
+        print("CUDA is available on your computer.")
+    else:
+        print("------------------- GPU CHECK ------------------")
+        print("Warning: CUDA is not available on your computer.")
+        print("Warning: CUDA is not available on your computer.")
+        print("Warning: CUDA is not available on your computer.")
+
 if __name__ == "__main__":
     database.start()
-    database.report()    
+    database.report()   
+    check_cuda() 
     # launch = Launcher()
     # launch.add(CaCheClear(CLEAR_CACHE, timedelta(seconds=10)))
     # launch.add(RegionsClear(CLEAR_CACHE, timedelta(hours=6)))
-    # launch.launch()
     logger.debug(msg= f"Sensitive Operation Hash Key: {CLEAR_CACHE}")
     print("Sensitive Operation Hash Key:", CLEAR_CACHE)
     app.run(port=PORT, debug=True)

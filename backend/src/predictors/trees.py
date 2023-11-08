@@ -23,10 +23,10 @@ class TreePredictor(metaclass=SingletonMeta):
         return _predict(bgr_image, self.detect_model, self.cluster_model, self.pca)
 
     def detect(self, bgr_image: np.ndarray):
-        return self.detect_model.predict_tile(image = bgr_image, return_plot = False, patch_size=700,patch_overlap=0.3)
+        return self.detect_model.predict_tile(image = bgr_image, return_plot = False, patch_size=620,patch_overlap=0.3)
 
 def _predict(bgr_image, detect_model, cluster_model, pca):
-    pred = detect_model.predict_tile(image = bgr_image, return_plot = False, patch_size=700,patch_overlap=0.3)
+    pred = detect_model.predict_tile(image = bgr_image, return_plot = False, patch_size=620,patch_overlap=0.3)
     trees = []
     tree_types = set()
     if pred is None:

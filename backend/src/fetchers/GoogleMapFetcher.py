@@ -5,26 +5,31 @@ import cv2
 from src.fetchers.Exceptions import BBoxIsLarge
 from src.config import GOOGLE_STATICMAP_URL, GOOGLE_STATICMAP_TOKEN
 import geopy.distance
+import math
+
+IMAGE_SIZE = 620
 # fetch one image from google static map api
 async def fetch_one(session, lat, lng, zoom = 19, maptype = 'satellite'):
     params={
-        'size' : '600x600',
+        'size': '620x640',
         'format' : 'PNG',
         'maptype' : maptype,
         'key' : GOOGLE_STATICMAP_TOKEN,
         'center' : f"{lat}, {lng}",
-        'zoom' : zoom
+        'zoom' : zoom,
+        'style': "style=feature:all|element:labels|visibility:off"
     }
     async with session.get(GOOGLE_STATICMAP_URL, params = params) as response:
         if response.status == 200:
             arr = np.asarray(bytearray(await response.read()), dtype=np.uint8)
             image = cv2.imdecode(arr, cv2.IMREAD_COLOR)
-            cropped_image = image[0:image.shape[0]-20, 60:image.shape[1]-60]
+            rows_to_crop = 20 
+            height, _, _ = image.shape
+            cropped_image = image[:height - rows_to_crop, :]
             return cropped_image
         else:
-            print("Error fetching image from google static map api")
-            print(response.status)
-            image = np.zeros((580, 480, 3), dtype=np.uint8)
+            print(f"Error {response.status}: fetching image from google static map api at ({lat}, {lng})")
+            image = np.zeros((IMAGE_SIZE, IMAGE_SIZE, 3), dtype=np.uint8)
             image.fill(255)
             return  image
 
@@ -36,7 +41,7 @@ async def fetch_one_row(session, center_lat, west, lng_tiles, lng_step, zoom = 1
         center_lng = west + i * lng_step + lng_step / 2
         tasks.append(fetch_one(session, center_lat, center_lng, zoom, maptype))
     row_tiles = await asyncio.gather(*tasks)
-    row_image = np.zeros((580, 480 * lng_tiles, 3), dtype=np.uint8)
+    row_image = np.zeros((IMAGE_SIZE, IMAGE_SIZE * lng_tiles, 3), dtype=np.uint8)
     x_offset = 0
     for img in row_tiles:
         h, w, _ = img.shape
@@ -53,7 +58,7 @@ async def fetch_all(south, west, lat_tiles, lat_step, lng_tiles, lng_step, zoom 
             center_lat = south + i * lat_step + lat_step / 2
             tasks.append(fetch_one_row(session, center_lat, west, lng_tiles, lng_step, zoom, maptype))
         rows = await asyncio.gather(*tasks)
-        final_image = np.zeros((580 * lat_tiles, 480 * lng_tiles, 3), dtype=np.uint8)
+        final_image = np.zeros((IMAGE_SIZE * lat_tiles, IMAGE_SIZE * lng_tiles, 3), dtype=np.uint8)
         y_offset = 0
         for img in reversed(rows):
             h, w, _ = img.shape
@@ -74,16 +79,22 @@ def _align_rectangle(coords, lat_step, lng_step):
         'east': aligned_east
     }
 
-def fetch_satellite_image(coords, maptype = 'satellite') -> np.ndarray:
-    # Google Maps Static API URL
-    zoom = "19"
+def meters_per_pixel(zoom, lat):
+    return 156543.03392 * math.cos(lat * math.pi / 180) / math.pow(2, zoom)
+
+def meters_per_longitude_degree(latitude, meters_per_longitude_degree = 111319.488):
+    latitude_radians = math.radians(latitude)
+    meters = meters_per_longitude_degree * math.cos(latitude_radians)
+    return meters
+
+def fetch_satellite_image(coords, maptype = 'satellite', zoom = 19) -> np.ndarray:
     
-    # Calculate latitude and longitude steps
-    METERS_PER_PIXEL_AT_ZOOM_19 = 0.2986
-    METERS_PER_DEGREE_LATITUDE = 111000  # 111 km in meters
-    SIZE_IN_METERS = 600 * METERS_PER_PIXEL_AT_ZOOM_19
-    lat_step = (SIZE_IN_METERS / METERS_PER_DEGREE_LATITUDE) * 0.8
-    lng_step = lat_step
+    METERS_PER_PIXEL_AT_ZOOM_19 = meters_per_pixel(19, coords['north'])
+    METERS_PER_DEGREE_LATITUDE = 111319.49079327358
+    METERS_PER_DEGREE_LONGITUDE = meters_per_longitude_degree(coords['north'], METERS_PER_DEGREE_LATITUDE)
+    SIZE_IN_METERS = IMAGE_SIZE * METERS_PER_PIXEL_AT_ZOOM_19
+    lat_step = (SIZE_IN_METERS / METERS_PER_DEGREE_LATITUDE) 
+    lng_step = (SIZE_IN_METERS / METERS_PER_DEGREE_LONGITUDE) 
     
     # Align the coordinates with the step size
     aligned_coords = _align_rectangle(coords, lat_step, lng_step)
@@ -116,6 +127,6 @@ class StatelliteFetcher:
         height = geopy.distance.distance((coords['north'], coords['east'],), ( coords['south'], coords['east'])).km
         if width > 1 or height > 1:
             raise BBoxIsLarge("Given region is too large to process")
-        return fetch_satellite_image(coords)
+        return fetch_satellite_image(coords, maptype)
     
    

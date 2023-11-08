@@ -1,3 +1,4 @@
+import cv2
 from sahi.predict import get_prediction
 
 import logging
@@ -108,10 +109,17 @@ def my_get_sliced_prediction(
         overlap_width_ratio=overlap_width_ratio
     )
     num_slices = len(bboxs)
+    # if num_slices == 1:
+    #     if bbox[2] < slice_width or bbox[3] < slice_height:
+            
+        
     preds = []
     for bbox in bboxs:
         xmin, ymin, xmax, ymax = bbox
         cropped_img = image[ymin:ymax, xmin:xmax]
+        height, width, _ = cropped_img.shape 
+        if height < slice_height or width < slice_width:
+            cropped_img = cv2.resize(cropped_img, (slice_width, slice_height))
         prediction_result = get_prediction(
             image=cropped_img,
             detection_model = detection_model

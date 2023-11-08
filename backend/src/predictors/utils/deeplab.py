@@ -133,6 +133,7 @@ class DeepLabRoadSeg(DetectionModel):
         if self.model is None:
             raise ValueError("Model is not loaded, load it by calling .load_model()")
         get_preprocessing(preprocessing_fn)
+        # Convert from BRG to RGB
         sample = encode(image=image[:,:,::-1])
         x_tensor = torch.from_numpy(sample['image']).to(DEVICE).unsqueeze(0)
         pred_mask = self.model(x_tensor)  # YOLOv8 expects numpy arrays to have BGR

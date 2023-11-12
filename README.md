@@ -111,6 +111,11 @@ A brief tutorial of how the backend work and a brief summary of topography proce
 
 ## Pre-processing Introduction
 
+### Download Tifs from USGS
+
+The United States Geological Survey (USGS) offers a [Machine-to-Machine API](https://m2m.cr.usgs.gov/api/docs/json/) for users to request resources. This API allows automated systems to interact and exchange data with the USGS database, facilitating seamless data retrieval. To use this service, users must first sign into the USGS platform. Upon successful login, a form can be submitted to obtain a free access token. This token serves as a key to authenticate and authorize the user's requests to the USGS API. It's a simple and efficient way to access a vast array of resources provided by USGS. Obtaining an application token using a student email would be relatively easy.
+![Untitled](Urban%20AI%20Doc%2070c57da3d24c45f5ac043dfda1086582/Untitled%200.png)
+
 ### Point Cloud Generation
 
 This dataset has been fully pre-processed, converted from a TIF to a point cloud. A coordinate system transformation is also applied during this process, transitioning from geographic coordinates to local meter coordinates.

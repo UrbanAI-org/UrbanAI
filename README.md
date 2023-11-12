@@ -1,6 +1,4 @@
-# Urban AI Doc
-
-# Documentation
+# Urban AI Documentation
 
 Create an application that is commonly used in all areas of Sydney. This low-cost, convenient, and practical tool helps everyone access a city model quickly, facilitating further professional analysis such as heat analysis.
 
@@ -8,7 +6,8 @@ Using publicly available data, we developed a collection of tools that utilize A
 Overall Work Flow             |  Our Result
 :-------------------------:|:-------------------------:
 ![Untitled](Urban%20AI%20Doc%2070c57da3d24c45f5ac043dfda1086582/Untitled.png)  |  ![Untitled](Urban%20AI%20Doc%2070c57da3d24c45f5ac043dfda1086582/Untitled%201.png)
-
+# Report bugs or advices
+Please fill this [form](https://docs.google.com/forms/d/e/1FAIpQLSeDCRgAMDRd8n3Bz68ILfMUSrYcpRR4zKRpurCH_jJVqunqXw/viewform)
 
 # Table of Content
 
@@ -71,7 +70,22 @@ Overall Work Flow             |  Our Result
     - albumentations==1.3.1
 
 ## Install packages
+### Frontend 
+run the frontend.
+```bash
+cd frontend
+npm start
+```
+Note that you may be required to build the project in which case run:
 
+```
+npm run build
+```
+
+### Backend
+``` bash
+cd backend
+```
 From a run the following commands.
 
 Installing a virtual environment depends library
@@ -149,7 +163,7 @@ Several algorithms exist for building a mesh, including cloud alpha, ball pivoti
 This is the most common scenario, where the majority of the requested region is pre-processed. To accomplish this, we create a relatively high-density mesh for each arc of the earth. Upon receiving a request, we crop the corresponding region. However, an error may occur in one particular case: if the region is too small and we can't find any triangular mesh surface within it. The output visualization will be as follows.
 |  Output Visualization
 :-------------------------:
-![Untitled](Urban%20AI%20Doc%2070c57da3d24c45f5ac043dfda1086582/Untitled%203.png)
+![Untitled](Urban%20AI%20Doc%2070c57da3d24c45f5ac043dfda1086582/Untitled%204.png)
 
 
 
@@ -159,7 +173,7 @@ This is the most common scenario, where the majority of the requested region is 
 When a selection region is near the border of our pre-cached mesh, a gap may occur at the junction of the files due to the algorithm. This happens when several sub-mesh files are combined. In such cases, the file will be generated immediately. This method results in a higher mesh density, but also slightly increases the processing time. 
 Real-time processing Cases             |  Output Visualization
 :-------------------------:|:-------------------------:
-![Untitled](Urban%20AI%20Doc%2070c57da3d24c45f5ac043dfda1086582/Untitled%204.png)  |  ![Untitled](Urban%20AI%20Doc%2070c57da3d24c45f5ac043dfda1086582/Untitled%205.png)
+![Untitled](Urban%20AI%20Doc%2070c57da3d24c45f5ac043dfda1086582/Untitled%205.png)  |  ![Untitled](Urban%20AI%20Doc%2070c57da3d24c45f5ac043dfda1086582/Untitled%206.png)
 
 *Note: The selected region size is similar to the one above.*
 
@@ -303,9 +317,10 @@ The cache handles only the exact same input.
 ## Satellite Detection Tool
 
 The Satellite Detection Tool uses Google's satellite photos to find common things like trees, buildings, and roads. To do this, we've trained AI models. These models can do two important things: object segmentation and object detection. Object segmentation means finding the exact pixels in a picture that make up an object. Object detection means finding where objects are in a picture.
-Our Result             |   _
+Statellite Image             |   Building Segementation
 :-------------------------:|:-------------------------:
 ![Untitled](Urban%20AI%20Doc%2070c57da3d24c45f5ac043dfda1086582/Untitled%208.png)  |  ![Untitled](Urban%20AI%20Doc%2070c57da3d24c45f5ac043dfda1086582/Untitled%209.png)
+**Road segmentation**             |   **Tree Detection**
 ![roads.png](Urban%20AI%20Doc%2070c57da3d24c45f5ac043dfda1086582/roads.png)        |  ![trees.png](Urban%20AI%20Doc%2070c57da3d24c45f5ac043dfda1086582/trees.png)
 
 ### Working flow
@@ -363,7 +378,7 @@ Roughly divided into fourteen categories
 |  | Class 1 | Class 2 | Class 3 | Class 4 | Class 5 | Class 6 | Class 7 |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | Sample Image | ![Untitled](Urban%20AI%20Doc%2070c57da3d24c45f5ac043dfda1086582/Untitled%2021.png) | ![Untitled](Urban%20AI%20Doc%2070c57da3d24c45f5ac043dfda1086582/Untitled%2022.png) | ![Untitled](Urban%20AI%20Doc%2070c57da3d24c45f5ac043dfda1086582/Untitled%2023.png) | ![Untitled](Urban%20AI%20Doc%2070c57da3d24c45f5ac043dfda1086582/Untitled%2024.png) | ![Untitled](Urban%20AI%20Doc%2070c57da3d24c45f5ac043dfda1086582/Untitled%2025.png) | ![Untitled](Urban%20AI%20Doc%2070c57da3d24c45f5ac043dfda1086582/Untitled%2026.png) | ![Untitled](Urban%20AI%20Doc%2070c57da3d24c45f5ac043dfda1086582/Untitled%2028.png) |
-| --- | **Class 8** | **Class 9** | **Class 10** | **Class 11** | **Class 12** | **Class 13** |**Class 14** |
+|   | **Class 8** | **Class 9** | **Class 10** | **Class 11** | **Class 12** | **Class 13** |**Class 14** |
 | Sample Image | ![Untitled](Urban%20AI%20Doc%2070c57da3d24c45f5ac043dfda1086582/Untitled%2029.png) | ![Untitled](Urban%20AI%20Doc%2070c57da3d24c45f5ac043dfda1086582/Untitled%2030.png) | ![Untitled](Urban%20AI%20Doc%2070c57da3d24c45f5ac043dfda1086582/Untitled%2031.png) | ![Untitled](Urban%20AI%20Doc%2070c57da3d24c45f5ac043dfda1086582/Untitled%2032.png) | ![Untitled](Urban%20AI%20Doc%2070c57da3d24c45f5ac043dfda1086582/Untitled%2025.png) | ![Untitled](Urban%20AI%20Doc%2070c57da3d24c45f5ac043dfda1086582/Untitled%2033.png) | ![Untitled](Urban%20AI%20Doc%2070c57da3d24c45f5ac043dfda1086582/Untitled%2034.png) |
 
 
@@ -441,3 +456,50 @@ Swagger enables the description of API structures in a machine-readable format. 
 ![Untitled](Urban%20AI%20Doc%2070c57da3d24c45f5ac043dfda1086582/Untitled%2043.png)
 
 Each route possesses default values for testing. These can be edited to test the backend. To edit the payload, simply click the 'try it out' button located in the upper right corner.
+
+# Possible Error Thrown
+You may have the error like this,
+```
+Error: error:0308010C:digital envelope routines::unsupported
+    at new Hash (node:internal/crypto/hash:71:19)
+    at Object.createHash (node:crypto:140:10)
+    at module.exports (/home/shilong/urbanAI/UrbanAI/frontend/node_modules/webpack/lib/util/createHash.js:90:53)
+    at NormalModule._initBuildHash (/home/shilong/urbanAI/UrbanAI/frontend/node_modules/webpack/lib/NormalModule.js:386:16)
+    at handleParseError (/home/shilong/urbanAI/UrbanAI/frontend/node_modules/webpack/lib/NormalModule.js:434:10)
+    at /home/shilong/urbanAI/UrbanAI/frontend/node_modules/webpack/lib/NormalModule.js:466:5
+    at /home/shilong/urbanAI/UrbanAI/frontend/node_modules/webpack/lib/NormalModule.js:327:12
+    at /home/shilong/urbanAI/UrbanAI/frontend/node_modules/loader-runner/lib/LoaderRunner.js:373:3
+    at iterateNormalLoaders (/home/shilong/urbanAI/UrbanAI/frontend/node_modules/loader-runner/lib/LoaderRunner.js:214:10)
+    at iterateNormalLoaders (/home/shilong/urbanAI/UrbanAI/frontend/node_modules/loader-runner/lib/LoaderRunner.js:221:10)
+    at /home/shilong/urbanAI/UrbanAI/frontend/node_modules/loader-runner/lib/LoaderRunner.js:236:3
+    at runSyncOrAsync (/home/shilong/urbanAI/UrbanAI/frontend/node_modules/loader-runner/lib/LoaderRunner.js:130:11)
+    at iterateNormalLoaders (/home/shilong/urbanAI/UrbanAI/frontend/node_modules/loader-runner/lib/LoaderRunner.js:232:2)
+    at Array.<anonymous> (/home/shilong/urbanAI/UrbanAI/frontend/node_modules/loader-runner/lib/LoaderRunner.js:205:4)
+    at Storage.finished (/home/shilong/urbanAI/UrbanAI/frontend/node_modules/enhanced-resolve/lib/CachedInputFileSystem.js:55:16)
+    at /home/shilong/urbanAI/UrbanAI/frontend/node_modules/enhanced-resolve/lib/CachedInputFileSystem.js:91:9
+/home/shilong/urbanAI/UrbanAI/frontend/node_modules/react-scripts/scripts/start.js:19
+  throw err;
+  ^
+
+Error: error:0308010C:digital envelope routines::unsupported
+    at new Hash (node:internal/crypto/hash:71:19)
+    at Object.createHash (node:crypto:140:10)
+    at module.exports (/home/shilong/urbanAI/UrbanAI/frontend/node_modules/webpack/lib/util/createHash.js:90:53)
+    at NormalModule._initBuildHash (/home/shilong/urbanAI/UrbanAI/frontend/node_modules/webpack/lib/NormalModule.js:386:16)
+    at /home/shilong/urbanAI/UrbanAI/frontend/node_modules/webpack/lib/NormalModule.js:418:10
+    at /home/shilong/urbanAI/UrbanAI/frontend/node_modules/webpack/lib/NormalModule.js:293:13
+    at /home/shilong/urbanAI/UrbanAI/frontend/node_modules/loader-runner/lib/LoaderRunner.js:367:11
+    at /home/shilong/urbanAI/UrbanAI/frontend/node_modules/loader-runner/lib/LoaderRunner.js:233:18
+    at context.callback (/home/shilong/urbanAI/UrbanAI/frontend/node_modules/loader-runner/lib/LoaderRunner.js:111:13)
+    at /home/shilong/urbanAI/UrbanAI/frontend/node_modules/babel-loader/lib/index.js:51:103 {
+  opensslErrorStack: [ 'error:03000086:digital envelope routines::initialization error' ],
+  library: 'digital envelope routines',
+  reason: 'unsupported',
+  code: 'ERR_OSSL_EVP_UNSUPPORTED'
+}
+
+```
+You can use this command to resolve this problem. Because this problem is due to security issues. 
+```bash
+export NODE_OPTIONS=--openssl-legacy-provider
+```

@@ -109,6 +109,8 @@ A brief tutorial of how the backend work and a brief summary of topography proce
 
 ![Untitled](Urban%20AI%20Doc%2070c57da3d24c45f5ac043dfda1086582/Untitled%202.png)
 
+## Pre-processing Introduction
+
 ### Point Cloud Generation
 
 This dataset has been fully pre-processed, converted from a TIF to a point cloud. A coordinate system transformation is also applied during this process, transitioning from geographic coordinates to local meter coordinates.
@@ -121,9 +123,7 @@ After the process, a PCD file will be saved to local storage. This file includes
 
 Mesh Generation is not fully pre-processed. There are scenarios where the program will process in real-time.  The unit of mesh is meters.  
 
-Several algorithms exist for building a mesh, including cloud alpha, ball pivoting, and Poisson. We've chosen the Poisson algorithm with a depth of 9. It implements the Screened Poisson Reconstruction method proposed by Kazhdan and Hoppe in "Screened Poisson Surface Reconstruction," 2013. This function utilizes Kazhdan's original implementation.
-
-[https://github.com/mkazhdan/PoissonRecon](https://github.com/mkazhdan/PoissonRecon)
+Several algorithms exist for building a mesh, including cloud alpha, ball pivoting, and Poisson. We've chosen the Poisson algorithm with a depth of 9. It implements the Screened Poisson Reconstruction method proposed by Kazhdan and Hoppe in "Screened Poisson Surface Reconstruction," 2013. This function utilizes [Kazhdan's original implementation](https://github.com/mkazhdan/PoissonRecon).
 
 **Pre-processing**
 
@@ -144,7 +144,7 @@ Real-time processing Cases             |  Output Visualization
 
 *Note: The selected region size is similar to the one above.*
 
-## Introduction
+## Server-side Introduction
 
 This tutorial guides you through the essential preparations and steps to start the backend server. It covers the following topics:
 

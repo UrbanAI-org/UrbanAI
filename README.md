@@ -10,7 +10,7 @@ Overall Work Flow             |  Our Result
 ![Untitled](Urban%20AI%20Doc%2070c57da3d24c45f5ac043dfda1086582/Untitled.png)  |  ![Untitled](Urban%20AI%20Doc%2070c57da3d24c45f5ac043dfda1086582/Untitled%201.png)
 
 
-# Quick Links
+# Table of Content
 
 - [Build instructions](#build-instructions)
 - [API and Classes Reference](#api-and-classes-reference)
@@ -20,7 +20,15 @@ Overall Work Flow             |  Our Result
     - [Pre-processing Introduction](#pre-processing-introduction)
     - [Server-side Introduction](#server-side-introduction)
   - [Satellite Detection Tool](#satellite-detection-tool)
+    - [Working Flow](#working-flow-1)
+    - [Trees Detection](#trees-detection)
+    - [Tree Clustering](#tree-clustering)
+    - [Roofs Segmentation](#roofs-segmentation)
+    - [Roads Segmentation](#roads-segmentation)
   - [Backend Management](#backend-management)
+    - [Logging](#logging)
+    - [Clean Logs and Resources](#clean-logs-and-resources)
+    - [Swagger](#swagger)
 
 # Supported platforms / languages
 
@@ -249,7 +257,7 @@ During practical work, there may be an error thrown if a region is defined witho
 
 We have developed a Swagger interface for testing our backend. You can access it using the backend IP address and port. The route for this tool is in the First namespace. Please feel free to use it.
 
-![Untitled](Urban%20AI%20Doc%2070c57da3d24c45f5ac043dfda1086582/Untitled%206.png)
+![Untitled](Urban%20AI%20Doc%2070c57da3d24c45f5ac043dfda1086582/Untitled%2042.png)
 
 ### Optimization
 
@@ -294,4 +302,142 @@ The cache handles only the exact same input.
 
 ## Satellite Detection Tool
 
+The Satellite Detection Tool uses Google's satellite photos to find common things like trees, buildings, and roads. To do this, we've trained AI models. These models can do two important things: object segmentation and object detection. Object segmentation means finding the exact pixels in a picture that make up an object. Object detection means finding where objects are in a picture.
+Our Result             |   _
+:-------------------------:|:-------------------------:
+![Untitled](Urban%20AI%20Doc%2070c57da3d24c45f5ac043dfda1086582/Untitled%208.png)  |  ![Untitled](Urban%20AI%20Doc%2070c57da3d24c45f5ac043dfda1086582/Untitled%209.png)
+![roads.png](Urban%20AI%20Doc%2070c57da3d24c45f5ac043dfda1086582/roads.png)        |  ![trees.png](Urban%20AI%20Doc%2070c57da3d24c45f5ac043dfda1086582/trees.png)
+
+### Working flow
+
+![x](Urban%20AI%20Doc%2070c57da3d24c45f5ac043dfda1086582/workflow.png)
+
+### Trees Detection
+
+This task uses the [deepforest model](https://deepforest.readthedocs.io/en/latest/) primarily for detection, though it can also be used for classification. Since the pre-trained model isn't quite suited to our target area, we fine-tune it using a small [labeled dataset](https://universe.roboflow.com/unsw-urbanai/tree-detection-in-sydney). The challenge lies in distinguishing between a tree, grass, or a green roof, and identifying when two or more trees are connected. You can find training notebook [here](https://colab.research.google.com/drive/1Dp6bZ8vjWYZdX0RRu45mt0aIHLXTWa0O#scrollTo=sY4YIwy2xh2t).
+
+The model performs well for the first challenge, but the second one still requires more effort and has room for improvement. Overall, it appears to effectively identify most of the trees in the image.
+Distinguishing between a tree, grass      |   Identifying when two or more trees 
+:-------------------------:|:-------------------------:
+![Untitled](Urban%20AI%20Doc%2070c57da3d24c45f5ac043dfda1086582/Untitled%2010.png)  |  ![Untitled](Urban%20AI%20Doc%2070c57da3d24c45f5ac043dfda1086582/Untitled%2011.png)
+
+
+
+
+
+It can also be used for a tile image, retaining good performance even over a large area.
+
+![Untitled](Urban%20AI%20Doc%2070c57da3d24c45f5ac043dfda1086582/Untitled%2012.png)
+
+### Tree Clustering
+
+After the relatively accurate prediction of trees, each tree is isolated and segmented, giving us a substantial dataset composed of various types of trees. This process of segmentation is vital for our subsequent analyses and processes, and it allows us to individually study each tree in the dataset.
+
+However, a significant challenge we face is the quality of the satellite images. The images often depict trees as blurry, making it difficult for us to distinguish and cluster them accurately. Hence, we have explored two different approaches. 
+
+**Approach One: The One that server used**
+
+This method involves extracting the RGB channel information from each image as factors. After performing PCA dimensionality reduction, the K-Means Cluster is used. This approach categorizes trees into several groups based on their colour, considering that different types of trees have different leaf colours.
+
+![Untitled](Urban%20AI%20Doc%2070c57da3d24c45f5ac043dfda1086582/Untitled%2013.png)
+
+We found the best K through this graph, that is, k=7, which divides all trees into seven different types.
+
+After cluster, we observe those trees, we conclude the features for each types of tree
+
+|  | Class 1 | Class 2 | Class 3 | Class 4 | Class 5 | Class 6 | Class7 |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Sample Image | ![Untitled](Urban%20AI%20Doc%2070c57da3d24c45f5ac043dfda1086582/Untitled%2014.png) | ![Untitled](Urban%20AI%20Doc%2070c57da3d24c45f5ac043dfda1086582/Untitled%2015.png) | ![Untitled](Urban%20AI%20Doc%2070c57da3d24c45f5ac043dfda1086582/Untitled%2016.png) | ![Untitled](Urban%20AI%20Doc%2070c57da3d24c45f5ac043dfda1086582/Untitled%2017.png) | ![Untitled](Urban%20AI%20Doc%2070c57da3d24c45f5ac043dfda1086582/Untitled%2018.png) | ![Untitled](Urban%20AI%20Doc%2070c57da3d24c45f5ac043dfda1086582/Untitled%2019.png) | ![Untitled](Urban%20AI%20Doc%2070c57da3d24c45f5ac043dfda1086582/Untitled%2020.png) |
+| Colour | Very dark |  | Slightly greener than the Class 1 | dark, and yellow-green | The leaves are relatively more yellow-green |  | Green, and relative yellow-green like |
+| Leaf density | highest density | Not very dense | Not very dense | Not very dense, Some is sparse | Not very dense | Not very dense, Some is sparse | Not very dense, or dead tree |
+| Shape | ~ | Most have relatively round crowns | Irregular shape crowns and round crowns |  |  | Most have relatively round crowns | Most have relatively round crowns |
+| Other | Many of the same trees often appear together | in most cases there is only one tree |  | The crown of the tree is very large, or many books appear together | The size of the tree is relatively small | The leaves of smaller trees are generally sparse, while the leaves of smaller trees are generally not very dense. | Many in this class are not trees, some are dead wood, and the rest are relatively small trees. |
+
+**Approach Two:** 
+
+Our process begins by encoding the data using a neural network, specifically VGG16. This transforms the image content into a vectorized format, allowing the network to effectively comprehend it. Once the image data is vectorized, we proceed to PCA dimensionality reduction. Following this, we use the K-Means Clustering algorithm to distinguish between different types of trees in the image. KNN works by examining and comparing tree characteristics, enabling us to group them into distinct categories.
+
+This method roughly categorizes trees according to their shape (width and height) and colour. But the difference from the previous method is not particularly big. Since this method will consume more performance, this method has not been studied in depth.
+
+Roughly divided into fourteen categories
+|  | Class 1 | Class 2 | Class 3 | Class 4 | Class 5 | Class 6 | Class 7 |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Sample Image | ![Untitled](Urban%20AI%20Doc%2070c57da3d24c45f5ac043dfda1086582/Untitled%2021.png) | ![Untitled](Urban%20AI%20Doc%2070c57da3d24c45f5ac043dfda1086582/Untitled%2022.png) | ![Untitled](Urban%20AI%20Doc%2070c57da3d24c45f5ac043dfda1086582/Untitled%2023.png) | ![Untitled](Urban%20AI%20Doc%2070c57da3d24c45f5ac043dfda1086582/Untitled%2024.png) | ![Untitled](Urban%20AI%20Doc%2070c57da3d24c45f5ac043dfda1086582/Untitled%2025.png) | ![Untitled](Urban%20AI%20Doc%2070c57da3d24c45f5ac043dfda1086582/Untitled%2026.png) | ![Untitled](Urban%20AI%20Doc%2070c57da3d24c45f5ac043dfda1086582/Untitled%2028.png) |
+| --- | **Class 8** | **Class 9** | **Class 10** | **Class 11** | **Class 12** | **Class 13** |**Class 14** |
+| Sample Image | ![Untitled](Urban%20AI%20Doc%2070c57da3d24c45f5ac043dfda1086582/Untitled%2029.png) | ![Untitled](Urban%20AI%20Doc%2070c57da3d24c45f5ac043dfda1086582/Untitled%2030.png) | ![Untitled](Urban%20AI%20Doc%2070c57da3d24c45f5ac043dfda1086582/Untitled%2031.png) | ![Untitled](Urban%20AI%20Doc%2070c57da3d24c45f5ac043dfda1086582/Untitled%2032.png) | ![Untitled](Urban%20AI%20Doc%2070c57da3d24c45f5ac043dfda1086582/Untitled%2025.png) | ![Untitled](Urban%20AI%20Doc%2070c57da3d24c45f5ac043dfda1086582/Untitled%2033.png) | ![Untitled](Urban%20AI%20Doc%2070c57da3d24c45f5ac043dfda1086582/Untitled%2034.png) |
+
+
+### Roofs Segmentation
+
+In this task, we use the [YOLOv8s-seg](https://docs.ultralytics.com/tasks/segment/) model for roof segmentation. This model has proven effective in distinguishing roofs. We began by basing our work on this model and initially trained it using a dataset without augmentation. After this initial training, we fine-tuned the model to increase its robustness. We conducted several training iterations using different augmentations. Notably, our model's capabilities extend beyond identifying ordinary house roofs - it has also shown considerable proficiency in recognizing factory roofs.
+
+Factory Roofs      |   Building Roofs 
+:-------------------------:|:-------------------------:
+![Untitled](Urban%20AI%20Doc%2070c57da3d24c45f5ac043dfda1086582/Untitled%2035.png)  |  ![Untitled](Urban%20AI%20Doc%2070c57da3d24c45f5ac043dfda1086582/Untitled%2036.png)
+
+
+It can also be used for a tile image, retaining good performance even over a large area.
+
+Segmentation with border      |   Segmentation Mask 
+:-------------------------:|:-------------------------:
+![Untitled](Urban%20AI%20Doc%2070c57da3d24c45f5ac043dfda1086582/Untitled%2037.png) |  ![Untitled](Urban%20AI%20Doc%2070c57da3d24c45f5ac043dfda1086582/Untitled%209.png)
+
+
+
+
+
+*Note: As the process involves large-scale mask splicing, there might be a risk of insufficient memory. However, we have addressed this issue. This process may result in the same house being stitched together from multiple separate masks. Regardless, this will not affect the actual mask.*
+
+You can find our dataset [here](https://universe.roboflow.com/unsw-urbanai/roof-segment) and the training notebook here. Please note that the model used on the server differs from the one deployed in the Roboflow, with the server model being more accurate.
+
+### Roads Segmentation
+
+In this task, we leverage Semantic Segmentation employing [DeepLabV3+](https://arxiv.org/abs/1802.02611) within the PyTorch framework. DeepLabV3+ has demonstrated remarkable capabilities in image segmentation. For a comprehensive understanding of its workflow and practical examples, refer to this informative [essay](https://learnopencv.com/deeplabv3-ultimate-guide/#DeepLabv3+-Paper-Experiments).
+
+Our approach involves training the model with satellite images. Post-training, we evaluate the model using the Intersection over Union (IoU) score to ascertain its segmentation accuracy. The achieved IoU score of approximately 0.94 indicates the model's proficiency in accurately segmenting roads.
+
+Presented below is an illustrative example of the segmentation result:
+
+To generate a predictive graph, we utilize the mask image obtained during the segmentation process.
+
+ Image      |   Road Masks 
+:-------------------------:|:-------------------------:
+![Untitled](Urban%20AI%20Doc%2070c57da3d24c45f5ac043dfda1086582/Untitled%2038.png) |  ![Untitled](Urban%20AI%20Doc%2070c57da3d24c45f5ac043dfda1086582/Untitled%2039.png)
+
+It can also be used for a tile image, retaining good performance even over a large area.
+
+Large area image      |   Segmentation mask
+:-------------------------:|:-------------------------:
+![Untitled](Urban%20AI%20Doc%2070c57da3d24c45f5ac043dfda1086582/Untitled%208.png) |  ![Untitled](Urban%20AI%20Doc%2070c57da3d24c45f5ac043dfda1086582/Untitled%2040.png)
+
+
+
+
+
+*Note: The road appears discontinuous due to trees obscuring some narrow paths. Also, the model does not segment the train rail.*
+
 ## Backend Management
+
+### Logging
+
+The backend system generates and maintains two distinct types of logs, each serving a specific purpose. The first type is the error log, named `server.log`. This log is designed to keep track of any errors that occur within the system. It records the occurrence of errors along with their corresponding messages, providing a detailed traceback.
+
+The second type of log is referred to as `users.log`. This log is dedicated to monitoring user activity. It systematically records the IP address of each user, the time of their last access to the system, and the dates when these accesses occurred. 
+
+### Clean Logs and Resources
+
+The backend system of our application requires a particular Key to execute associated commands. This Key is not a fixed value but is instead generated randomly whenever the server permits its generation. It's crucial to note this Key when you start the server, as it will be required for future operations on the backend.
+
+In case you forget this Key. There are two methods by which you can retrieve it. The first method involves providing a password. Once the correct password is given, the system will reveal the Key. The second method involves sending a 'GET' request to the corresponding route that resides under the same IP as the server. Through either of these methods, you can retrieve the Key and continue managing the backend operations successfully.
+
+### Swagger
+
+![Untitled](Urban%20AI%20Doc%2070c57da3d24c45f5ac043dfda1086582/Untitled%2041.png)
+
+Swagger enables the description of API structures in a machine-readable format. In this project, there are three namespaces. The default namespace primarily serves management backend and related routes, while the other two tools each have their own independent namespaces.
+
+![Untitled](Urban%20AI%20Doc%2070c57da3d24c45f5ac043dfda1086582/Untitled%2042.png)
+
+![Untitled](Urban%20AI%20Doc%2070c57da3d24c45f5ac043dfda1086582/Untitled%2043.png)
+
+Each route possesses default values for testing. These can be edited to test the backend. To edit the payload, simply click the 'try it out' button located in the upper right corner.

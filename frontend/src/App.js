@@ -5,6 +5,7 @@ import Home from './pages/Home';
 import About from './pages/About';
 import Contributions from './pages/Contributions';
 import UserGuide from './pages/UserGuide';
+import TreeBuildingDetection from './pages/TreeBuildingDetection';
 
 
 function App() {
@@ -16,6 +17,7 @@ function App() {
         <Route exact path="/about" element={<About />} />
         <Route exact path="/contributions" element={<Contributions />} />
         <Route exact path="/userguide" element={<UserGuide />} />
+        <Route exact path="/treebuildingdetect" element={<TreeBuildingDetection />} />
       </Routes>
     </BrowserRouter>
   );

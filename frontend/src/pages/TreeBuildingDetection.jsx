@@ -33,21 +33,22 @@ const TreeBuildingDetection = () => {
 		// } else {
 		// 	console.log(data);
 		// }
-		const response = await fetch('http://localhost:9999/v1/download?types=trees&id=class10', {
-			method: 'GET',
-		})
-		const data = await response.json();
-		if (data.error) {
-			alert(data.error);
-		} else {
-			console.log(data);
-		}
+		
+		// const response = await fetch('http://localhost:9999/v1/download?types=trees&id=class10', {
+		// 	method: 'GET',
+		// })
+		// const data = await response.json();
+		// if (data.error) {
+		// 	alert(data.error);
+		// } else {
+		// 	console.log(data);
+		// }
 	}
 	return (
 		<>
 		<NavBar />
-		<div style={{ display: 'flex' }}>
-		  <div style={{ flex: 0.4 }}>
+		<div className="landscape-container">
+		  <div>
 			{/* Submission form */}
 			<h2>Please Enter a Latitude and Longitude</h2>
 			<br />
@@ -69,9 +70,7 @@ const TreeBuildingDetection = () => {
 			<br />
 			<button onClick={handleSubmit}>Submit</button>
 		  </div>
-		  <div style={{ flex: 1, marginLeft: '20px' }}>
 			<DetectedImg data={outputData} />
-		  </div>
 		</div>
 	  </>
 		)

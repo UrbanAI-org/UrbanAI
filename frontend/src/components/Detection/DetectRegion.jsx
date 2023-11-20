@@ -9,8 +9,8 @@ import { useThree, Canvas } from '@react-three/fiber';
 // Custom vertex shader
 // const 
 
-const DetectRegion = ({ position, setLookAt, responseBody , isframe}) => {
-  const [geo, setGeo] = useState('');
+const DetectRegion = ({ position, setLookAt, responseBody, isframe }) => {
+  const [geo, setGeo] = useState(null);
   const [minHeight, setMinHeight] = useState(Number.POSITIVE_INFINITY);
   const [maxHeight, setMaxHeight] = useState(Number.NEGATIVE_INFINITY);
   const [center, setCenter] = useState([0, 0, 0]);
@@ -18,96 +18,127 @@ const DetectRegion = ({ position, setLookAt, responseBody , isframe}) => {
   const camera = useThree((state) => state.camera); // Access camera object
   // Create a ref to store the mesh material
   const materialRef = useRef();
-  const frame = isframe === 'Yes' ? true : false;
-  // console.log(responseBody.download_link);
-  const groupRef = useRef();
-    // THREE.Group()
-const group = useRef();
+  const geoRef = useRef();
+//   const frame = isframe === 'Yes' ? true : false;
+const [my_responseBody, setmy_responseBody] = useState(
 
-//   const obj = useLoader(OBJLoader, "class10.obj");
+{
+    tree : {
+        num_trees: 23,
+        trees: [
+            {
+                seq_number: 0,
+                position: {
+                    x: 20,
+                    y: 20,
+                },
+                size: {
+                    width: 48,
+                    height: 44,
+                }
+            },
+            {
+                seq_number: 1,
+                position: {
+                    x: 0,
+                    y: 0,
+                },
+                size: {
+                    width: 25,
+                    height: 20,
+                }
+            }
+        ]
+    }
+}
+)
+console.log(my_responseBody);
 
-  useEffect(async () => {
-    const loader = new PLYLoader();
-    loader.load(
-    //   "http://13.210.146.135:5000" + responseBody.download_link,
-      // "http://127.0.0.1:9999" + responseBody.download_link,
-      "tree_1.ply",
-      function (geometry) {
-          console.log(geometry);
-        // geometry.scale.set(200, 200, 200);
-        // console.log(position)
-        // geometry.computeVertexNormals()
-        // geometry.computeBoundingBox();
-        // geometry.computeBoundingSphere();
-        setLookAt([
-            0,0,0
-        ]);
-        // setCenter([geometry.boundingSphere.center.x, geometry.boundingSphere.center.y, geometry.boundingSphere.center.z])
-        // geometry.position.set(geometry.boundingSphere.center.x, geometry.boundingSphere.center.y, geometry.boundingSphere.center.z)
-        // geometry.scene.position.sub(geometry.boundingSphere.center); // Center the geometry
-        // geometry.needsUpdate = true;
-        // console.log(geometry);
-        // geometry.up = new THREE.Vector3(1, 0, 0);
-        // geometry.receiveShadow = true;
-        // geometry.castShadow = true;
-        // geometry.onBeforeRender(() => (
-        //     console.log("before render")
-        // ))
-        // geometry.onAfterRender(() => (
-        //     console.log("after render")
-
-        // ))
-        groupRef.current = geometry;
-        // groupRef.current.add(geometry);
-        setGeo(geometry);
-        console.log("Log")
-        for (let index = 0; index < groupRef.current.children.length; index++) {
-            let child = groupRef.current.children[index];
-            let temp_geo = child.geometry
-            // console.log(child.geometry)
-            
-            setMeshs(meshs => [...meshs, temp_geo])
-            // break
- 
-            
-        }
-        // groupRef.current.children.map((child, index) => (
-        //     console.log(child)
-        // ))
-        console.log(groupRef);
+   let target_size = [25, 25]
+   const scale_geo = (geometry, target_size) => {
+        console.log("scale")
         console.log(geometry)
-        // rotate the geometry to the correct position
-        // geometry.rotateX(-Math.PI / 2);
-        // Set far property of the camera
-        camera.far = 1000000; // Set a large value for far property
-        camera.position.set(0,0,0);
-        camera.updateProjectionMatrix(); // Apply changes to camera
-      },
-      function (xhr) {
-        console.log((xhr.loaded / xhr.total) * 100 + "% loaded");
-      },
-      function (error) {
-        console.log("An error happened");
-        console.log(error);
-      }
-    );
-  }, []);
-  // Calculate min and max heights
-//   useEffect(() => {
-//     if (geo) {
-//     //   const { min, max } = calculateMinMaxHeights();
-//     //   setMinHeight(min);
-//     //   setMaxHeight(max);
-//         console.log(groupRef.current.children)  
-//     }
-//   }, [groupRef]);
+        geometry.computeBoundingBox();
+        let min = geometry.boundingBox.min;
+        let max = geometry.boundingBox.max;
+        let size = [max.x - min.x, max.y - min.y, max.z - min.z]
+        let scale_1 = target_size[0] / size[0]
+        let scale_2 = target_size[1] / size[1]
+        let scale_3 = (scale_1 + scale_2) / 2
+        geometry.scale(scale_1, scale_2, scale_3);
+        return geometry;
+   }
 
-  // Function to calculate min and max heights
-  const calculateMinMaxHeights = () => {
-    // const min = geo.boundingBox.min.z;
-    // const max = geo.boundingBox.max.z;
-    // return { 0, 0 };
-  };
+//    for (let index = 0; index < responseBody.tree.num_trees; index++) {
+//         const element = responseBody.tree.trees[index];
+//         let position = [element.position.x, element.position.y]
+//         let size =  [element.size.width, element.size.height]
+//         let new_clone = geo.clone()
+//         new_clone = scale_geo(new_clone, size)
+//         // setMeshs((meshs) => (...meshs, {geometry: new_clone, position: position}))
+    
+//    }
+
+   
+const [response, setResponse] = useState([])
+useEffect(() => {
+    console.log("use effect")
+    if (geo !== null) {
+        console.log(geo.clone())
+        setResponse(getAnimalsContent(my_responseBody.tree.trees, geo))
+
+    }
+}, [geo])
+
+useEffect(() => {
+    const load_geo = () => {
+        const loader = new PLYLoader();
+        loader.load(
+          "tree_1.ply",
+          function (geometry) {
+              console.log(geometry);
+            geometry.computeBoundingBox();
+            let min = geometry.boundingBox.min;
+            let max = geometry.boundingBox.max;
+            let size = [max.x - min.x, max.y - min.y, max.z - min.z]
+            let scale_1 = target_size[0] / size[0]
+            let scale_2 = target_size[1] / size[1]
+            let scale_3 = (scale_1 + scale_2) / 2
+            geometry.scale(scale_1, scale_2, scale_3);
+            console.log(geometry)
+            geometry.clone()
+            setLookAt([
+                0,0,0
+            ]);
+            setGeo(geometry);
+            geometry.copy()
+            geoRef.current = geometry.clone()
+            console.log("ref clone")
+            console.log(geoRef.current.clone())
+          },
+          function (xhr) {
+            console.log((xhr.loaded / xhr.total) * 100 + "% loaded");
+          },
+          function (error) {
+            console.log("An error happened");
+            console.log(error);
+          }
+        );
+        // console.log(
+        //     "aaaaaaaaaaaaaaaaaa"
+        // )
+        // console.log(geoRef.current)
+
+    
+    }
+    // let geometry = 
+    load_geo()
+    
+    // setResponse(getAnimalsContent(my_responseBody.tree.trees))
+
+    
+  }, [my_responseBody]);
+  
 
   // Update the uniform values in the material
   useEffect(() => {
@@ -116,143 +147,51 @@ const group = useRef();
       materialRef.current.uniforms.maxHeight.value = maxHeight;
     }
   }, [minHeight, maxHeight]);
-//   const material = useRef();
-//   useFrame(() => {
-//     if (material.current) {
-//       material.current.uniforms.minHeight.value = minHeight;
-//       material.current.uniforms.maxHeight.value = maxHeight;
-//     }
-//   });
-  console.log(meshs)
-
+//   console.log("before return")
+    // load_geo()
+    // console.log("after return")
+    // console.log(geoRef.current.clone())
+    const getAnimalsContent = (element, geo) => {
+        console.log(element)
+        let content = [];
+        for (let item of element) {
+            let temp = geo.clone()
+            console.log("temp")
+            console.log(temp)
+          content.push(<mesh>
+            position={[item.position.x, item.position.y, 0]}
+            geometry={scale_geo(temp, [item.size.width, item.size.height])}
+            key = {temp.id}
+        </mesh>);
+        }
+        return content;
+    };
+    
   return (
-    <mesh
+      <group>
+        {/* {response} */}
+        {/* {getAnimalsContent(my_responseBody.tree.trees)} */}
+    {/* <mesh
       position={[0, 0, 0]}
-      // lookAt={[position.x, position.y, position.z]}
       geometry={geo}
-    //   onCreated={(mesh) => {
-    //     // Store the material in the ref
-    //     // materialRef.current = mesh.material;
-    //   }}
-      // up={new THREE.Vector3(0, 0, 1)}
-    >
-      {/* <shaderMaterial
-        // vertexShader={vertexShader}
-        // fragmentShader={fragmentShader}
-        wireframe={frame}
-        side={THREE.DoubleSide}
-        uniforms={{
-          minHeight: { value: minHeight },
-          maxHeight: { value: maxHeight },
-        }}
-        // uniformsNeedUpdate = {true}
-      /> */}
-      
+      >
     </mesh>
+    <mesh
+      position={[5,0, 0]}
+      geometry={geo}
+      >
+    </mesh> */}
+        {/* { my_responseBody.tree.trees.map((element, index) => (
+            <mesh>
+                position={[element.position.x, element.position.y, 0]}
+                geometry={scale_geo(geoRef.current.clone(), [element.size.width, element.size.height])}
+            </mesh>
+        )) } */}
 
-    // meshs.map((meshProps, index) => (
-    //     <mesh key={index} geometry={meshProps}>
-    //       {/* <boxGeometry args={[1, 1, 1]} /> */}
-    //       {/* <shaderMaterial side={THREE.DoubleSide}/> */}
-    //     </mesh>
-    //   ))
-//     <group ref={groupRef}>
-//          <primitive object={obj} />
-//    </group>
-   
-    // for (let index = 0; index < array.length; index++) {
-    //     const element = array[index];
-        
-    // }
-    // <mesh
-    // {meshs.map((item, index))}
+    </group>
     
-    // meshs.forEach(child => (
-    //              <mesh
-    //                     key={1}
-    //                     position={[child.position.x, child.position.y, child.position.z]}
-    //                     scale={[child.scale.x, child.scale.y, child.scale.z]}
-    //                     rotation={[child.rotation.x, child.rotation.y, child.rotation.z]}
-    //                 >
-    //                  {/* Use appropriate geometry and material for each child */}
-    //                      <boxBufferGeometry args={[1, 1, 1]} />
-    //                      <meshBasicMaterial color="blue" />
-    //                 </mesh>
-    //              ))
+
     
-    // >
-    // <group ref={groupRef}>
- // {/* //          {geo.children.forEach(child => (
-//          <mesh
-//                 key={1}
-//                 position={[child.position.x, child.position.y, child.position.z]}
-//                 scale={[child.scale.x, child.scale.y, child.scale.z]}
-//                 rotation={[child.rotation.x, child.rotation.y, child.rotation.z]}
-//             >
-//              {/* Use appropriate geometry and material for each child */}
-// {/* //                  <boxBufferGeometry args={[1, 1, 1]} />
-//                  <meshBasicMaterial color="blue" />
-//             </mesh>
-//          ))}; */}
-    // </group>
-//  */}
-
-    // <mesh>
-    //     <boxBufferGeometry args={[1, 1, 1]} />
-    //     <meshStandardMaterial color="blue" />
-    // </mesh>
-        // <group ref={groupRef}>
-        // {/* Iterate over children and render each mesh */}
-        // {groupRef.current &&
-        //     groupRef.current.children.map((child, index) => (
-        //     <mesh
-        //         key={index}
-        //         position={[child.position.x, child.position.y, child.position.z]}
-        //         scale={[child.scale.x, child.scale.y, child.scale.z]}
-        //         rotation={[child.rotation.x, child.rotation.y, child.rotation.z]}
-        //     >
-                
-        //         {/* Use appropriate geometry and material for each child */}
-        //         <boxBufferGeometry args={[1, 1, 1]} />
-        //         <meshBasicMaterial color="blue" />
-        //     </mesh>
-        //     ))}
-        // </group>
- 
-    // <Canvas>
-    //     <group ref={groupRef}>
-    //         {/* Use the react-three-fiber primitive components to render the three.js object */}
-    //         <mesh position={[0, 0, 0]} scale={[1, 1, 1]} ref={groupRef}>
-    //         <boxBufferGeometry args={[1, 1, 1]} />
-    //         <meshBasicMaterial color="red" />
-    //         </mesh>
-
-    //         {/* Render the children of the geometry object */}
-    //         {geo.children.map((child, index) => (
-    //         <mesh
-    //             key={index}
-    //             position={[child.position.x, child.position.y, child.position.z]}
-    //             scale={[child.scale.x, child.scale.y, child.scale.z]}
-    //             rotation={[child.rotation.x, child.rotation.y, child.rotation.z]}
-    //         >
-    //             {/* Use appropriate geometry and material for each child */}
-    //             <boxBufferGeometry args={[1, 1, 1]} />
-    //             <meshBasicMaterial color="blue" />
-    //         </mesh>
-    //         ))}
-    //     </group>
-    // </Canvas>
-    //   <shaderMaterial
-    //     vertexShader={vertexShader}
-    //     fragmentShader={fragmentShader}
-    //     wireframe={frame}
-    //     side={THREE.DoubleSide}
-    //     uniforms={{
-    //       minHeight: { value: minHeight },
-    //       maxHeight: { value: maxHeight },
-    //     }}
-    //     // uniformsNeedUpdate = {true}
-    //   />
       
   );
 };

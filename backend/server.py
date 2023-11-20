@@ -272,7 +272,7 @@ class V1ApiRegionDetectImage(Resource):
     @NS2.response(500, "Invalid Input: Large region")
     @NS2.response(400, "Invalid Input: Invalid type")
     def post(self):
-        from src.predictors.utils.plot import merge_image, encode_image
+        from src.predictors.utils.resplot import merge_image, encode_image
         if request.headers.get("Content-Type") == "text/plain":
             data = json.loads(request.data)
         else:

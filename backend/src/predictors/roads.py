@@ -2,7 +2,7 @@ from src.database.singletonMeta import SingletonMeta
 from src.predictors.utils.deeplab import DeepLabRoadSeg
 from src.predictors.utils.predict import my_get_sliced_prediction
 from src.config import ROAD_DETECTION_MODEL
-from src.predictors.utils.plot import plot_coco_result
+from src.predictors.utils.resplot import plot_coco_result
 import torch
 class RoadPredictor(metaclass=SingletonMeta):
     detect_model = None

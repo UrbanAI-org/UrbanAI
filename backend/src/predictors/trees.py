@@ -8,7 +8,7 @@ import numpy as np
 import joblib
 import cv2
 # models
-from src.predictors.utils.plot import plot_csv_result
+from src.predictors.utils.resplot import plot_csv_result
 
 class TreePredictor(metaclass=SingletonMeta):
     detect_model = None

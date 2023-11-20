@@ -3,7 +3,7 @@ from src.database.singletonMeta import SingletonMeta
 from src.config import BUILDING_SEGMENTATION_MODEL
 from src.predictors.utils.predict import my_get_sliced_prediction
 from src.predictors.utils.yolo import Yolov8BuildingSegModel
-from src.predictors.utils.plot import plot_coco_result
+from src.predictors.utils.resplot import plot_coco_result
 class BuildingPredictor(metaclass=SingletonMeta):
     def __init__(self, model_path = None) -> None:
         self.model = Yolov8BuildingSegModel(model_path)

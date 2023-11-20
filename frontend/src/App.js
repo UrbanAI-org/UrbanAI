@@ -10,7 +10,6 @@ import TreeBuildingDetection from './pages/TreeBuildingDetection';
 
 function App() {
   return (
-    
     <BrowserRouter>
       <Routes>
         <Route exact path="/" element={<Home />} />

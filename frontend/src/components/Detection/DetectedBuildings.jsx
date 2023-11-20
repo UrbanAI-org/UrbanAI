@@ -1,7 +1,7 @@
 import React, { useRef, useEffect } from 'react';
 import * as THREE from 'three';
 
-const ThreeScene = () => {
+const DetectedBuildings = () => {
   const sceneRef = useRef();
   const cameraRef = useRef();
   const rendererRef = useRef();
@@ -24,8 +24,8 @@ const ThreeScene = () => {
     // Array of geometries and materials
     const geometries = [
       new THREE.BoxGeometry(),
-      new THREE.SphereGeometry(),
-      new THREE.CylinderGeometry(),
+      new THREE.BoxGeometry(),
+      new THREE.BoxGeometry(),
     ];
 
     const materials = [
@@ -58,17 +58,18 @@ const ThreeScene = () => {
     };
 
     // Call the animate function
-    animate();
+    // animate();
 
     // Cleanup on component unmount
     return () => {
-      scene.dispose();
-      camera.dispose();
-      renderer.dispose();
+      // Dispose of objects if they exist and have a dispose method
+      if (scene && scene.dispose) scene.dispose();
+      if (camera && camera.dispose) camera.dispose();
+      if (renderer && renderer.dispose) renderer.dispose();
     };
   }, []);
 
   return <div ref={sceneRef} />;
 };
 
-export default ThreeScene;
+export default DetectedBuildings;

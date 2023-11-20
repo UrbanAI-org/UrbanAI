@@ -155,11 +155,11 @@ const DetectRegion = ({ position, setLookAt, responseBody , isframe}) => {
     // </group>
 //  */}
 
-    <mesh>
-        <boxBufferGeometry args={[1, 1, 1]} />
-        <meshStandardMaterial color="blue" />
-    </mesh>
-        // <group ref={groupRef}>
+    // <mesh>
+    //     <boxBufferGeometry args={[1, 1, 1]} />
+    //     <meshStandardMaterial color="blue" />
+    // </mesh>
+        <group ref={groupRef}></group>
         // {/* Iterate over children and render each mesh */}
         // {groupRef.current &&
         //     groupRef.current.children.map((child, index) => (

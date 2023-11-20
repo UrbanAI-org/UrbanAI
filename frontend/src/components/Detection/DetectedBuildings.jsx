@@ -1,75 +1,65 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import * as THREE from 'three';
+import { useFrame } from 'react-three-fiber';
+import { Canvas, Mesh } from "@react-three/fiber";
 
-const DetectedBuildings = () => {
-  const sceneRef = useRef();
+const ThreeScene = () => {
   const cameraRef = useRef();
   const rendererRef = useRef();
-
+  const [meshes,setMeshs] = useState([])
   useEffect(() => {
     // Set up the scene
-    const scene = new THREE.Scene();
+   
     const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
     const renderer = new THREE.WebGLRenderer();
 
     // Set up camera position
     camera.position.z = 5;
 
-    // Set up renderer size
-    renderer.setSize(window.innerWidth, window.innerHeight);
-
-    // Append renderer to the DOM
-    sceneRef.current.appendChild(renderer.domElement);
+    
 
     // Array of geometries and materials
-    const geometries = [
-      new THREE.BoxGeometry(),
-      new THREE.BoxGeometry(),
-      new THREE.BoxGeometry(),
-    ];
+    const geometry = new THREE.BoxGeometry();
 
-    const materials = [
-      new THREE.MeshBasicMaterial({ color: 0x00ff00 }),
-      new THREE.MeshBasicMaterial({ color: 0xff0000 }),
-      new THREE.MeshBasicMaterial({ color: 0x0000ff }),
-    ];
+    const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
 
     // Create and add meshes to the scene using a loop
-    const meshes = [];
-    for (let i = 0; i < geometries.length; i++) {
-      const mesh = new THREE.Mesh(geometries[i], materials[i]);
+    
+    for (let i = 0; i < 3; i++) {
+      const mesh = new THREE.Mesh(geometry, material);
       mesh.position.x = i * 3; // Adjust the spacing between geometries
-      meshes.push(mesh);
-      scene.add(mesh);
+      setMeshs((meshes)=>[...meshes, mesh])
     }
-
     // Animation function
-    const animate = () => {
-      requestAnimationFrame(animate);
+    // const animate = () => {
+    //   // requestAnimationFrame(animate);
 
       // Rotate all meshes
-      meshes.forEach((mesh) => {
-        mesh.rotation.x += 0.01;
-        mesh.rotation.y += 0.01;
+      useFrame(() => {
+        meshes.forEach((mesh) => {
+          mesh.rotation.x += 0.01;
+          mesh.rotation.y += 0.01;
+        });
       });
 
-      // Render the scene
-      renderer.render(scene, camera);
-    };
-
-    // Call the animate function
-    // animate();
-
-    // Cleanup on component unmount
-    return () => {
-      // Dispose of objects if they exist and have a dispose method
-      if (scene && scene.dispose) scene.dispose();
-      if (camera && camera.dispose) camera.dispose();
-      if (renderer && renderer.dispose) renderer.dispose();
-    };
+  
   }, []);
-
-  return <div ref={sceneRef} />;
+  console.log(meshes)
+  return (
+    <>
+    {meshes.map((mesh, index) => (
+      <mesh
+        key={index}
+        position={[mesh.position.x, mesh.position.y, mesh.position.z]}
+        scale={[mesh.scale.x, mesh.scale.y, mesh.scale.z]}
+        rotation={[mesh.rotation.x, mesh.rotation.y, mesh.rotation.z]}
+      >
+        <boxGeometry args={[1, 1, 1]} />
+        <meshBasicMaterial color={0x00ff00} />
+      </mesh>
+    ))}
+  </>
+  );
 };
 
-export default DetectedBuildings;
+export default ThreeScene;

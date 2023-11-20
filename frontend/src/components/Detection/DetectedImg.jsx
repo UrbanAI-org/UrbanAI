@@ -26,6 +26,7 @@ const DetectedImg = (data) => {
   // } else {
     return (
       <div className="landscape-scene">
+         
         
         <Canvas >
           {/* <axesHelper args={[10000]} /> */}

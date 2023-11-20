@@ -30,9 +30,9 @@ const DetectedImg = (data) => {
         
         <Canvas >
           {/* <axesHelper args={[10000]} /> */}
-          <DetectRegion position={position} setLookAt={setLookAt} responseBody={data} isframe={isframe}/>
+          {/* <DetectRegion position={position} setLookAt={setLookAt} responseBody={data} isframe={isframe}/>
           <DetectedBuildings position={position} setLookAt={setLookAt} responseBody={data}/>
-          <OrbitControls ref={orbitControlsRef} target={new THREE.Vector3(lookAt[0], lookAt[1], lookAt[2])} />
+          <OrbitControls ref={orbitControlsRef} target={new THREE.Vector3(lookAt[0], lookAt[1], lookAt[2])} /> */}
           {/* <OrbitControls ref={orbitControlsRef} target={new THREE.Vector3(0,0,0)} /> */}
         </Canvas>
       </div>

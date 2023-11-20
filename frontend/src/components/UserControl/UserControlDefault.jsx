@@ -4,8 +4,9 @@ import TypeSelector from "./TypeSelector";
 import PolygonForm from "./PolygonForm";
 import {reactLocalStorage} from 'reactjs-localstorage';
 
-const UserControlDefault = ({setIsRequestGenerated, requestBody, setRequestBody, isMap, setIsMap }) => {
+const UserControlDefault = ({setIsRequestGenerated, requestBody, setRequestBody, isMap, setIsMap}) => {
     const [polygonItems, setPolygonItems] = useState([]);
+    const [isPredict, setIsPredict] = useState(false);
     // const [needReflesh, setReflesh] = useState(false);
     const polygonItemsDisplay = () => {
         let display_str = ""
@@ -30,6 +31,7 @@ const UserControlDefault = ({setIsRequestGenerated, requestBody, setRequestBody,
             var corner = reactLocalStorage.getObject("PolygonItems", [])
             handelMap(corner)
         }
+        setIsPredict(true);
     }
 
     function handlePolygon() {
@@ -187,6 +189,13 @@ const UserControlDefault = ({setIsRequestGenerated, requestBody, setRequestBody,
                         <input
                             type="submit"
                             value="Generate"
+                            className="generate-button"
+                        />
+                    </form>
+                    <form onSubmit={handleInputsSubmit}>
+                        <input
+                            type="submit"
+                            value="Predict"
                             className="generate-button"
                         />
                     </form>

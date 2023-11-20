@@ -6,6 +6,7 @@ import LandscapeScene from "../components/LandscapeScene/LandscapeScene";
 import UserControl from "../components/UserControl/UserControl";
 import Loading from "../components/LandscapeScene/Loading";
 import DrawableMap from "../components/LandscapeScene/MapScene";
+import uploardImage from "../components/Detection/uploardImage";
 const Home = () => {
     const [isRequestGenerated, setIsRequestGenerated] = useState(false);
     const [requestBody, setRequestBody] = useState(
@@ -19,6 +20,7 @@ const Home = () => {
     const [isLoading, setLoading] = useState(false);
     const [isDisplayingMap, setIsDisplayingMap] = useState(false)
     const [isMapJsLoaded, setMapJsLoaded] = useState(false)
+    const [isPredict, setIsPredict] = useState(false);
     // const []
     const fetchMeshes = async () => {
         try {
@@ -96,18 +98,20 @@ const Home = () => {
                 <UserControl
                     isRequestGenerated={isRequestGenerated}
                     setIsRequestGenerated={setIsRequestGenerated}
+                    // isPredict = {isPredict}
                     requestBody={requestBody}
                     setRequestBody={setRequestBody}
                     responseBody={responseBody}
                     setResponseBody={setResponseBody}
                     isMap = {isDisplayingMap}
                     setIsMap = {setIsDisplayingMap}
+                    isPredict={isPredict}
                 />
                 {isWaitingResponse && <Loading word={"Generating ..."}/> }
                 {isLoading && <Loading word={"Loading ..."}/>}
                 {isDisplayingMap && !isRequestGenerated && <DrawableMap isMapJsLoaded={isMapJsLoaded} setMapJsLoaded={setMapJsLoaded}/> }
-                {(!isDisplayingMap || responseBody) && <LandscapeScene responseBody={responseBody} setLoading={setLoading}/>}
-                
+                {(!isDisplayingMap || responseBody || !isPredict) && <uploardImage/>}
+                {(!isDisplayingMap || responseBody || isPredict) && <LandscapeScene responseBody={responseBody} setLoading={setLoading}/>}
             </div>
         </div>
     )

@@ -4,7 +4,7 @@ import UserControlDefault from "./UserControlDefault";
 import UserControlDetails from "./UserControlDetails";
 
 const UserControl = ({
-    isRequestGenerated, setIsRequestGenerated, requestBody, setRequestBody, responseBody, setResponseBody, isMap, setIsMap 
+    isPredict, setIsRequestGenerated, requestBody, setRequestBody, responseBody, setResponseBody, isMap, setIsMap
 }) => {
     if (responseBody == null) {
         return (
@@ -14,6 +14,7 @@ const UserControl = ({
                 requestBody={requestBody}
                 isMap={isMap}
                 setIsMap={setIsMap}
+                isPredict={isPredict}
             />
         )
     } else {
@@ -23,7 +24,9 @@ const UserControl = ({
                 setRequestBody={setRequestBody}
                 responseBody={responseBody}
                 setResponseBody={setResponseBody}
+                isPredict={isPredict}
             />
+            
         )
     }
 }

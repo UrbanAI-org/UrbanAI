@@ -16,7 +16,7 @@ function App() {
         <Route exact path="/about" element={<About />} />
         <Route exact path="/contributions" element={<Contributions />} />
         <Route exact path="/userguide" element={<UserGuide />} />
-        <Route exact path="/treebuildingdetect" element={<TreeBuildingDetection />} />
+        {/* <Route exact path="/treebuildingdetect" element={<TreeBuildingDetection />} /> */}
       </Routes>
     </BrowserRouter>
   );

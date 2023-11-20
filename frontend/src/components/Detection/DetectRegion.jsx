@@ -22,19 +22,19 @@ const DetectRegion = ({ position, setLookAt, responseBody , isframe}) => {
   // console.log(responseBody.download_link);
   const groupRef = useRef();
     // THREE.Group()
-// const group = useRef();
+const group = useRef();
 
 //   const obj = useLoader(OBJLoader, "class10.obj");
 
   useEffect(async () => {
-    const loader = new OBJLoader();
+    const loader = new PLYLoader();
     loader.load(
     //   "http://13.210.146.135:5000" + responseBody.download_link,
       // "http://127.0.0.1:9999" + responseBody.download_link,
-      "class10.obj",
+      "tree_1.ply",
       function (geometry) {
-        geometry.scale.set(1000, 1000, 1000);
-        console.log(geometry);
+          console.log(geometry);
+        // geometry.scale.set(200, 200, 200);
         // console.log(position)
         // geometry.computeVertexNormals()
         // geometry.computeBoundingBox();
@@ -48,15 +48,26 @@ const DetectRegion = ({ position, setLookAt, responseBody , isframe}) => {
         // geometry.needsUpdate = true;
         // console.log(geometry);
         // geometry.up = new THREE.Vector3(1, 0, 0);
+        // geometry.receiveShadow = true;
+        // geometry.castShadow = true;
+        // geometry.onBeforeRender(() => (
+        //     console.log("before render")
+        // ))
+        // geometry.onAfterRender(() => (
+        //     console.log("after render")
+
+        // ))
         groupRef.current = geometry;
         // groupRef.current.add(geometry);
         setGeo(geometry);
         console.log("Log")
         for (let index = 0; index < groupRef.current.children.length; index++) {
             let child = groupRef.current.children[index];
-            console.log(child)
+            let temp_geo = child.geometry
+            // console.log(child.geometry)
             
-            setMeshs([...meshs, child])
+            setMeshs(meshs => [...meshs, temp_geo])
+            // break
  
             
         }
@@ -112,11 +123,42 @@ const DetectRegion = ({ position, setLookAt, responseBody , isframe}) => {
 //       material.current.uniforms.maxHeight.value = maxHeight;
 //     }
 //   });
+  console.log(meshs)
 
   return (
-    <group ref={group}>
-        <primitive object={obj} />
-  </group>
+    <mesh
+      position={[0, 0, 0]}
+      // lookAt={[position.x, position.y, position.z]}
+      geometry={geo}
+    //   onCreated={(mesh) => {
+    //     // Store the material in the ref
+    //     // materialRef.current = mesh.material;
+    //   }}
+      // up={new THREE.Vector3(0, 0, 1)}
+    >
+      {/* <shaderMaterial
+        // vertexShader={vertexShader}
+        // fragmentShader={fragmentShader}
+        wireframe={frame}
+        side={THREE.DoubleSide}
+        uniforms={{
+          minHeight: { value: minHeight },
+          maxHeight: { value: maxHeight },
+        }}
+        // uniformsNeedUpdate = {true}
+      /> */}
+      
+    </mesh>
+
+    // meshs.map((meshProps, index) => (
+    //     <mesh key={index} geometry={meshProps}>
+    //       {/* <boxGeometry args={[1, 1, 1]} /> */}
+    //       {/* <shaderMaterial side={THREE.DoubleSide}/> */}
+    //     </mesh>
+    //   ))
+//     <group ref={groupRef}>
+//          <primitive object={obj} />
+//    </group>
    
     // for (let index = 0; index < array.length; index++) {
     //     const element = array[index];

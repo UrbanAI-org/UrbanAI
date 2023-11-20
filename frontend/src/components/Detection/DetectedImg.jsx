@@ -27,6 +27,10 @@ const DetectedImg = (data) => {
       <div className="landscape-scene">
         <Canvas >
           {/* <axesHelper args={[10000]} /> */}
+          <mesh>
+         <boxBufferGeometry args={[1, 1, 1]} />
+         <meshStandardMaterial color="blue" />
+     </mesh>
           <DetectRegion position={position} setLookAt={setLookAt} responseBody={data} isframe={isframe}/>
           <OrbitControls ref={orbitControlsRef} target={new THREE.Vector3(lookAt[0], lookAt[1], lookAt[2])} />
           {/* <OrbitControls ref={orbitControlsRef} target={new THREE.Vector3(0,0,0)} /> */}

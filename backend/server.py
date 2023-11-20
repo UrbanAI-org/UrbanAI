@@ -1,5 +1,5 @@
 from logging.handlers import RotatingFileHandler
-from flask import Flask, request, Response, stream_with_context
+from flask import Flask, request, Response, stream_with_context, make_response
 from flask_cors import CORS, cross_origin
 from flask_restx import Api, Resource
 from flask_restx import fields, inputs, reqparse, Namespace
@@ -25,6 +25,7 @@ from src.fetchers.GoogleMapFetcher import StatelliteFetcher
 from src.predictors.trees import tree_predictor
 from src.predictors.roads import road_predictor
 from src.predictors.buildings import building_predictor
+import numpy as np
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s %(levelname)s: %(message)s', handlers=[logging.StreamHandler(), logging.FileHandler("server.log")  ])
 logger = logging.getLogger(__name__)
 CLEAR_CACHE = hash(time.time())
@@ -261,6 +262,33 @@ class V1ApiRegionAdd(Resource):
     # def options(self):
 
     #     return Response(headers={"Access-Control-Allow-Methods" : "POST,GET,DELETE,OPTIONS"})
+
+@cross_origin
+@NS2.route("/region/detect_image")
+class V1ApiRegionDetectImage(Resource):
+    @NS2.expect(detect_model, validate=True)
+    @NS2.doc(description="detect trees, buildings, and roads")
+    @NS2.response(200, "Success")
+    @NS2.response(500, "Invalid Input: Large region")
+    @NS2.response(400, "Invalid Input: Invalid type")
+    def post(self):
+        from src.predictors.utils.plot import merge_image, encode_image
+        if request.headers.get("Content-Type") == "text/plain":
+            data = json.loads(request.data)
+        else:
+            data = request.json
+        record_user(request)
+        img = StatelliteFetcher.fetch_by_polygon(phrase_polygon(data['data']))
+        building = building_predictor.predict_image(img)
+        roads = road_predictor.predict_image(img)
+        trees = tree_predictor.predict_image(img)
+        # Create a 2x2 grid
+        retval, buffer = encode_image(merge_image(img, building, roads, trees))
+        response = make_response(buffer.tobytes())
+        response.headers['Content-Type'] = 'image/png'
+        return response
+
+
 
 @cross_origin
 @NS2.route("/region/detect")

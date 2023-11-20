@@ -8,6 +8,7 @@ import numpy as np
 import joblib
 import cv2
 # models
+from src.predictors.utils.plot import plot_csv_result
 
 class TreePredictor(metaclass=SingletonMeta):
     detect_model = None
@@ -24,6 +25,10 @@ class TreePredictor(metaclass=SingletonMeta):
 
     def detect(self, bgr_image: np.ndarray):
         return self.detect_model.predict_tile(image = bgr_image, return_plot = False, patch_size=620,patch_overlap=0.3)
+
+    def predict_image(self, bgr_image):
+        csv = self.detect(bgr_image)
+        return plot_csv_result(csv, bgr_image)
 
 def _predict(bgr_image, detect_model, cluster_model, pca):
     pred = detect_model.predict_tile(image = bgr_image, return_plot = False, patch_size=620,patch_overlap=0.3)

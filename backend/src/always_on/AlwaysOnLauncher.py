@@ -43,10 +43,6 @@ class AlwaysOnItem:
             self.always_on.__call__()
         pool.submit(run)
 
-    # @property
-    # def runTime(self):
-    #     return self.runTime
-
     def __lt__(self, obj):
         if obj is None:
             return False

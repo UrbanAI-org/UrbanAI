@@ -9,15 +9,38 @@ class Fragmenter:
     uids = []
     n = 1
     database = None
-    def __init__(self, uids, database, n = 1) -> None:
+    def __init__(self, uids, database, n=1) -> None:
+        """
+        Initialize the PcdFragmenter object.
+
+        Args:
+            uids (list): List of unique identifiers.
+            database (str): Database name.
+            n (int, optional): Number of fragments. Defaults to 1.
+        """
         self.uids = uids
         self.n = n
         self.database = database
 
     def is_already_optimized(self):
-        pass 
+        """
+        Check if the data has already been optimized.
+
+        Returns:
+            bool: True if the data has already been optimized, False otherwise.
+        """
+        pass
 
     def execute(self):
+        """
+        Executes the PcdFragmenter algorithm.
+
+        This method reads point clouds, splits them into blocks, and inserts the fragmented blocks into the database.
+        Haven't test this yet.
+
+        Returns:
+            None
+        """
         fetcher = PcdResourceFetcher()
         max = len(self.uids)
         curr = 0
@@ -47,6 +70,17 @@ class Fragmenter:
 
 
     def _split_point_cloud(self, point_cloud):
+        """
+        Splits a point cloud into smaller blocks based on the specified number of divisions.
+        Haven't test this yet.
+
+        Args:
+            point_cloud (o3d.geometry.PointCloud): The input point cloud.
+
+        Returns:
+            list: A list of dictionaries, where each dictionary contains the maximum and minimum bounds
+                    of a block, as well as the file path where the block is saved.
+        """
         points = np.asarray(point_cloud.points)
         x_coords = points[:, 0]
         y_coords = points[:, 1]

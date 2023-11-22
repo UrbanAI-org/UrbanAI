@@ -18,8 +18,15 @@ default_path_ = "./"
 class TifLoader:
     def __init__(self, filePath : str, origin = None, band:int = 0, as_crs: Optional[int] = 4326, crs_code: Optional[int] = None):
         """
-        Param:
-            filePath: file path of the .tif file
+        Initialize a TifLoader object.
+
+        Parameters:
+            filePath (str): File path of the .tif file.
+            origin (tuple, optional): Origin coordinates of the .tif file. If not provided, the origin will be set to the center of the file.
+            band (int, optional): Band number of the .tif file. Default is 0.
+            as_crs (int, optional): Coordinate reference system (CRS) code to convert the coordinates to. Default is 4326.
+            crs_code (int, optional): CRS code of the .tif file. If not provided, it will be determined automatically.
+
         """
         self.geo_tiff = GeoTiff(default_path_ + filePath, band, as_crs, crs_code)
         self.filename = filePath.split("/")[-1]
@@ -44,20 +51,36 @@ class TifLoader:
 
     def read(self) -> np.ndarray:
         """
-        Get altitude
+        Get altitude from the GeoTIFF file.
+
+        Returns:
+            np.ndarray: The altitude data as a NumPy array.
         """
         return np.array(self.geo_tiff.read())
     
     def get_id(self):
+        """
+        Returns the ID of the TifLoader instance.
+        """
         return self.id_
     
     def get_geo_coord_lat_lon(self):
+        """
+        Get the latitude and longitude coordinate arrays from the GeoTIFF.
+
+        Returns:
+            lat_array (numpy.ndarray): Array of latitude coordinates.
+            lon_array (numpy.ndarray): Array of longitude coordinates.
+        """
         lon_array, lat_array = self.geo_tiff.get_coord_arrays()
         return lat_array, lon_array
 
     def get_geo_coord_vectors(self):
         """
         Returns 3D vector according to the geographic coordinates
+
+        Returns:
+            numpy.ndarray: A 3D vector containing altitude, latitude, and longitude values.
         """
         lon_array, lat_array = self.geo_tiff.get_coord_arrays()
         altitude_array = np.array(self.geo_tiff.read())

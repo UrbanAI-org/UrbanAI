@@ -1,3 +1,8 @@
+# 2023-11-22 updates
+- Add AI models for trees, roofs, roads
+- Add code to management backend
+- prev: [README](./updates/README_v5.md)
+
 # 2023-06-18 updates
 - Add a script to download tifs in any area
 - Use the downloaded tifs to expand the dataset.

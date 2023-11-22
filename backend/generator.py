@@ -5,6 +5,18 @@ from src.loaders.TifLoader import TifLoader
 from datetime import datetime
 
 def get_filenames(filename):
+    """
+    Read the contents of a file and return a list of lines.
+
+    Args:
+        filename (str): The path to the file.
+
+    Returns:
+        list: A list of lines read from the file.
+
+    Raises:
+        FileNotFoundError: If the specified file is not found.
+    """
     try:
         with open(filename, 'r') as file:
             lines = file.readlines()

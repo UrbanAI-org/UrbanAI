@@ -8,7 +8,7 @@ import json
 from src.database.database import database
 from src.loaders.TifLoader import TifLoader
 # from src.resources.resource import load_from_meshes, load_from_pcds, process_pcd, process_mesh
-from src.fetchers.ResourceFetcher import MeshResourceFetcher, PcdResourceFetcher, TreeModelResourceFetcher, RoadModelResourceFetcher
+from src.fetchers.ResourceFetcher import MeshResourceFetcher, PcdResourceFetcher, TreeModelResourceFetcher
 from src.fetchers.RegionDataFetcher import RegionDataFetcher
 from src.fetchers.FetchersConsts import ResourceType, ResourceAttr
 from src.fetchers.TifRegionFetcher import TifRegionFetcher
@@ -46,10 +46,8 @@ NS2 = Namespace(name="API - Satellite image detection", description="Api for sat
 API.add_namespace(NS1)
 API.add_namespace(NS2)
 
-# app.config['TRAP_HTTP_EXCEPTIONS'] = True
-# app.register_error_handler(Exception, defaultHandler)
 resource_parser = reqparse.RequestParser()
-resource_parser.add_argument('type', type=str, choices=["mesh", "pcb", "trees", "geojson"], required=True)
+resource_parser.add_argument('type', type=str, choices=["mesh", "pcb", "trees"], required=True)
 resource_parser.add_argument('id', type=str, required=True)
 
 coord_model = API.model(
@@ -80,6 +78,15 @@ request_counts = {}
 max_record_time = 100
 
 def record_user(request):
+    """
+    Records the user's request count and access information based on their IP address.
+
+    Args:
+        request: The request object containing information about the user's request.
+
+    Returns:
+        None
+    """
     ip_address = request.remote_addr
     now = datetime.datetime.now()
     # increment request count for IP address
@@ -99,27 +106,61 @@ def record_user(request):
 
 @API.route(f"/v1/get/key/{CLEAR_CACHE}")
 class MapKey(Resource):
+    """
+    Represents a resource for retrieving the key for clearing cache.
+    """
+
     @API.doc(description="get the key for clear cache in local network, i.e. 127.0.0.1")
     def get(self):
+        """
+        Retrieves the key for clearing cache in the local network.
+
+        Returns:
+            dict: A dictionary containing the key for clearing cache.
+
+        Raises:
+            InvalidAuth: If the request is not from the local network.
+        """
         record_user(request)
         if request.remote_addr == "127.0.0.1":
             app.logger.info(f'Request KEY for {request.remote_addr}')
             return {"key":  CLEAR_CACHE}
         else:
-            raise InvalidAuth("You have no premission.")
+            raise InvalidAuth("You have no permission.")
     
     @API.doc(description="get the key for clear cache with password")
     def post(self):
+        """
+        Retrieves the key for clearing cache with a password.
+
+        Returns:
+            dict: A dictionary containing the key for clearing cache.
+
+        Raises:
+            InvalidAuth: If the password is incorrect.
+        """
         record_user(request)
         data = request.json
         if data['password'] == '__URBANAI__PASSWORD__':
             return {"key":  CLEAR_CACHE}
         else:
-            raise InvalidAuth("You have no premission.")
+            raise InvalidAuth("You have no permission.")
 
 @API.route("/v1/clear/log")
 class ClearLog(Resource):
     def delete(self):
+        """
+        Deletes the log entries based on the provided authentication key.
+
+        Args:
+            None
+
+        Returns:
+            A dictionary containing the success message if the authentication key is valid.
+
+        Raises:
+            InvalidAuth: If the provided authentication key is invalid.
+        """
         data = request.json
         if data['key'] == CLEAR_CACHE:
             database.clear_cache()
@@ -133,6 +174,15 @@ class ClearLog(Resource):
 @API.route("/v1/clear/cache")
 class ClearCache(Resource):
     def delete(self):
+        """
+        Clears the cache based on the provided key.
+
+        Returns:
+            A dictionary with a success message and HTTP status code 200 if the cache is cleared successfully.
+        
+        Raises:
+            InvalidAuth: If the provided key does not match the expected value.
+        """
         data = request.json
         if data['key'] == CLEAR_CACHE:
             database.clear_cache()
@@ -145,6 +195,13 @@ class ClearCache(Resource):
 @API.route("/v1/clear/regions")
 class ClearRegions(Resource):
     def delete(self):
+        """
+        Deletes regions from the database based on the provided key.
+
+        Returns:
+            A dictionary with a success message if the deletion is successful.
+            Raises InvalidAuth exception if the provided key is invalid.
+        """
         data = request.json
         if data['key'] == CLEAR_CACHE:
             database.clear_regions()
@@ -156,6 +213,12 @@ class ClearRegions(Resource):
 
 @API.route("/v1/download")
 class V1Download(Resource):
+    """
+    Represents a resource download endpoint.
+
+    This class handles the download of different types of resources based on the provided resource type and ID.
+    """
+
     @API.doc(description="Download a resource by id")
     @API.expect(resource_parser, validate=True)
     @API.response(200, "Success")
@@ -178,13 +241,6 @@ class V1Download(Resource):
             tail_name = "obj"
         elif resource_type == "geojson":
             raise ResourceNotFound("Resource not found.")
-            # fetcher = TreeModelResourceFetcher()
-            # path = fetcher.get_pth(ResourceAttr.UNIQUE_ID, id)
-            # tail_name = "obj"
-        # elif resource_type == "roads":
-        #     fetcher = RoadModelResourceFetcher()
-        #     path = fetcher.get_pth(ResourceAttr.UNIQUE_ID, id)
-        #     tail_name = "obj"
         else:
             raise InvalidRequestType(f"Invalid format {resource_type}, expect mesh or pcb.")
         if path is None:
@@ -210,12 +266,31 @@ class V1Download(Resource):
 
 
 def phrase_polygon(data):
+    """
+    Phrases the latitude and longitude coordinates in the given data and returns a list of polygons.
+
+    Args:
+        data (list): A list of coordinates.
+
+    Returns:
+        list: A list of polygons.
+
+    """
     polygon = []
     for each in data:
         polygon.append(phrase_lat_lon(each))
     return polygon
 
 def phrase_lat_lon(data):
+    """
+    Convert latitude and longitude values from a dictionary to a list of floats.
+
+    Args:
+        data (dict): A dictionary containing 'latitude' and 'longitude' keys.
+
+    Returns:
+        list: A list containing the latitude and longitude values as floats.
+    """
     return [float(data['latitude']), float(data['longitude'])]
 
 @cross_origin
@@ -226,6 +301,15 @@ class V1ApiRegionAdd(Resource):
     @NS1.response(200, "Success")
     @NS1.response(500, "Invalid Input")
     def post(self):
+        """
+        Create a region mesh based on the provided data.
+
+        Returns:
+            dict: A dictionary containing the download link and details of the created region mesh.
+        
+        Raises:
+            InvalidRequestType: If the provided data is invalid or missing required fields.
+        """
         if request.headers.get("Content-Type") == "text/plain":
             data = json.loads(request.data)
         else:
@@ -266,6 +350,10 @@ class V1ApiRegionAdd(Resource):
 @cross_origin
 @NS2.route("/region/detect_image")
 class V1ApiRegionDetectImage(Resource):
+    """
+    API resource for detecting trees, buildings, and roads in an image.
+    """
+
     @NS2.expect(detect_model, validate=True)
     @NS2.doc(description="detect trees, buildings, and roads")
     @NS2.response(200, "Success")
@@ -293,6 +381,18 @@ class V1ApiRegionDetectImage(Resource):
 @cross_origin
 @NS2.route("/region/detect")
 class V1ApiRegionAdd(Resource):
+    """
+    Represents the API endpoint for adding a region.
+
+    This endpoint detects trees, buildings, and roads in a given region.
+
+    Parameters:
+        - data (dict): The data containing the region information.
+
+    Returns:
+        A dictionary containing the detected trees, buildings, roads, and other information about the region.
+    """
+
     @NS2.expect(detect_model, validate=True)
     @NS2.doc(description="detect trees, buildings, and roads")
     @NS2.response(200, "Success")
@@ -344,6 +444,15 @@ class V1ApiRegionAdd(Resource):
 
 @API.errorhandler
 def defaultHandler(err):
+    """
+    Default error handler for the API.
+
+    Args:
+        err: The error object.
+
+    Returns:
+        A tuple containing the error response and the HTTP status code.
+    """
     print('response', err, type(err))
     response = {
         "name": "System Error",
@@ -351,10 +460,13 @@ def defaultHandler(err):
     }
     logger.exception(err)
 
-    return response, getattr(err, 'code', 500)
+    return response, getattr(err, 'code', 400)
 
 
 def check_cuda():
+    """
+    Checks if CUDA is available on the computer.
+    """
     import torch
     if torch.cuda.is_available():
         print("CUDA is available on your computer.")
@@ -368,10 +480,6 @@ if __name__ == "__main__":
     database.start()
     database.report()   
     check_cuda() 
-    # launch = Launcher()
-    # launch.add(CaCheClear(CLEAR_CACHE, timedelta(seconds=10)))
-    # launch.add(RegionsClear(CLEAR_CACHE, timedelta(hours=6)))
     logger.debug(msg= f"Sensitive Operation Hash Key: {CLEAR_CACHE}")
     print("Sensitive Operation Hash Key:", CLEAR_CACHE)
-    app.run(port=PORT, debug=True)
-    # app.run(host='0.0.0.0')
+    app.run(port=PORT, debug=False)

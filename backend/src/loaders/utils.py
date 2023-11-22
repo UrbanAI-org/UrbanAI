@@ -2,18 +2,36 @@ from geopy import distance
 import numpy as np
 
 
-def relativeDistance(given : tuple, base: tuple) -> float:
+def relativeDistance(given: tuple, base: tuple) -> float:
     """
-    return relative distance based on two points.
+    Calculate the relative distance between two points.
+
+    Args:
+        given (tuple): The coordinates of the given point.
+        base (tuple): The coordinates of the base point.
+
+    Returns:
+        float: The relative distance between the two points.
+               If the given point is to the left or below the base point, the distance is negative.
+               Otherwise, it is positive.
     """
-    distance_ = distance.distance(given, base).m 
+    distance_ = distance.distance(given, base).m
     if given[0] < base[0] or given[1] < base[1]:
         return -1 * distance_
     return distance_
 
 def makeXYPlaneInterp(func, samplingNum: int, array : np.ndarray, base: tuple) -> tuple:
     """
-    create mapping
+    Create a mapping for interpolation on the XY plane.
+
+    Args:
+        func: The function used for interpolation.
+        samplingNum: The number of samples to be taken from the array.
+        array: The input array.
+        base: The base tuple used for interpolation.
+
+    Returns:
+        A tuple containing two numpy arrays: xp (x-coordinates) and yp (y-coordinates).
     """
     array = np.unique(array.ravel())
     xp = []
@@ -27,15 +45,34 @@ def makeXYPlaneInterp(func, samplingNum: int, array : np.ndarray, base: tuple) -
 
 def mapCoordtoXPPlane(coord, xp: np.ndarray, fp: np.ndarray, size: int) -> tuple:
     """
-    map geo coord to xp coord
+    Maps geographic coordinates to XP coordinates.
+
+    Args:
+        coord (np.ndarray): Array of geographic coordinates.
+        xp (np.ndarray): Array of XP coordinates.
+        fp (np.ndarray): Array of FP coordinates.
+        size (int): Size of the output array.
+
+    Returns:
+        tuple: Tuple containing the mapped XP coordinates.
+
     """
     return (np.interp(coord.ravel(), xp, fp)).reshape((size, size))
 
 def merge(altitude_array, lat_array, lon_array, size):
-        """
-        Composite 3d vector
-        """
-        r = []
-        for i in range(size):
-                r.append(np.stack((lat_array[i], lon_array[i], altitude_array[i]), axis = 1))
-        return np.array(r).reshape((-1, 3))
+    """
+    Composite 3d vector
+
+    Args:
+        altitude_array (numpy.ndarray): Array of altitude values
+        lat_array (numpy.ndarray): Array of latitude values
+        lon_array (numpy.ndarray): Array of longitude values
+        size (int): Size of the arrays
+
+    Returns:
+        numpy.ndarray: Reshaped array of 3D vectors
+    """
+    r = []
+    for i in range(size):
+        r.append(np.stack((lat_array[i], lon_array[i], altitude_array[i]), axis=1))
+    return np.array(r).reshape((-1, 3))

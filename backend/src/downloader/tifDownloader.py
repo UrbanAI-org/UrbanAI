@@ -16,90 +16,135 @@ class TifDownloader:
     regionIds = None
     downloads = None
 
-    def __init__(self, username, token, datasetName = None) -> None:
+    def __init__(self, username, token, datasetName=None) -> None:
+        """
+        Initializes the TifDownloader object.
+
+        Args:
+            username (str): The username for authentication.
+            token (str): The token for authentication.
+            datasetName (str, optional): The name of the dataset. Defaults to None.
+        """
         options = ModuleOptions(username, token)
         self.requestSender = RequestService(options, None)
         self.requestSender.authenticate()
         self.datasetName = datasetName
     
     def setRegion(self, lowerLeft, upperRight):
+        """
+        Sets the spatial filter region for the downloader.
+
+        Args:
+            lowerLeft (tuple): The coordinates of the lower left corner of the region.
+            upperRight (tuple): The coordinates of the upper right corner of the region.
+        """
         self.spatialFilter = {'filterType' : "mbr",
                                 'lowerLeft' : lowerLeft,
                                 'upperRight' : upperRight}
-        pass 
+        pass
 
     def searchDataset(self):
-        print("Searching Dataset")
-        payload = {'datasetName' : self.datasetName,
-                            'spatialFilter' : self.spatialFilter}   
-        datasets = self.requestSender.dispatchRequest("dataset-search", payload)
+            """
+            Searches for a dataset based on the dataset name and spatial filter.
 
-        if len(datasets) > 1:
-            print("Found ", len(datasets), " datasets. Please confirm which is you are looking for\n")
-            for dataset in datasets:
-                print(f"Found Dataset {dataset['collectionName']}({dataset['datasetAlias']})")
-            raise Exception("to many datasets found")
-        
-        elif len(datasets) == 0:
-            raise Exception("datasets not found ")
-        print("Found ", len(datasets), " datasets.\n")
-        
-        self.datasetAlias = datasets[0]['datasetAlias']
-        return datasets[0]
+            Returns:
+                dict: The details of the found dataset.
+
+            Raises:
+                Exception: If multiple datasets are found or if no datasets are found.
+            """
+            print("Searching Dataset")
+            payload = {'datasetName' : self.datasetName,
+                                'spatialFilter' : self.spatialFilter}   
+            datasets = self.requestSender.dispatchRequest("dataset-search", payload)
+
+            if len(datasets) > 1:
+                print("Found ", len(datasets), " datasets. Please confirm which is you are looking for\n")
+                for dataset in datasets:
+                    print(f"Found Dataset {dataset['collectionName']}({dataset['datasetAlias']})")
+                raise Exception("to many datasets found")
+            
+            elif len(datasets) == 0:
+                raise Exception("datasets not found ")
+            print("Found ", len(datasets), " datasets.\n")
+            
+            self.datasetAlias = datasets[0]['datasetAlias']
+            return datasets[0]
     
     def searchRegion(self):
-        payload = {
-            "datasetName": self.datasetAlias,
-            "sceneFilter": {
-                'spatialFilter' : self.spatialFilter
+            """
+            Searches for regions based on the dataset name and spatial filter.
+
+            Returns:
+                None
+
+            Raises:
+                Exception: If no regions are found.
+            """
+            payload = {
+                "datasetName": self.datasetAlias,
+                "sceneFilter": {
+                    'spatialFilter' : self.spatialFilter
+                }
             }
-        }
-        print("Searching Regions...\n\n")
-        scenes = self.requestSender.dispatchRequest("scene-search", payload)
-        if len(scenes['results']) == 0:
-            raise Exception("Regions not found ")
-        # TODO : 
-        self.regionIds = [scene['entityId'] for scene in scenes['results']]
+            print("Searching Regions...\n\n")
+            scenes = self.requestSender.dispatchRequest("scene-search", payload)
+            if len(scenes['results']) == 0:
+                raise Exception("Regions not found ")
+            # TODO : 
+            self.regionIds = [scene['entityId'] for scene in scenes['results']]
 
 
     def fetchResourceOptions(self):
-        sceneIds = ",".join(self.regionIds)
-        payload = {'datasetName' : self.datasetAlias, 'entityIds' : sceneIds}
-        print("Fetching download options...\n\n")
-        options = self.requestSender.dispatchRequest("download-options", payload)
-        entities = {}
-        for option in options:
-            if option['entityId'] not in entities.keys():
-                entities[option['entityId']] = []
-            entities[option['entityId']].append({
-                "id" : option['id'],
-                "productName" : option['productName'],
-                "filesize" : option['filesize'],
-            })
-        self.downloads = []
-        total_size = 0
-        for key, value in entities.items():
-            has_tiff = False
-            for option in value:
-                if re.search(r"geotiff", option['productName'], re.IGNORECASE):
+            """
+            Fetches the resource options for downloading.
+
+            Returns:
+            None
+            """
+            sceneIds = ",".join(self.regionIds)
+            payload = {'datasetName' : self.datasetAlias, 'entityIds' : sceneIds}
+            print("Fetching download options...\n\n")
+            options = self.requestSender.dispatchRequest("download-options", payload)
+            entities = {}
+            for option in options:
+                if option['entityId'] not in entities.keys():
+                    entities[option['entityId']] = []
+                entities[option['entityId']].append({
+                    "id" : option['id'],
+                    "productName" : option['productName'],
+                    "filesize" : option['filesize'],
+                })
+            self.downloads = []
+            total_size = 0
+            for key, value in entities.items():
+                has_tiff = False
+                for option in value:
+                    if re.search(r"geotiff", option['productName'], re.IGNORECASE):
+                        self.downloads.append({
+                            "entityId": key,
+                            "productId": option['id']
+                        })
+                        has_tiff = True
+                        total_size += option['filesize']
+                        break
+                if not has_tiff:
+                    print(f"For Region({key}), GeoTIFF format is not avaiable. The default format will be download")
                     self.downloads.append({
-                        "entityId": key,
-                        "productId": option['id']
-                    })
-                    has_tiff = True
-                    total_size += option['filesize']
-                    break
-            if not has_tiff:
-                print(f"For Region({key}), GeoTIFF format is not avaiable. The default format will be download")
-                self.downloads.append({
-                        "entityId": key,
-                        "productId": value[0]['id']
-                    })
-                total_size += value[0]['filesize']
-        print(f"Estimated {len(self.downloads)} files will take {round(total_size / 1048576, 1) }MB")
+                            "entityId": key,
+                            "productId": value[0]['id']
+                        })
+                    total_size += value[0]['filesize']
+            print(f"Estimated {len(self.downloads)} files will take {round(total_size / 1048576, 1) }MB")
                 
 
     def requestResourceAccess(self):
+        """
+        Requests resource access for downloading files.
+
+        Returns:
+            list: A list of download links that are available for immediate download.
+        """
         requestedDownloadsCount = len(self.downloads)
         # print(downloads)
         label = "URBANAI"
@@ -161,6 +206,17 @@ class TifDownloader:
         return list(download_links)
 
     def fetchResource(self, links, concurrent_num = 5, skip_cache = True):
+        """
+            Fetches resources from the given links.
+
+            Args:
+                links (list): A list of URLs to download resources from.
+                concurrent_num (int, optional): The number of concurrent downloads. Defaults to 5.
+                skip_cache (bool, optional): Whether to skip downloading if the file is already cached. Defaults to True.
+
+            Returns:
+                list: A list of downloaded filenames.
+            """
         def download(url):
             r = requests.get(url, stream=True)
             if r.ok:
@@ -195,4 +251,7 @@ class TifDownloader:
         return filenames
 
     def close(self):
+        """
+        Closes the downloader by logging out the request sender.
+        """
         self.requestSender.logout()

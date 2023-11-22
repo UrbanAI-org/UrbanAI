@@ -39,11 +39,6 @@ Please fill this [form](https://docs.google.com/forms/d/e/1FAIpQLSeDCRgAMDRd8n3B
 - Language
     - Python >= 3.8
 
-# API and Classes Reference
-
-- [Urban AI Server Reference ](Urban%20AI%20Doc%2070c57da3d24c45f5ac043dfda1086582/Urban%20AI%20Server%20Reference%20a55b3944407b41479a9b8a9faa6a619b.md)
-- [API Reference](Urban%20AI%20Doc%2070c57da3d24c45f5ac043dfda1086582/API%20Reference%208aab643b4ea7416288903ee193f7f7bb.md)
-
 # Build Instructions
 
 ## Required packages:
@@ -329,7 +324,7 @@ Statellite Image             |   Building Segementation
 
 ### Trees Detection
 
-This task uses the [deepforest model](https://deepforest.readthedocs.io/en/latest/) primarily for detection, though it can also be used for classification. Since the pre-trained model isn't quite suited to our target area, we fine-tune it using a small [labeled dataset](https://universe.roboflow.com/unsw-urbanai/tree-detection-in-sydney). The challenge lies in distinguishing between a tree, grass, or a green roof, and identifying when two or more trees are connected. You can find training notebook [here](https://colab.research.google.com/drive/1Dp6bZ8vjWYZdX0RRu45mt0aIHLXTWa0O#scrollTo=sY4YIwy2xh2t).
+This task uses the [deepforest model](https://deepforest.readthedocs.io/en/latest/) primarily for detection, though it can also be used for classification. Since the pre-trained model isn't quite suited to our target area, we fine-tune it using a small [labeled dataset](https://universe.roboflow.com/unsw-urbanai/tree-detection-in-sydney). The challenge lies in distinguishing between a tree, grass, or a green roof, and identifying when two or more trees are connected. You can find training notebook at backend folder.
 
 The model performs well for the first challenge, but the second one still requires more effort and has room for improvement. Overall, it appears to effectively identify most of the trees in the image.
 Distinguishing between a tree, grass      |   Identifying when two or more trees 
@@ -366,7 +361,7 @@ After cluster, we observe those trees, we conclude the features for each types o
 | Colour | Very dark |  | Slightly greener than the Class 1 | dark, and yellow-green | The leaves are relatively more yellow-green |  | Green, and relative yellow-green like |
 | Leaf density | highest density | Not very dense | Not very dense | Not very dense, Some is sparse | Not very dense | Not very dense, Some is sparse | Not very dense, or dead tree |
 | Shape | ~ | Most have relatively round crowns | Irregular shape crowns and round crowns |  |  | Most have relatively round crowns | Most have relatively round crowns |
-| Other | Many of the same trees often appear together | in most cases there is only one tree |  | The crown of the tree is very large, or many books appear together | The size of the tree is relatively small | The leaves of smaller trees are generally sparse, while the leaves of smaller trees are generally not very dense. | Many in this class are not trees, some are dead wood, and the rest are relatively small trees. |
+| Other | Many of the same trees often appear together | in most cases there is only one tree |  | The crown of the tree is very large, or many trees appear together | The size of the tree is relatively small | The leaves of smaller trees are generally sparse, while the leaves of smaller trees are generally not very dense. | Many in this class are not trees, some are dead wood, and the rest are relatively small trees. |
 
 **Approach Two:** 
 
@@ -403,7 +398,7 @@ Segmentation with border      |   Segmentation Mask
 
 *Note: As the process involves large-scale mask splicing, there might be a risk of insufficient memory. However, we have addressed this issue. This process may result in the same house being stitched together from multiple separate masks. Regardless, this will not affect the actual mask.*
 
-You can find our dataset [here](https://universe.roboflow.com/unsw-urbanai/roof-segment) and the training notebook here. Please note that the model used on the server differs from the one deployed in the Roboflow, with the server model being more accurate.
+You can find our dataset [here](https://universe.roboflow.com/unsw-urbanai/roof-segment) and the training notebook at backend folder. Please note that the model used on the server differs from the one deployed in the Roboflow, with the server model being more accurate.
 
 ### Roads Segmentation
 
@@ -424,9 +419,7 @@ It can also be used for a tile image, retaining good performance even over a lar
 Large area image      |   Segmentation mask
 :-------------------------:|:-------------------------:
 ![Untitled](Urban%20AI%20Doc%2070c57da3d24c45f5ac043dfda1086582/Untitled%208.png) |  ![Untitled](Urban%20AI%20Doc%2070c57da3d24c45f5ac043dfda1086582/Untitled%2040.png)
-
-
-
+The model was trained using data from Google's road map, and we created the masks for the training from roadmap, and training process is also in backend folder.
 
 
 *Note: The road appears discontinuous due to trees obscuring some narrow paths. Also, the model does not segment the train rail.*
